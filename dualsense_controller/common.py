@@ -1,6 +1,5 @@
-from dataclasses import dataclass
-from enum import Enum, auto
-from typing import Any
+from enum import Enum
+from typing import Any, Final
 
 
 class DsBaseException(Exception):
@@ -28,13 +27,26 @@ class InvalidDeviceIndexException(DsBaseException):
         super().__init__(f'Invalid DualSense device index given {idx}')
 
 
+class InvalidReportIdException(DsBaseException):
+    def __init__(self):
+        super().__init__(f'Invalid report id')
+
+
 class EventType(Enum):
     CONNECTION_LOOKUP = 'CONNECTION_LOOKUP',
     CONNECTION_STATE_CHANGE = 'CONNECTION_STATE_CHANGE',
     VALUE_CHANGE = 'VALUE_CHANGE',
 
 
-@dataclass(frozen=True, slots=True)
 class Event:
-    type: EventType
-    data: Any
+
+    def __init__(self, type_: EventType, *data: Any):
+        self.type: Final[EventType] = type_
+        self.data: Final[tuple[Any, ...]] = data
+
+
+class ConnectionType(Enum):
+    UNDEFINED = 'UNDEFINED',
+    USB_01 = 'USB',
+    BT_01 = 'BT',
+    BT_31 = 'BT',
