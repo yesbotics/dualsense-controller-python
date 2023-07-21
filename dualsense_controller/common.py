@@ -1,48 +1,21 @@
 from enum import Enum
-from typing import Any, Final
+from typing import Final, TypeVar
 
+REPORT_DUMMY_LEN: Final[int] = 100
+REPORT_BT_LEN: Final[int] = 78
+REPORT_USB_LEN: Final[int] = 64
+VENDOR_ID: Final[int] = 0x054c
+PRODUCT_ID: Final[int] = 0x0ce6
+OUTPUT_REPORT_USB: Final[int] = 0x02
+OUTPUT_REPORT_BT: Final[int] = 0x31
 
-class DsBaseException(Exception):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
-class AlreadyInitializedException(DsBaseException):
-    def __init__(self):
-        super().__init__('Already initialized')
-
-
-class NotInitializedYetException(DsBaseException):
-    def __init__(self):
-        super().__init__('Not initialized yet')
-
-
-class NoDeviceDetectedException(DsBaseException):
-    def __init__(self):
-        super().__init__('No DualSense device detected')
-
-
-class InvalidDeviceIndexException(DsBaseException):
-    def __init__(self, idx: int):
-        super().__init__(f'Invalid DualSense device index given {idx}')
-
-
-class InvalidReportIdException(DsBaseException):
-    def __init__(self):
-        super().__init__(f'Invalid report id')
+CONNECTION_LOOKUP_INTERVAL: Final[int] = 1  # one second
 
 
 class EventType(Enum):
     CONNECTION_LOOKUP = 'CONNECTION_LOOKUP',
-    CONNECTION_STATE_CHANGE = 'CONNECTION_STATE_CHANGE',
-    VALUE_CHANGE = 'VALUE_CHANGE',
-
-
-class Event:
-
-    def __init__(self, type_: EventType, *data: Any):
-        self.type: Final[EventType] = type_
-        self.data: Final[tuple[Any, ...]] = data
+    CONNECTION_CHANGE = 'CONNECTION_CHANGE',
+    STATE_CHANGE = 'STATE_CHANGE',
 
 
 class ConnectionType(Enum):
@@ -50,3 +23,60 @@ class ConnectionType(Enum):
     USB_01 = 'USB',
     BT_01 = 'BT',
     BT_31 = 'BT',
+
+
+class StateName(Enum):
+    BTN_UP = 'BTN_UP'
+    BTN_LEFT = 'BTN_LEFT'
+    BTN_DOWN = 'BTN_DOWN'
+    BTN_RIGHT = 'BTN_RIGHT'
+    BTN_SQUARE = "BTN_SQUARE"
+    BTN_CROSS = "BTN_CROSS"
+    BTN_CIRCLE = "BTN_CIRCLE"
+    BTN_TRIANGLE = "BTN_TRIANGLE"
+    BTN_L1 = "BTN_L1"
+    BTN_R1 = "BTN_R1"
+    BTN_L2 = "BTN_L2"
+    BTN_R2 = "BTN_R2"
+    BTN_CREATE = "BTN_CREATE"
+    BTN_OPTIONS = "BTN_OPTIONS"
+    BTN_L3 = "BTN_L3"
+    BTN_R3 = "BTN_R3"
+    BTN_PS = "BTN_PS"
+    BTN_TOUCHPAD = "BTN_TOUCHPAD"
+    BTN_MUTE = "BTN_MUTE"
+
+    LEFT_STICK_X = 'LEFT_STICK_X'
+    LEFT_STICK_Y = 'LEFT_STICK_Y'
+    RIGHT_STICK_X = 'RIGHT_STICK_X'
+    RIGHT_STICK_Y = 'RIGHT_STICK_Y'
+    L2 = 'L2'
+    R2 = 'R2'
+
+    GYROSCOPE_X = "GYROSCOPE_X"
+    GYROSCOPE_Y = "GYROSCOPE_Y"
+    GYROSCOPE_Z = "GYROSCOPE_Z"
+    ACCELEROMETER_X = "ACCELEROMETER_X"
+    ACCELEROMETER_Y = "ACCELEROMETER_Y"
+    ACCELEROMETER_Z = "ACCELEROMETER_Z"
+
+    TOUCH_0_ACTIVE = 'TOUCH_0_ACTIVE'
+    TOUCH_0_ID = 'TOUCH_0_ID'
+    TOUCH_0_X = 'TOUCH_0_X'
+    TOUCH_0_Y = 'TOUCH_0_Y'
+    TOUCH_1_ACTIVE = 'TOUCH_1_ACTIVE'
+    TOUCH_1_ID = 'TOUCH_1_ID'
+    TOUCH_1_X = 'TOUCH_1_X'
+    TOUCH_1_Y = 'TOUCH_1_Y'
+
+    L2_FEEDBACK_ACTIVE = 'L2_FEEDBACK_ACTIVE'
+    L2_FEEDBACK_VALUE = 'L2_FEEDBACK_VALUE'
+    R2_FEEDBACK_ACTIVE = 'R2_FEEDBACK_ACTIVE'
+    R2_FEEDBACK_VALUE = 'R2_FEEDBACK_VALUE'
+
+    BATTERY_LEVEL_PERCENT = 'BATTERY_LEVEL_PERCENT'
+    BATTERY_FULL = 'BATTERY_FULL'
+    BATTERY_CHARGING = 'BATTERY_CHARGING'
+
+
+ValueType = TypeVar('ValueType')
