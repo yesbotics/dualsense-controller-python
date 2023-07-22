@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Final, TypeVar
+from typing import Final, TypeVar, Callable, Any
 
 VENDOR_ID: Final[int] = 0x054c
 PRODUCT_ID: Final[int] = 0x0ce6
@@ -16,20 +16,14 @@ class ReportLength(int, Enum):
     BT_01 = 10
 
 
-class EventType(Enum):
-    CONNECTION_LOOKUP = 'CONNECTION_LOOKUP',
-    CONNECTION_CHANGE = 'CONNECTION_CHANGE',
-    STATE_CHANGE = 'STATE_CHANGE',
-
-
 class ConnectionType(Enum):
     UNDEFINED = 'UNDEFINED',
     USB_01 = 'USB',
     BT_31 = 'BT',
-    BT_01 = 'BT',
+    BT_01 = 'BT'
 
 
-class StateName(Enum):
+class StateName(str, Enum):
     BTN_UP = 'BTN_UP'
     BTN_LEFT = 'BTN_LEFT'
     BTN_DOWN = 'BTN_DOWN'
@@ -82,5 +76,15 @@ class StateName(Enum):
     BATTERY_FULL = 'BATTERY_FULL'
     BATTERY_CHARGING = 'BATTERY_CHARGING'
 
+
+class EventType(str, Enum):
+    CONNECTION_LOOKUP = 'CONNECTION_LOOKUP',
+    CONNECTION_CHANGE = 'CONNECTION_CHANGE',
+
+
+SimpleCallback = Callable[[], None]
+ConnectionChangeCallback = Callable[[bool, ConnectionType], None]
+StateChangeCallback = Callable[[Any, Any], None]
+AnyStateChangeCallback = Callable[[StateName, Any, Any], None]
 
 ValueType = TypeVar('ValueType')

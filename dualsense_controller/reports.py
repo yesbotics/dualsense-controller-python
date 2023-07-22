@@ -356,3 +356,4 @@ class Bt01InReport(InReport):
         self._buttons_2 = self._get(6)
         self._axes_4 = self._get(7)
         self._axes_5 = self._get(8)
+

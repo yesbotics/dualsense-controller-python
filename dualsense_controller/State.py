@@ -2,20 +2,13 @@ from typing import Generic, Final
 
 import pyee
 
-from dualsense_controller import ValueType, StateName
+from dualsense_controller import ValueType, StateName, AnyStateChangeCallback
 
 
-class State(Generic[ValueType], pyee.EventEmitter):
-    EVENT_CHANGE: Final[str] = 'change'
-
-    def __init__(
-            self,
-            name: StateName,
-            value: ValueType | None = None,
-            skip_none: bool = True,
-            threshold: int = 0,
-    ):
+class State(Generic[ValueType]):
+    def __init__(self, name: StateName, value: ValueType | None = None, skip_none: bool = True, threshold: int = 0):
         super().__init__()
+        self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self.name: Final[StateName] = name
         self._skip_none: bool = skip_none
         self._value: ValueType | None = value
@@ -47,6 +40,9 @@ class State(Generic[ValueType], pyee.EventEmitter):
             if old_value != value:
                 self._set_value(old_value, value)
 
+    def on_change(self, callback: AnyStateChangeCallback):
+        self._event_emitter.on(self.name, callback)
+
     def _set_value(self, old_value: ValueType, new_value: ValueType) -> None:
         self._value = new_value
-        self.emit(State.EVENT_CHANGE, self.name, old_value, new_value)
+        self._event_emitter.emit(self.name, self.name, old_value, new_value)

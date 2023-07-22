@@ -1,26 +1,26 @@
 import threading
 from threading import Thread
 from time import sleep
-from typing import Callable, Any
+from typing import Any
 
 import hidapi
 import pyee as pyee
 
-from dualsense_controller import EventType, AbstractBaseEvent, AlreadyInitializedException, NotInitializedYetException, \
+from dualsense_controller import AlreadyInitializedException, NotInitializedYetException, \
     ConnectionType, InvalidConnectionTypeException, States, CONNECTION_LOOKUP_INTERVAL, PRODUCT_ID, \
-    VENDOR_ID, StateName, ConnectionLookupEvent, ConnectionChangeEvent, StateChangeEvent, ReportLength, Usb01InReport, \
-    InReport, Bt31InReport, Bt01InReport
+    VENDOR_ID, StateName, ReportLength, Usb01InReport, \
+    InReport, Bt31InReport, Bt01InReport, EventType, StateChangeCallback, ConnectionChangeCallback, SimpleCallback, \
+    AnyStateChangeCallback
 from dualsense_controller import NoDeviceDetectedException, InvalidDeviceIndexException
 
 
-# TODO: EventSystem Enum
+# TODO: fix crash on deinit when no connection lookup
+# TODO: complex state packets
 # TODO: Batt low warn option
 # TODO: orientation calc
 # TODO: raw states
 # TODO: listen state collection event (all states)
-# TODO: complex state packets
 # TODO: impl set properties (rumble, triggerFX)
-# TODO: listen for all or for specific changes only?
 
 
 class DualSenseController:
@@ -54,13 +54,18 @@ class DualSenseController:
             gyroscope_threshold=gyro_threshold,
             accelerometer_threshold=accelerometer_threshold,
         )
-        self._states.on(States.EVENT_CHANGE, self._on_state_change)
 
-    def add_event_listener(self, event_type: EventType, callback: Callable[[AbstractBaseEvent], None]) -> None:
-        self._event_emitter.on(event_type.name, callback)
+    def on_connection_lookup(self, callback: SimpleCallback):
+        self._event_emitter.on(EventType.CONNECTION_LOOKUP, callback)
 
-    def remove_event_listener(self, event_type: EventType, callback: Callable[[AbstractBaseEvent], None]) -> None:
-        self._event_emitter.remove_listener(event_type.name, callback)
+    def on_connection_change(self, callback: ConnectionChangeCallback):
+        self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)
+
+    def on_state_change(self, state_name: StateName, callback: StateChangeCallback):
+        self._states.on_change(state_name, callback)
+
+    def on_any_state_change(self, callback: AnyStateChangeCallback):
+        self._states.on_change_any(callback)
 
     def init(self) -> None:
         if self._initialized:
@@ -97,10 +102,7 @@ class DualSenseController:
         device_info: hidapi.DeviceInfo = devices[self._device_index]
         self._hid_device = hidapi.Device(vendor_id=device_info.vendor_id, product_id=device_info.product_id)
         self._connection_type = self._detect_connection_type()
-        self._event_emitter.emit(
-            EventType.CONNECTION_CHANGE.name,
-            ConnectionChangeEvent(connected=True, connection_type=self._connection_type)
-        )
+        self._event_emitter.emit(EventType.CONNECTION_CHANGE, True, self._connection_type)
         self._thread_controller_report = threading.Thread(
             target=self._loop_controller_report,
             daemon=True,
@@ -112,10 +114,7 @@ class DualSenseController:
         self._thread_controller_report = None
         self._hid_device.close()
         self._hid_device = None
-        self._event_emitter.emit(
-            EventType.CONNECTION_CHANGE.name,
-            ConnectionChangeEvent(connected=False, connection_type=self._connection_type)
-        )
+        self._event_emitter.emit(EventType.CONNECTION_CHANGE, False, self._connection_type)
         self._connection_type = None
 
     def _detect_connection_type(self) -> ConnectionType:
@@ -133,10 +132,7 @@ class DualSenseController:
     def _loop_lookup_connection(self) -> None:
         while self._run_thread:
             if self._hid_device is None:
-                self._event_emitter.emit(
-                    EventType.CONNECTION_LOOKUP.name,
-                    ConnectionLookupEvent()
-                )
+                self._event_emitter.emit(EventType.CONNECTION_LOOKUP)
                 try:
                     self._open_device()
                 except NoDeviceDetectedException:
@@ -161,10 +157,4 @@ class DualSenseController:
                     in_report = Bt01InReport(in_report_raw)
                 case _:
                     raise InvalidConnectionTypeException
-            self._states.update(in_report,self._connection_type)
-
-    def _on_state_change(self, name: StateName, old_value: Any, new_value: Any) -> None:
-        self._event_emitter.emit(
-            EventType.STATE_CHANGE.name,
-            StateChangeEvent(name=name, old_value=old_value, new_value=new_value)
-        )
+            self._states.update(in_report, self._connection_type)
