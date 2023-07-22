@@ -7,12 +7,13 @@ import hidapi
 import pyee as pyee
 
 from dualsense_controller import EventType, AbstractBaseEvent, AlreadyInitializedException, NotInitializedYetException, \
-    ConnectionType, InvalidReportIdException, States, REPORT_USB_LEN, REPORT_DUMMY_LEN, REPORT_BT_LEN, \
-    CONNECTION_LOOKUP_INTERVAL, PRODUCT_ID, VENDOR_ID, StateName, ConnectionLookupEvent, ConnectionChangeEvent, \
-    StateChangeEvent
+    ConnectionType, InvalidConnectionTypeException, States, CONNECTION_LOOKUP_INTERVAL, PRODUCT_ID, \
+    VENDOR_ID, StateName, ConnectionLookupEvent, ConnectionChangeEvent, StateChangeEvent, ReportLength, Usb01InReport, \
+    InReport, Bt31InReport, Bt01InReport
 from dualsense_controller import NoDeviceDetectedException, InvalidDeviceIndexException
 
 
+# TODO: EventSystem Enum
 # TODO: Batt low warn option
 # TODO: orientation calc
 # TODO: raw states
@@ -118,19 +119,16 @@ class DualSenseController:
         self._connection_type = None
 
     def _detect_connection_type(self) -> ConnectionType:
-        dummy_report: Any | None = self._hid_device.read(REPORT_DUMMY_LEN)
-        input_report_length = len(dummy_report)
-        if input_report_length == REPORT_BT_LEN:
-            report_id: int = list(dummy_report)[0]
-            if report_id == 0x31:
+        dummy_report: Any | None = self._hid_device.read(ReportLength.DUMMY)
+        input_report_length: int = len(dummy_report)
+        match input_report_length:
+            case ReportLength.USB_01:
+                return ConnectionType.USB_01
+            case ReportLength.BT_31:
                 return ConnectionType.BT_31
-            elif report_id == 0x01:
+            case ReportLength.BT_01:
                 return ConnectionType.BT_01
-            else:
-                raise InvalidReportIdException
-        elif input_report_length == REPORT_USB_LEN:
-            return ConnectionType.USB_01
-        return ConnectionType.UNDEFINED
+        raise InvalidConnectionTypeException
 
     def _loop_lookup_connection(self) -> None:
         while self._run_thread:
@@ -149,26 +147,21 @@ class DualSenseController:
 
     def _loop_controller_report(self) -> None:
         while self._run_thread:
+            in_report_raw: bytes
+            in_report: InReport
             match self._connection_type:
-                case ConnectionType.BT_01:
-                    self._handle_BT01()
-                case ConnectionType.BT_31:
-                    self._handle_BT_31()
                 case ConnectionType.USB_01:
-                    self._handle_USB_01()
-            # sleep(1)
-
-    def _handle_BT01(self) -> None:
-        report: bytes = self._hid_device.read(REPORT_BT_LEN)
-        raise NotImplementedError
-
-    def _handle_BT_31(self) -> None:
-        report: bytes = self._hid_device.read(REPORT_BT_LEN)
-        raise NotImplementedError
-
-    def _handle_USB_01(self) -> None:
-        report: bytes = self._hid_device.read(REPORT_USB_LEN)
-        self._states.update(report=report[1:])
+                    in_report_raw = self._hid_device.read(ReportLength.USB_01)
+                    in_report = Usb01InReport(in_report_raw)
+                case ConnectionType.BT_31:
+                    in_report_raw = self._hid_device.read(ReportLength.BT_31)
+                    in_report = Bt31InReport(in_report_raw)
+                case ConnectionType.BT_01:
+                    in_report_raw = self._hid_device.read(ReportLength.BT_01)
+                    in_report = Bt01InReport(in_report_raw)
+                case _:
+                    raise InvalidConnectionTypeException
+            self._states.update(in_report,self._connection_type)
 
     def _on_state_change(self, name: StateName, old_value: Any, new_value: Any) -> None:
         self._event_emitter.emit(

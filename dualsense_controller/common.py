@@ -1,15 +1,19 @@
 from enum import Enum
 from typing import Final, TypeVar
 
-REPORT_DUMMY_LEN: Final[int] = 100
-REPORT_BT_LEN: Final[int] = 78
-REPORT_USB_LEN: Final[int] = 64
 VENDOR_ID: Final[int] = 0x054c
 PRODUCT_ID: Final[int] = 0x0ce6
 OUTPUT_REPORT_USB: Final[int] = 0x02
 OUTPUT_REPORT_BT: Final[int] = 0x31
 
 CONNECTION_LOOKUP_INTERVAL: Final[int] = 1  # one second
+
+
+class ReportLength(int, Enum):
+    DUMMY = 100
+    USB_01 = 64
+    BT_31 = 78
+    BT_01 = 10
 
 
 class EventType(Enum):
@@ -21,8 +25,8 @@ class EventType(Enum):
 class ConnectionType(Enum):
     UNDEFINED = 'UNDEFINED',
     USB_01 = 'USB',
-    BT_01 = 'BT',
     BT_31 = 'BT',
+    BT_01 = 'BT',
 
 
 class StateName(Enum):

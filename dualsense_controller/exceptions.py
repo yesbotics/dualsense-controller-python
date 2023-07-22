@@ -25,7 +25,6 @@ class InvalidDeviceIndexException(AbstractBaseException):
     def __init__(self, idx: int):
         super().__init__(f'Invalid DualSense device index given {idx}')
 
-
-class InvalidReportIdException(AbstractBaseException):
+class InvalidConnectionTypeException(AbstractBaseException):
     def __init__(self):
-        super().__init__(f'Invalid report id')
+        super().__init__(f'Invalid connection type')
