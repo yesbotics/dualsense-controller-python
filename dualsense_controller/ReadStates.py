@@ -1,10 +1,11 @@
 from typing import Type
 
-from dualsense_controller import StateName, State, ConnectionType, InReport, StateChangeCallback, \
-    AnyStateChangeCallback
+from dualsense_controller import State
+from dualsense_controller.common import StateName, StateChangeCallback, AnyStateChangeCallback, ConnectionType
+from dualsense_controller.reports import InReport
 
 
-class States:
+class ReadStates:
 
     def __init__(
             self,

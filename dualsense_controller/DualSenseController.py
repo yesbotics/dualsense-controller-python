@@ -5,21 +5,36 @@ from typing import Any, Final
 import hidapi
 import pyee as pyee
 
-from dualsense_controller import AlreadyInitializedException, NotInitializedYetException, \
-    ConnectionType, InvalidConnectionTypeException, States, PRODUCT_ID, \
-    VENDOR_ID, StateName, ReportLength, Usb01InReport, \
-    InReport, Bt31InReport, Bt01InReport, EventType, StateChangeCallback, ConnectionChangeCallback, \
-    AnyStateChangeCallback, ExceptionCallback, State
-from dualsense_controller import NoDeviceDetectedException, InvalidDeviceIndexException
+from dualsense_controller import ReadStates, State
+from dualsense_controller.common import (
+    VENDOR_ID,
+    PRODUCT_ID,
+    ConnectionType,
+    StateName,
+    ConnectionChangeCallback,
+    EventType,
+    ExceptionCallback,
+    StateChangeCallback,
+    AnyStateChangeCallback,
+    ReportLength
+)
+from dualsense_controller.exceptions import (
+    AlreadyInitializedException,
+    NotInitializedYetException,
+    NoDeviceDetectedException,
+    InvalidDeviceIndexException,
+    InvalidConnectionTypeException
+)
+from dualsense_controller.reports import InReport, Usb01InReport, Bt31InReport, Bt01InReport
 
 
+# TODO: remove event listener
 # TODO: access for states
-# TODO: complex state packets
+# TODO: complex state packets (gyro value, pad x/y values (-1..1), orientation, touch finger, ...)
 # TODO: Batt low warn option
-# TODO: orientation calc
 # TODO: raw states
-# TODO: listen state collection event (all states)
-# TODO: impl set properties (rumble, triggerFX)
+# TODO: impl set properties (rumble, triggerFX, lights, ...)
+# TODO: only calculate values on subscribed event listeners
 
 
 class DualSenseController:
@@ -37,7 +52,7 @@ class DualSenseController:
             accelerometer_threshold: int = 0,
     ):
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
-        self._states: Final[States] = States(
+        self._read_states: Final[ReadStates] = ReadStates(
             analog_threshold=analog_threshold,
             gyroscope_threshold=gyro_threshold,
             accelerometer_threshold=accelerometer_threshold,
@@ -51,7 +66,7 @@ class DualSenseController:
 
     @property
     def states(self) -> dict[StateName, State]:
-        return self._states.states_dict
+        return self._read_states.states_dict
 
     def on_connection_change(self, callback: ConnectionChangeCallback):
         self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)
@@ -60,10 +75,10 @@ class DualSenseController:
         self._event_emitter.on(EventType.EXCEPTION, callback)
 
     def on_state_change(self, state_name: StateName, callback: StateChangeCallback):
-        self._states.on_change(state_name, callback)
+        self._read_states.on_change(state_name, callback)
 
     def on_any_state_change(self, callback: AnyStateChangeCallback):
-        self._states.on_change_any(callback)
+        self._read_states.on_change_any(callback)
 
     def init(self) -> None:
         if self._initialized:
@@ -134,6 +149,6 @@ class DualSenseController:
                         in_report = Bt01InReport(in_report_raw)
                     case _:
                         raise InvalidConnectionTypeException
-                self._states.update(in_report, self._connection_type)
+                self._read_states.update(in_report, self._connection_type)
         except Exception as exception:
             self._event_emitter.emit(EventType.EXCEPTION, exception)

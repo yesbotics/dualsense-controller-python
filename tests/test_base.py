@@ -1,6 +1,8 @@
 import pytest as pytest
 
-from dualsense_controller import DualSenseController, NoDeviceDetectedException, InvalidDeviceIndexException
+from dualsense_controller import DualSenseController
+
+from dualsense_controller.exceptions import InvalidDeviceIndexException
 
 
 def test_wrong_device_index():

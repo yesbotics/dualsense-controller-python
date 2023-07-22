@@ -2,7 +2,7 @@ from typing import Generic, Final
 
 import pyee
 
-from dualsense_controller import ValueType, StateName, AnyStateChangeCallback
+from dualsense_controller.common import ValueType, StateName, AnyStateChangeCallback
 
 
 class State(Generic[ValueType]):

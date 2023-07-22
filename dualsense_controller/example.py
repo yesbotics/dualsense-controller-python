@@ -21,6 +21,7 @@ class Example:
         self._dualsense_controller.on_state_change(StateName.BTN_PS, self._on_btn_ps)
         self._dualsense_controller.on_state_change(StateName.BTN_L1, self._on_btn_l1)
         self._dualsense_controller.on_state_change(StateName.BTN_R1, self._on_btn_r1)
+        self._dualsense_controller.on_state_change(StateName.R2, self._on_btn_r2)
 
         self._dualsense_controller.on_any_state_change(self._on_any_state)
 
@@ -54,6 +55,9 @@ class Example:
 
     def _on_btn_r1(self, _: bool, state: bool) -> None:
         print(f'R1 Button pressed: {state}')
+
+    def _on_btn_r2(self, _: bool, value: int) -> None:
+        print(f'R2 Button value: {value}')
 
     def _on_any_state(self, name: StateName, _: Any, state: Any) -> None:
         # print(f'{name}: {state}')
