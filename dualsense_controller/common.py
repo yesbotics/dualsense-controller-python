@@ -78,10 +78,11 @@ class StateName(str, Enum):
 
 
 class EventType(str, Enum):
-    CONNECTION_LOOKUP = 'CONNECTION_LOOKUP',
+    EXCEPTION = 'EXCEPTION'
     CONNECTION_CHANGE = 'CONNECTION_CHANGE',
 
 
+ExceptionCallback = Callable[[Exception], None]
 SimpleCallback = Callable[[], None]
 ConnectionChangeCallback = Callable[[bool, ConnectionType], None]
 StateChangeCallback = Callable[[Any, Any], None]
