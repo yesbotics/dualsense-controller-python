@@ -9,7 +9,7 @@ from dualsense_controller import AlreadyInitializedException, NotInitializedYetE
     ConnectionType, InvalidConnectionTypeException, States, PRODUCT_ID, \
     VENDOR_ID, StateName, ReportLength, Usb01InReport, \
     InReport, Bt31InReport, Bt01InReport, EventType, StateChangeCallback, ConnectionChangeCallback, \
-    AnyStateChangeCallback, ExceptionCallback
+    AnyStateChangeCallback, ExceptionCallback, State
 from dualsense_controller import NoDeviceDetectedException, InvalidDeviceIndexException
 
 
@@ -37,17 +37,21 @@ class DualSenseController:
             accelerometer_threshold: int = 0,
     ):
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
-        self._device_index: int = device_index
-        self._hid_device: hidapi.Device | None = None
-        self._stop_thread_event: threading.Event | None = None
-        self._thread_controller_report: Thread | None = None
-        self._initialized: bool = False
-        self._connection_type: ConnectionType = ConnectionType.UNDEFINED
-        self._states: States = States(
+        self._states: Final[States] = States(
             analog_threshold=analog_threshold,
             gyroscope_threshold=gyro_threshold,
             accelerometer_threshold=accelerometer_threshold,
         )
+        self._device_index: int = device_index
+        self._hid_device: hidapi.Device | None = None
+        self._stop_thread_event: threading.Event | None = None
+        self._thread_controller_report: Thread | None = None
+        self._connection_type: ConnectionType = ConnectionType.UNDEFINED
+        self._initialized: bool = False
+
+    @property
+    def states(self) -> dict[StateName, State]:
+        return self._states.states_dict
 
     def on_connection_change(self, callback: ConnectionChangeCallback):
         self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)

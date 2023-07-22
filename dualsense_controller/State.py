@@ -14,6 +14,9 @@ class State(Generic[ValueType]):
         self._value: ValueType | None = value
         self._threshold: int = threshold
 
+    def __repr__(self) -> str:
+        return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
+
     @property
     def threshold(self) -> int:
         return self._threshold

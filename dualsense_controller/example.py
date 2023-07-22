@@ -27,10 +27,12 @@ class Example:
     def run(self) -> None:
         self._stay_alive = True
         self._dualsense_controller.init()
+        sleep(1)
+        print(self._dualsense_controller.states)
+        sleep(1)
         while self._stay_alive:
             sleep(1)
         self._dualsense_controller.deinit()
-
 
     def _stop(self) -> None:
         self._stay_alive = False

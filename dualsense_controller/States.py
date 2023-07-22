@@ -1,10 +1,10 @@
-import functools
-from typing import Type, Any
+from typing import Type
 
-from dualsense_controller import StateName, State, ConnectionType, InReport, StateChangeCallback, AnyStateChangeCallback
+from dualsense_controller import StateName, State, ConnectionType, InReport, StateChangeCallback, \
+    AnyStateChangeCallback
 
 
-class States():
+class States:
 
     def __init__(
             self,
@@ -17,7 +17,7 @@ class States():
         self._analog_threshold: int = analog_threshold
         self._gyroscope_threshold: int = gyroscope_threshold
         self._accelerometer_threshold: int = accelerometer_threshold
-        self._states: dict[StateName, State] = {}
+        self._states_dict: dict[StateName, State] = {}
 
         self._create_state(StateName.LEFT_STICK_X, int, threshold=analog_threshold)
         self._create_state(StateName.LEFT_STICK_Y, int, threshold=analog_threshold)
@@ -67,6 +67,10 @@ class States():
         self._create_state(StateName.BATTERY_CHARGING, int, skip_none=False)
 
     @property
+    def states_dict(self) -> dict[StateName, State]:
+        return self._states_dict
+
+    @property
     def analog_threshold(self) -> int:
         return self._analog_threshold
 
@@ -106,14 +110,14 @@ class States():
         self._get_state(name).on_change(lambda _, old_value, new_value: callback(old_value, new_value))
 
     def on_change_any(self, callback: AnyStateChangeCallback):
-        for state_name, state in self._states.items():
+        for state_name, state in self._states_dict.items():
             state.on_change(callback)
 
     def _create_state(self, name: StateName, data_type: Type, threshold: int = 0, skip_none: False = True) -> None:
-        self._states[name] = State[data_type](name, threshold=threshold, skip_none=skip_none)
+        self._states_dict[name] = State[data_type](name, threshold=threshold, skip_none=skip_none)
 
     def _get_state(self, name: StateName) -> State:
-        return self._states[name]
+        return self._states_dict[name]
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 

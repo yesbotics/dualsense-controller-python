@@ -82,10 +82,10 @@ class EventType(str, Enum):
     CONNECTION_CHANGE = 'CONNECTION_CHANGE',
 
 
+ValueType = TypeVar('ValueType')
+
 ExceptionCallback = Callable[[Exception], None]
 SimpleCallback = Callable[[], None]
 ConnectionChangeCallback = Callable[[bool, ConnectionType], None]
 StateChangeCallback = Callable[[Any, Any], None]
 AnyStateChangeCallback = Callable[[StateName, Any, Any], None]
-
-ValueType = TypeVar('ValueType')
