@@ -2,14 +2,14 @@ from typing import Generic, Final
 
 import pyee
 
-from dualsense_controller.common import ValueType, StateName, AnyStateChangeCallback
+from dualsense_controller.common import ValueType, ReadStateName, AnyStateChangeCallback
 
 
 class State(Generic[ValueType]):
-    def __init__(self, name: StateName, value: ValueType | None = None, skip_none: bool = True, threshold: int = 0):
+    def __init__(self, name: ReadStateName, value: ValueType | None = None, skip_none: bool = True, threshold: int = 0):
         super().__init__()
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
-        self.name: Final[StateName] = name
+        self.name: Final[ReadStateName] = name
         self._skip_none: bool = skip_none
         self._value: ValueType | None = value
         self._threshold: int = threshold

@@ -23,7 +23,31 @@ class ConnectionType(Enum):
     BT_01 = 'BT'
 
 
-class StateName(str, Enum):
+class WriteStateName(str, Enum):
+    LIGHTBAR_RED = 'LIGHTBAR_RED'
+    LIGHTBAR_GREEN = 'LIGHTBAR_GREEN'
+    LIGHTBAR_BLUE = 'LIGHTBAR_BLUE'
+    MOTOR_LEFT = 'MOTOR_LEFT'
+    MOTOR_RIGHT = 'MOTOR_RIGHT'
+    L2_EFFECT_MODE = 'L2_EFFECT_MODE'
+    L2_EFFECT_PARAM1 = 'L2_EFFECT_PARAM1'
+    L2_EFFECT_PARAM2 = 'L2_EFFECT_PARAM2'
+    L2_EFFECT_PARAM3 = 'L2_EFFECT_PARAM3'
+    L2_EFFECT_PARAM4 = 'L2_EFFECT_PARAM4'
+    L2_EFFECT_PARAM5 = 'L2_EFFECT_PARAM5'
+    L2_EFFECT_PARAM6 = 'L2_EFFECT_PARAM6'
+    L2_EFFECT_PARAM7 = 'L2_EFFECT_PARAM7'
+    R2_EFFECT_MODE = 'R2_EFFECT_MODE'
+    R2_EFFECT_PARAM1 = 'R2_EFFECT_PARAM1'
+    R2_EFFECT_PARAM2 = 'R2_EFFECT_PARAM2'
+    R2_EFFECT_PARAM3 = 'R2_EFFECT_PARAM3'
+    R2_EFFECT_PARAM4 = 'R2_EFFECT_PARAM4'
+    R2_EFFECT_PARAM5 = 'R2_EFFECT_PARAM5'
+    R2_EFFECT_PARAM6 = 'R2_EFFECT_PARAM6'
+    R2_EFFECT_PARAM7 = 'R2_EFFECT_PARAM7'
+
+
+class ReadStateName(str, Enum):
     BTN_UP = 'BTN_UP'
     BTN_LEFT = 'BTN_LEFT'
     BTN_DOWN = 'BTN_DOWN'
@@ -88,4 +112,4 @@ ExceptionCallback = Callable[[Exception], None]
 SimpleCallback = Callable[[], None]
 ConnectionChangeCallback = Callable[[bool, ConnectionType], None]
 StateChangeCallback = Callable[[Any, Any], None]
-AnyStateChangeCallback = Callable[[StateName, Any, Any], None]
+AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]

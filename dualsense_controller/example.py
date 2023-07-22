@@ -1,7 +1,7 @@
 from time import sleep
 from typing import Any
 
-from dualsense_controller import DualSenseController, StateName, ConnectionType
+from dualsense_controller import DualSenseController, ReadStateName, ConnectionType, WriteStateName
 
 
 class Example:
@@ -18,10 +18,11 @@ class Example:
         self._dualsense_controller.on_exception(self._on_exception)
         self._dualsense_controller.on_connection_change(self._on_connection_change)
 
-        self._dualsense_controller.on_state_change(StateName.BTN_PS, self._on_btn_ps)
-        self._dualsense_controller.on_state_change(StateName.BTN_L1, self._on_btn_l1)
-        self._dualsense_controller.on_state_change(StateName.BTN_R1, self._on_btn_r1)
-        self._dualsense_controller.on_state_change(StateName.R2, self._on_btn_r2)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_PS, self._on_btn_ps)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_L1, self._on_btn_l1)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_R1, self._on_btn_r1)
+        self._dualsense_controller.on_state_change(ReadStateName.R2, self._on_btn_r2)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_CROSS, self._on_btn_cross)
 
         self._dualsense_controller.on_any_state_change(self._on_any_state)
 
@@ -29,7 +30,7 @@ class Example:
         self._stay_alive = True
         self._dualsense_controller.init()
         sleep(1)
-        print(self._dualsense_controller.states)
+        print(self._dualsense_controller.read_states)
         sleep(1)
         while self._stay_alive:
             sleep(1)
@@ -56,10 +57,19 @@ class Example:
     def _on_btn_r1(self, _: bool, state: bool) -> None:
         print(f'R1 Button pressed: {state}')
 
+    def _on_btn_cross(self, _: bool, state: bool) -> None:
+        if state:
+            print(f'Cross Button pressed -> rumble')
+            self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, 250)
+        else:
+            print(f'Cross Button released -> no rumble')
+            self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, 0)
+
+
     def _on_btn_r2(self, _: bool, value: int) -> None:
         print(f'R2 Button value: {value}')
 
-    def _on_any_state(self, name: StateName, _: Any, state: Any) -> None:
+    def _on_any_state(self, name: ReadStateName, _: Any, state: Any) -> None:
         # print(f'{name}: {state}')
         pass
 

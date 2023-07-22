@@ -1,6 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Final
 
+class OutReport(ABC):
+
+    def __init__(self, raw: bytes, offset: int):
+        self.__raw: Final[bytes] = raw
+        self.__offset: Final[int] = offset
+
+        self._axes_0: int | None = None
+
 
 class InReport(ABC):
 
