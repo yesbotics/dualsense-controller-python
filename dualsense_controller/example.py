@@ -28,6 +28,7 @@ class Example:
         self._dualsense_controller.init()
         while self._stay_alive:
             sleep(1)
+        self._dualsense_controller.deinit()
 
     def _on_connection_change(self, connected: bool, connection_type: ConnectionType) -> None:
         print(f'Connection state changed. connected: {connected}, type: {connection_type}')
@@ -35,7 +36,7 @@ class Example:
     def _on_btn_ps(self, _: bool, state: bool) -> None:
         print(f'PS Button pressed: {state}')
         if state is True:
-            self._dualsense_controller.deinit()
+            self._stay_alive = False
 
     def _on_btn_l1(self, _: bool, state: bool) -> None:
         print(f'L1 Button pressed: {state}')
@@ -44,7 +45,8 @@ class Example:
         print(f'R1 Button pressed: {state}')
 
     def _on_any_state(self, name: StateName, _: Any, state: Any) -> None:
-        print(f'{name}: {state}')
+        pass
+        # print(f'{name}: {state}')
 
 
 def main():

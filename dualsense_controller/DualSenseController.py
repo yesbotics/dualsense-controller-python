@@ -1,3 +1,4 @@
+import sys
 import threading
 from threading import Thread
 from time import sleep
@@ -14,7 +15,7 @@ from dualsense_controller import AlreadyInitializedException, NotInitializedYetE
 from dualsense_controller import NoDeviceDetectedException, InvalidDeviceIndexException
 
 
-# TODO: fix crash on deinit when no connection lookup
+# TODO: on exception howto handle?
 # TODO: complex state packets
 # TODO: Batt low warn option
 # TODO: orientation calc
@@ -44,7 +45,7 @@ class DualSenseController:
         self._connection_lookup_interval: float = connection_lookup_interval
         self._hid_device: hidapi.Device | None = None
         self._event_emitter: pyee.EventEmitter = pyee.EventEmitter()
-        self._run_thread: bool = False
+        self._stop_threads_event: threading.Event | None = None
         self._thread_lookup_connection: Thread | None = None
         self._thread_controller_report: Thread | None = None
         self._initialized: bool = False
@@ -71,7 +72,7 @@ class DualSenseController:
         if self._initialized:
             raise AlreadyInitializedException
         self._initialized = True
-        self._run_thread = True
+        self._stop_threads_event = threading.Event()
         if self._enable_connection_lookup:
             self._thread_lookup_connection = threading.Thread(
                 target=self._loop_lookup_connection,
@@ -82,14 +83,16 @@ class DualSenseController:
             self._open_device()
 
     def deinit(self) -> None:
+        # sys.exit()
         if not self._initialized:
             raise NotInitializedYetException
-        self._run_thread = False
+        self._stop_threads_event.set()
         if self._enable_connection_lookup:
             self._thread_lookup_connection.join()
             self._thread_lookup_connection = None
         else:
             self._close_device()
+        self._stop_threads_event = None
         self._initialized = False
 
     def _open_device(self) -> None:
@@ -130,7 +133,7 @@ class DualSenseController:
         raise InvalidConnectionTypeException
 
     def _loop_lookup_connection(self) -> None:
-        while self._run_thread:
+        while not self._stop_threads_event.is_set():
             if self._hid_device is None:
                 self._event_emitter.emit(EventType.CONNECTION_LOOKUP)
                 try:
@@ -142,7 +145,7 @@ class DualSenseController:
             self._close_device()
 
     def _loop_controller_report(self) -> None:
-        while self._run_thread:
+        while not self._stop_threads_event.is_set():
             in_report_raw: bytes
             in_report: InReport
             match self._connection_type:
