@@ -2,7 +2,7 @@ from time import sleep
 from typing import Any
 
 from dualsense_controller import DualSenseController, ReadStateName, ConnectionType, WriteStateName
-from dualsense_controller.common import OutPlayerLed
+from dualsense_controller.common import OutPlayerLed, OutBrightness
 
 
 class Example:
@@ -75,10 +75,14 @@ class Example:
             self._stop()
 
     def _on_btn_l1(self, _: bool, state: bool) -> None:
-        print(f'L1 Button pressed: {state}')
+        print(f'L1 Button pressed: {state} -> brightness ')
+        self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
+                                             OutBrightness.LOW if state else OutBrightness.HIGH)
 
     def _on_btn_r1(self, _: bool, state: bool) -> None:
         print(f'R1 Button pressed: {state}')
+        self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
+                                             OutBrightness.MEDIUM if state else OutBrightness.HIGH)
 
     def _on_l2(self, _: bool, value: int) -> None:
         self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value if value > 20 else 0)
@@ -117,8 +121,8 @@ class Example:
     # Right Controls -> Player LED
     #
     def _on_btn_square(self, _: bool, state: bool) -> None:
-        print(f"player led center")
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.CENTER)
+        print(f"player led center + outer")
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.CENTER | OutPlayerLed.OUTER)
 
     def _on_btn_triangle(self, _: bool, state: bool) -> None:
         print(f"player led inner")
@@ -141,7 +145,9 @@ class Example:
     #
     def _on_btn_mute(self, _: bool, state: bool) -> None:
         print(f"mute")
-        self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, False)
+        # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
+        self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
+
     #
     # all
     #

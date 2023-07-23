@@ -17,7 +17,7 @@ class InReportLength(int, Enum):
 
 
 class OutReportLength(int, Enum):
-    USB_01 = InReportLength.USB_01
+    USB_01 = 48
     BT_31 = InReportLength.BT_31
     BT_01 = InReportLength.BT_01
     # USB_01 = 47
@@ -64,29 +64,21 @@ class OutPlayerLed(int, Enum):
     OFF = 0
 
     # Enables the single, center LED
-    CENTER = 1 << 2
+    CENTER = 0b00100
 
     # Enables the two LEDs adjacent to and directly surrounding the CENTER LED
-    INNER = 1 << 1 | 1 << 3
+    INNER = 0b01010
 
     # Enables the two outermost LEDs surrounding the INNER LEDs
-    OUTER = 1 << 0 | 1 << 4
+    OUTER = 0b10001
 
-    # PLAYER_1 = 1 << 0
-    # PLAYER_2 = 1 << 1
-    # PLAYER_3 = 1 << 2
-    # PLAYER_4 = 1 << 3
     ALL = CENTER | INNER | OUTER
-    # PLAYER_1 = 4
-    # PLAYER_2 = 10
-    # PLAYER_3 = 21
-    # PLAYER_4 = 27
-    # ALL = 31
 
 
 class OutLightbarMode(int, Enum):
     LIGHT_ON = 1 << 0
     LIGHT_OUT = 1 << 1
+
 
 class OutBrightness(int, Enum):
     HIGH = 0

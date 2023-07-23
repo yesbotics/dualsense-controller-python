@@ -129,7 +129,7 @@ class Usb01OutReport(OutReport):
         out_report[26] = self.l2_effect_param4
         out_report[27] = self.l2_effect_param5
         out_report[28] = self.l2_effect_param6
-        out_report[31] = self.l2_effect_param7 #
+        out_report[31] = self.l2_effect_param7
 
         out_report[39] = self.led_options
 
@@ -138,7 +138,7 @@ class Usb01OutReport(OutReport):
 
         # Disable/Endable LEDs or Pulse/Fade-Options?
         # out_report[42] = self.pulse_options
-        # out_report[43] = self.brightness
+        out_report[43] = self.brightness
         out_report[44] = self.player_led
 
         out_report[45] = self.lightbar_red

@@ -56,14 +56,14 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
         <td>3</td>
         <td>0x03</td>
         <td>Motor rumble right</td>
-        <td></td>
+        <td>0 - 255 </td>
         <td>A.K.A. "small rumble"</td>
     </tr>
     <tr>
         <td>4</td>
         <td>0x04</td>
         <td>Motor rumble left</td>
-        <td></td>
+        <td>0 - 255 </td>
         <td>A.K.A. "big rumble"</td>
     </tr>
     <tr>
@@ -330,7 +330,7 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
             0x03 - LOW
             </nobr> 
         </td>
-        <td></td>
+        <td>Sets brightness of mute button led only(?)</td>
     </tr>
     <tr>
         <td>44</td>
@@ -338,11 +338,11 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
         <td>Player leds</td>
         <td>
             <nobr>
-                0b0000 - OFF <br>
-                0b0100 - CENTER <br>
-                0b1010 - INNER <br>
-                0b1001 - OUTER <br>
-                0b1111 - ALL
+                0b00000 - OFF <br>
+                0b00100 - CENTER <br>
+                0b01010 - INNER <br>
+                0b10001 - OUTER <br>
+                0b11111 - ALL
             </nobr> 
         </td>
         <td>
