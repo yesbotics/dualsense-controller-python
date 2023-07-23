@@ -8,17 +8,17 @@ from dualsense_controller.common import (
     StateChangeCallback,
     AnyStateChangeCallback,
     ConnectionType,
-    ValueType
+    StateValueType
 )
 from dualsense_controller.reports import InReport
 
 
-class _StatePublicAccess(Generic[ValueType]):
-    def __init__(self, state: State[ValueType]):
+class _StatePublicAccess(Generic[StateValueType]):
+    def __init__(self, state: State[StateValueType]):
         self._state = state
 
     @property
-    def value(self) -> ValueType:
+    def value(self) -> StateValueType:
         return self._state.value
 
     @property
@@ -237,11 +237,11 @@ class ReadStates:
     def _create_and_register_state(
             self,
             name: ReadStateName,
-            data_type: ValueType,
+            data_type: StateValueType,
             threshold: int = 0,
             skip_none: False = True
     ) -> State:
-        state: State[ValueType] = State[data_type](name, threshold=threshold, skip_none=skip_none)
+        state: State[StateValueType] = State[data_type](name, threshold=threshold, skip_none=skip_none)
         self._states_dict[name] = state
         return state
 

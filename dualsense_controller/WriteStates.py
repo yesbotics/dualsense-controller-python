@@ -54,7 +54,9 @@ class WriteStates:
         return self._changed
 
     def set_unchanged(self):
-        self._get_state(WriteStateName.FLAGS_LIGHTS).set_value_undetected(OutFlagsLights.ALL_BUT_MUTE_LED)
+        self._get_state(WriteStateName.FLAGS_LIGHTS).set_value_without_triggering_change(
+            OutFlagsLights.ALL_BUT_MUTE_LED
+        )
         self._changed = False
 
     def set_value(self, name: WriteStateName, value):
@@ -115,5 +117,5 @@ class WriteStates:
     def _on_change_mute_led(self, _, __):
         # Remove mic control flag to allow setting brightness
         state = self._get_state(WriteStateName.FLAGS_LIGHTS)
-        state.set_value_undetected(OutFlagsLights.ALL)
+        state.set_value_without_triggering_change(OutFlagsLights.ALL)
         self._changed = True

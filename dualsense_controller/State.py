@@ -2,16 +2,16 @@ from typing import Generic, Final
 
 import pyee
 
-from dualsense_controller.common import ValueType, ReadStateName, StateChangeCallback
+from dualsense_controller.common import StateValueType, ReadStateName, StateChangeCallback
 
 
-class State(Generic[ValueType]):
-    def __init__(self, name: ReadStateName, value: ValueType | None = None, skip_none: bool = True, threshold: int = 0):
+class State(Generic[StateValueType]):
+    def __init__(self, name: ReadStateName, value: StateValueType | None = None, skip_none: bool = True, threshold: int = 0):
         super().__init__()
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self.name: Final[ReadStateName] = name
         self._skip_none: bool = skip_none
-        self._value: ValueType | None = value
+        self._value: StateValueType | None = value
         self._threshold: int = threshold
 
     def __repr__(self) -> str:
@@ -26,12 +26,12 @@ class State(Generic[ValueType]):
         self._threshold = threshold
 
     @property
-    def value(self) -> ValueType:
+    def value(self) -> StateValueType:
         return self._value
 
     @value.setter
-    def value(self, value: ValueType | None) -> None:
-        old_value: ValueType = self._value
+    def value(self, value: StateValueType | None) -> None:
+        old_value: StateValueType = self._value
         if old_value is None and self._skip_none:
             self._value = value
             return
@@ -43,12 +43,12 @@ class State(Generic[ValueType]):
             if old_value != value:
                 self._set_value(old_value, value)
 
-    def set_value_undetected(self, new_value: ValueType | None):
+    def set_value_without_triggering_change(self, new_value: StateValueType | None):
         self._value = new_value
 
     def on_change(self, callback: StateChangeCallback) -> None:
         self._event_emitter.on(self.name, callback)
 
-    def _set_value(self, old_value: ValueType, new_value: ValueType) -> None:
+    def _set_value(self, old_value: StateValueType, new_value: StateValueType) -> None:
         self._value = new_value
         self._event_emitter.emit(self.name, old_value, new_value)

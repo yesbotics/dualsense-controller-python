@@ -220,7 +220,8 @@ def flag(bit: int) -> int:
     return 1 << bit
 
 
-ValueType = TypeVar('ValueType')
+StateValueType = TypeVar('StateValueType')
+StateNameEnumType = TypeVar('StateNameEnumType')
 
 ExceptionCallback = Callable[[Exception], None]
 SimpleCallback = Callable[[], None]
