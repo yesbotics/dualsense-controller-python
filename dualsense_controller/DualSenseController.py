@@ -1,40 +1,35 @@
 import threading
 from threading import Thread
-from typing import Any, Final
+from typing import Final
 
 import hidapi
 import pyee as pyee
 
-from dualsense_controller import ReadStates, State, WriteStates, ControllerDevice
+from dualsense_controller import ReadStates, WriteStates, ControllerDevice
 from dualsense_controller.common import (
     VENDOR_ID,
     PRODUCT_ID,
-    ConnectionType,
     ReadStateName,
     ConnectionChangeCallback,
     EventType,
     ExceptionCallback,
     StateChangeCallback,
     AnyStateChangeCallback,
-    InReportLength, WriteStateName
+    WriteStateName
 )
 from dualsense_controller.exceptions import (
     AlreadyInitializedException,
     NotInitializedYetException,
     NoDeviceDetectedException,
-    InvalidDeviceIndexException,
-    InvalidConnectionTypeException
+    InvalidDeviceIndexException
 )
-from dualsense_controller.reports import InReport, Usb01InReport, Bt31InReport, Bt01InReport
 
 
 # TODO: remove event listener
-# TODO: access for states
+# TODO: only calculate values on subscribed event listeners
 # TODO: complex state packets (gyro value, pad x/y values (-1..1), orientation, touch finger, ...)
 # TODO: Batt low warn option
-# TODO: raw states
 # TODO: impl set properties (rumble, triggerFX, lights, ...)
-# TODO: only calculate values on subscribed event listeners
 
 
 class DualSenseController:
@@ -65,8 +60,8 @@ class DualSenseController:
         self._initialized: bool = False
 
     @property
-    def read_states(self) -> dict[ReadStateName, State]:
-        return self._read_states.states_dict
+    def states(self): # dont define type here for intellisense
+        return self._read_states.state_values
 
     def on_connection_change(self, callback: ConnectionChangeCallback):
         self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)

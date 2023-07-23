@@ -17,7 +17,7 @@ class ControllerDevice:
     ):
         super().__init__()
 
-        self._hid_device = device
+        self._hid_device: hidapi.Device = device
         self._connection_type: ConnectionType = ConnectionType.UNDEFINED
         self._report_length: InReportLength = InReportLength.DUMMY
         self._in_report_class = None

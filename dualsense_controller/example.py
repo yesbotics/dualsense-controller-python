@@ -30,7 +30,7 @@ class Example:
         self._stay_alive = True
         self._dualsense_controller.init()
         sleep(1)
-        print(self._dualsense_controller.read_states)
+        print(self._dualsense_controller.states)
         sleep(1)
         while self._stay_alive:
             sleep(1)
