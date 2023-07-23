@@ -84,6 +84,10 @@ class OutPlayerLed(int, Enum):
     # ALL = 31
 
 
+class OutLightbarMode(int, Enum):
+    LIGHT_ON = 1 << 0
+    LIGHT_OUT = 1 << 1
+
 class OutBrightness(int, Enum):
     HIGH = 0
     MEDIUM = 1 << 0

@@ -35,6 +35,9 @@ class Example:
         self._dualsense_controller.on_state_change(ReadStateName.BTN_UP, self._on_btn_up)
         self._dualsense_controller.on_state_change(ReadStateName.BTN_RIGHT, self._on_btn_right)
         self._dualsense_controller.on_state_change(ReadStateName.BTN_DOWN, self._on_btn_down)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_CREATE, self._on_btn_create)
+
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute)
 
         # 4 methods to get all state changes
         self._dualsense_controller.on_any_state_change(self._on_any_state)
@@ -85,24 +88,28 @@ class Example:
     # Left Controls -> lightbar color
     #
     def _on_btn_left(self, _: bool, state: bool) -> None:
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255 if state else 0)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
 
     def _on_btn_up(self, _: bool, state: bool) -> None:
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255 if state else 0)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
 
     def _on_btn_right(self, _: bool, state: bool) -> None:
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255 if state else 0)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
 
     def _on_btn_down(self, _: bool, state: bool) -> None:
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255 if state else 0)
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255 if state else 0)
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255 if state else 0)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
+
+    def _on_btn_create(self, _: bool, state: bool) -> None:
+        print(f"lightbar false")
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR, False)
 
     #
     # Right Controls -> Player LED
@@ -127,6 +134,12 @@ class Example:
         print(f"player led off")
         self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OFF)
 
+    #
+    #
+    #
+    def _on_btn_mute(self, _: bool, state: bool) -> None:
+        print(f"mute")
+        self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, False)
     #
     # all
     #
