@@ -19,6 +19,7 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
 - [pydualsense](https://github.com/flok/pydualsense)
 - [ds5ctl](https://github.com/theY4Kman/ds5ctl)
 - [USB_Host_Shield_2.0](https://github.com/felis/USB_Host_Shield_2.0)
+- [DualSense on Windows \[API\]](https://github.com/Ohjurot/DualSense-Windows)
 
 # Protocol
 
