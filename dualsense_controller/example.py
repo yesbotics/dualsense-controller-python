@@ -2,7 +2,7 @@ from time import sleep
 from typing import Any
 
 from dualsense_controller import DualSenseController, ReadStateName, ConnectionType, WriteStateName
-from dualsense_controller.common import OutPlayerLed, OutBrightness
+from dualsense_controller.common import OutPlayerLed, OutBrightness, OutPulseOptions
 
 
 class Example:
@@ -38,6 +38,9 @@ class Example:
         self._dualsense_controller.on_state_change(ReadStateName.BTN_CREATE, self._on_btn_create)
 
         self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute)
+
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_R3, self._on_btn_r3)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_L3, self._on_btn_l3)
 
         # 4 methods to get all state changes
         self._dualsense_controller.on_any_state_change(self._on_any_state)
@@ -161,6 +164,20 @@ class Example:
         print(f"mute")
         # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
         # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
+
+    #
+    # L3 / R3 -> led pulse modes
+    #
+    def _on_btn_r3(self, _: bool, state: bool) -> None:
+        if state is False:
+            print(f"R3 -> pulse FADE_OUT")
+            self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT)
+            # self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT if state else OutPulseOptions.OFF)
+
+    def _on_btn_l3(self, _: bool, state: bool) -> None:
+        if state is False:
+            print(f"L3 -> pulse FADE_BLUE")
+            self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
 
     #
     # all
