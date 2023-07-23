@@ -1,9 +1,10 @@
-from typing import Type
+from typing import Type, Generic
 
 from dualsense_controller import State
 from dualsense_controller.common import ReadStateName, StateChangeCallback, AnyStateChangeCallback, ConnectionType, \
-    WriteStateName
-from dualsense_controller.reports import InReport
+    WriteStateName, ValueType
+from dualsense_controller.reports import InReport, OutReport, Usb01OutReport, Bt01OutReport, Bt31OutReport
+from dualsense_controller.exceptions import InvalidConnectionTypeException
 
 
 class WriteStates:
@@ -46,10 +47,37 @@ class WriteStates:
     def changed(self) -> bool:
         return self._changed
 
+    def set_unchanged(self):
+        self._changed = False
+
     def set_value(self, name: WriteStateName, value):
         self._get_state(name).value = value
 
+    def update_out_report(self, out_report: OutReport):
+        out_report.lightbar_red = self._get_state(WriteStateName.LIGHTBAR_RED).value
+        out_report.lightbar_green = self._get_state(WriteStateName.LIGHTBAR_GREEN).value
+        out_report.lightbar_blue = self._get_state(WriteStateName.LIGHTBAR_BLUE).value
+        out_report.motor_left = self._get_state(WriteStateName.MOTOR_LEFT).value
+        out_report.motor_right = self._get_state(WriteStateName.MOTOR_RIGHT).value
+        out_report.l2_effect_mode = self._get_state(WriteStateName.L2_EFFECT_MODE).value
+        out_report.l2_effect_param1 = self._get_state(WriteStateName.L2_EFFECT_PARAM1).value
+        out_report.l2_effect_param2 = self._get_state(WriteStateName.L2_EFFECT_PARAM2).value
+        out_report.l2_effect_param3 = self._get_state(WriteStateName.L2_EFFECT_PARAM3).value
+        out_report.l2_effect_param4 = self._get_state(WriteStateName.L2_EFFECT_PARAM4).value
+        out_report.l2_effect_param5 = self._get_state(WriteStateName.L2_EFFECT_PARAM5).value
+        out_report.l2_effect_param6 = self._get_state(WriteStateName.L2_EFFECT_PARAM6).value
+        out_report.l2_effect_param7 = self._get_state(WriteStateName.L2_EFFECT_PARAM7).value
+        out_report.r2_effect_mode = self._get_state(WriteStateName.R2_EFFECT_MODE).value
+        out_report.r2_effect_param1 = self._get_state(WriteStateName.R2_EFFECT_PARAM1).value
+        out_report.r2_effect_param2 = self._get_state(WriteStateName.R2_EFFECT_PARAM2).value
+        out_report.r2_effect_param3 = self._get_state(WriteStateName.R2_EFFECT_PARAM3).value
+        out_report.r2_effect_param4 = self._get_state(WriteStateName.R2_EFFECT_PARAM4).value
+        out_report.r2_effect_param5 = self._get_state(WriteStateName.R2_EFFECT_PARAM5).value
+        out_report.r2_effect_param6 = self._get_state(WriteStateName.R2_EFFECT_PARAM6).value
+        out_report.r2_effect_param7 = self._get_state(WriteStateName.R2_EFFECT_PARAM7).value
+
     def _on_change(self, state_name: WriteStateName, _: bool, value: int):
+        # print(F'State written: {state_name}')
         self._changed = True
 
     def _create_state(self, name: WriteStateName, data_type: Type, start_value) -> None:

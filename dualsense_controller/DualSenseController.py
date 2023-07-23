@@ -16,7 +16,7 @@ from dualsense_controller.common import (
     ExceptionCallback,
     StateChangeCallback,
     AnyStateChangeCallback,
-    ReportLength, WriteStateName
+    InReportLength, WriteStateName
 )
 from dualsense_controller.exceptions import (
     AlreadyInitializedException,
@@ -130,6 +130,13 @@ class DualSenseController:
         try:
             while not self._stop_thread_event.is_set():
                 in_report = self._controller_device.read()
+
+                if self._write_states.changed:
+                    # print(f'Sending report.')
+                    self._write_states.update_out_report(self._controller_device.out_report)
+                    self._write_states.set_unchanged()
+                self._controller_device.write()
+
                 self._read_states.update(in_report, self._controller_device.connection_type)
         except Exception as exception:
             self._event_emitter.emit(EventType.EXCEPTION, exception)

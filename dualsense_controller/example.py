@@ -67,7 +67,11 @@ class Example:
 
 
     def _on_btn_r2(self, _: bool, value: int) -> None:
-        print(f'R2 Button value: {value}')
+        if value > 20:
+            self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, value)
+        else:
+            self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, 0)
+        # print(f'R2 Button value: {value}')
 
     def _on_any_state(self, name: ReadStateName, _: Any, state: Any) -> None:
         # print(f'{name}: {state}')

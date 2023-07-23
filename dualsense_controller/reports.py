@@ -1,13 +1,99 @@
 from abc import ABC, abstractmethod
 from typing import Final
 
+from dualsense_controller.common import OutReportLength, OutReportId
+
+
 class OutReport(ABC):
 
-    def __init__(self, raw: bytes, offset: int):
-        self.__raw: Final[bytes] = raw
-        self.__offset: Final[int] = offset
+    def __init__(self):
+        self.lightbar_red: int = 0xff
+        self.lightbar_green: int = 0xff
+        self.lightbar_blue: int = 0xff
+        self.motor_left: int = 0x00
+        self.motor_right: int = 0x00
+        self.l2_effect_mode: int = 0x26
+        self.l2_effect_param1: int = 0x90
+        self.l2_effect_param2: int = 0xA0
+        self.l2_effect_param3: int = 0xFF
+        self.l2_effect_param4: int = 0x00
+        self.l2_effect_param5: int = 0x00
+        self.l2_effect_param6: int = 0x00
+        self.l2_effect_param7: int = 0x00
+        self.r2_effect_mode: int = 0x26
+        self.r2_effect_param1: int = 0x90
+        self.r2_effect_param2: int = 0xA0
+        self.r2_effect_param3: int = 0xFF
+        self.r2_effect_param4: int = 0x00
+        self.r2_effect_param5: int = 0x00
+        self.r2_effect_param6: int = 0x00
+        self.r2_effect_param7: int = 0x00
 
-        self._axes_0: int | None = None
+    @abstractmethod
+    def to_bytes(self) -> bytearray:
+        pass
+
+
+class Usb01OutReport(OutReport):
+    def to_bytes(self) -> bytearray:
+
+        # print("-----------> usb")
+
+        reportId = 0x02
+
+        bytes = bytearray(OutReportLength.USB_01)
+
+        bytes[0] = OutReportId.USB_01
+
+        # JS:
+        # valid_flag0
+        # bit 0: COMPATIBLE_VIBRATION
+        # bit 1: HAPTICS_SELECT
+        #
+        # pydualsense:
+        # packet type
+        bytes[1] = 0xff
+
+        # # valid_flag1
+        # # bit 0: MIC_MUTE_LED_CONTROL_ENABLE
+        # # bit 1: POWER_SAVE_CONTROL_ENABLE
+        # # bit 2: LIGHTBAR_CONTROL_ENABLE
+        # # bit 3: RELEASE_LEDS
+        # # bit 4: PLAYER_INDICATOR_CONTROL_ENABLE
+        # bytes[1] = 0xf7
+
+        # further flags determining what changes this packet will perform
+        # 0x01 toggling microphone LED
+        # 0x02 toggling audio/mic mute
+        # 0x04 toggling LED strips on the sides of the touchpad
+        # 0x08 will actively turn all LEDs off? Convenience flag? (if so, third parties might not support it properly)
+        # 0x10 toggling white player indicator LEDs below touchpad
+        # 0x20 ???
+        # 0x40 adjustment of overall motor/effect power (index 37 - read note on triggers)
+        # 0x80 ???
+        bytes[3] = 0x1 | 0x2 | 0x4 | 0x10 | 0x40
+
+        # DualShock 4 compatibility mode.
+        bytes[3] = clamp(self.motor_right, 0, 255)
+        bytes[4] = clamp(self.motor_left, 0, 255)
+
+        return bytes
+
+
+class Bt01OutReport(OutReport):
+    def to_bytes(self) -> bytearray:
+        # print("-----------> BT01")
+
+        bytes = bytearray(OutReportLength.BT_01)
+        return bytes
+
+
+class Bt31OutReport(OutReport):
+    def to_bytes(self) -> bytearray:
+        # print("-----------> BT31")
+
+        bytes = bytearray(OutReportLength.BT_31)
+        return bytes
 
 
 class InReport(ABC):
@@ -365,3 +451,6 @@ class Bt01InReport(InReport):
         self._axes_4 = self._get(7)
         self._axes_5 = self._get(8)
 
+
+def clamp(value: int, val_min: int, val_max: int) -> int:
+    return min(val_max, max(val_min, value))

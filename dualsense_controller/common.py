@@ -9,11 +9,23 @@ OUTPUT_REPORT_BT: Final[int] = 0x31
 CONNECTION_LOOKUP_INTERVAL: Final[int] = 1  # one second
 
 
-class ReportLength(int, Enum):
+class InReportLength(int, Enum):
     DUMMY = 100
     USB_01 = 64
     BT_31 = 78
     BT_01 = 10
+
+
+class OutReportLength(int, Enum):
+    USB_01 = 47
+    BT_31 = 77
+    BT_01 = 77  # ??
+
+
+class OutReportId(int, Enum):
+    USB_01 = 0x02
+    BT_31 = 0x31
+    BT_01 = 0x31  # ??
 
 
 class ConnectionType(Enum):
