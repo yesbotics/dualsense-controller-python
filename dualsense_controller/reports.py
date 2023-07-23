@@ -3,7 +3,7 @@ from typing import Final
 
 from dualsense_controller.common import OutReportLength, OutReportId, OutOperatingMode, OutLightEffectControl, \
     OutLedOptions, \
-    OutPulseOptions, OutBrightness, OutPlayerLed
+    OutPulseOptions, OutBrightness, OutPlayerLed, OutLightbarMode
 
 
 class OutReport(ABC):
@@ -129,12 +129,12 @@ class Usb01OutReport(OutReport):
         out_report[26] = self.l2_effect_param4
         out_report[27] = self.l2_effect_param5
         out_report[28] = self.l2_effect_param6
-        out_report[31] = self.l2_effect_param7
+        out_report[31] = self.l2_effect_param7 #
 
         out_report[39] = self.led_options
 
         # Lightbar on/off
-        # bytes[41] = 2 ** 0 if self.lightbar else 2 ** 1
+        out_report[41] = OutLightbarMode.LIGHT_ON if self.lightbar else OutLightbarMode.LIGHT_OUT
 
         # Disable/Endable LEDs or Pulse/Fade-Options?
         # out_report[42] = self.pulse_options

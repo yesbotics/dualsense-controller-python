@@ -2,3 +2,4 @@
 .idea
 /dist
 __pycache__
+.~lock*
