@@ -60,8 +60,8 @@ class DualSenseController:
         self._initialized: bool = False
 
     @property
-    def states(self): # dont define type here for intellisense
-        return self._read_states.state_values
+    def states(self):  # dont define type here for intellisense
+        return self._read_states
 
     def on_connection_change(self, callback: ConnectionChangeCallback):
         self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)
@@ -69,11 +69,11 @@ class DualSenseController:
     def on_exception(self, callback: ExceptionCallback):
         self._event_emitter.on(EventType.EXCEPTION, callback)
 
-    def on_state_change(self, state_name: ReadStateName, callback: StateChangeCallback):
+    def on_state_change(self, state_name: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
         self._read_states.on_change(state_name, callback)
 
     def on_any_state_change(self, callback: AnyStateChangeCallback):
-        self._read_states.on_change_any(callback)
+        self._read_states.on_any_change(callback)
 
     def set_state(self, state_name: WriteStateName, value):
         self._write_states.set_value(state_name, value)

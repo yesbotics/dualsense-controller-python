@@ -6,197 +6,7 @@ from dualsense_controller import State
 from dualsense_controller.common import ReadStateName, StateChangeCallback, AnyStateChangeCallback, ConnectionType
 from dualsense_controller.reports import InReport
 
-StateType = TypeVar('StateType')
-
-
-class _StateValueAccess:
-
-    def __init__(self, states: ReadStates):
-        self._states: ReadStates = states
-
-    @property
-    def accelerometer_z(self) -> int:
-        return self._states.accelerometer_z.value
-
-    @property
-    def l2_feedback_value(self) -> int:
-        return self._states.l2_feedback_value.value
-
-    @property
-    def accelerometer_y(self) -> int:
-        return self._states.accelerometer_y.value
-
-    @property
-    def accelerometer_x(self) -> int:
-        return self._states.accelerometer_x.value
-
-    @property
-    def touch_1_id(self) -> int:
-        return self._states.touch_1_id.value
-
-    @property
-    def btn_right(self) -> bool:
-        return self._states.btn_right.value
-
-    @property
-    def r2_feedback_value(self) -> int:
-        return self._states.r2_feedback_value.value
-
-    @property
-    def btn_touchpad(self) -> bool:
-        return self._states.btn_touchpad.value
-
-    @property
-    def l2_feedback_active(self) -> bool:
-        return self._states.l2_feedback_active.value
-
-    @property
-    def btn_down(self) -> bool:
-        return self._states.btn_down.value
-
-    @property
-    def gyroscope_x(self) -> int:
-        return self._states.gyroscope_x.value
-
-    @property
-    def btn_triangle(self) -> bool:
-        return self._states.btn_triangle.value
-
-    @property
-    def touch_1_y(self) -> int:
-        return self._states.touch_1_y.value
-
-    @property
-    def r2(self) -> int:
-        return self._states.r2.value
-
-    @property
-    def touch_1_x(self) -> int:
-        return self._states.touch_1_x.value
-
-    @property
-    def btn_r1(self) -> bool:
-        return self._states.btn_r1.value
-
-    @property
-    def btn_r3(self) -> bool:
-        return self._states.btn_r3.value
-
-    @property
-    def touch_1_active(self) -> bool:
-        return self._states.touch_1_active.value
-
-    @property
-    def right_stick_x(self) -> int:
-        return self._states.right_stick_x.value
-
-    @property
-    def btn_r2(self) -> bool:
-        return self._states.btn_r2.value
-
-    @property
-    def btn_square(self) -> bool:
-        return self._states.btn_square.value
-
-    @property
-    def btn_ps(self) -> bool:
-        return self._states.btn_ps.value
-
-    @property
-    def touch_0_id(self) -> int:
-        return self._states.touch_0_id.value
-
-    @property
-    def btn_circle(self) -> bool:
-        return self._states.btn_circle.value
-
-    @property
-    def right_stick_y(self) -> int:
-        return self._states.right_stick_y.value
-
-    @property
-    def btn_cross(self) -> bool:
-        return self._states.btn_cross.value
-
-    @property
-    def battery_full(self) -> bool:
-        return self._states.battery_full.value
-
-    @property
-    def btn_up(self) -> bool:
-        return self._states.btn_up.value
-
-    @property
-    def btn_options(self) -> bool:
-        return self._states.btn_options.value
-
-    @property
-    def left_stick_y(self) -> int:
-        return self._states.left_stick_y.value
-
-    @property
-    def left_stick_x(self) -> int:
-        return self._states.left_stick_x.value
-
-    @property
-    def battery_charging(self) -> int:
-        return self._states.battery_charging.value
-
-    @property
-    def btn_create(self) -> bool:
-        return self._states.btn_create.value
-
-    @property
-    def battery_level_percent(self) -> float:
-        return self._states.battery_level_percent.value
-
-    @property
-    def touch_0_x(self) -> int:
-        return self._states.touch_0_x.value
-
-    @property
-    def touch_0_y(self) -> int:
-        return self._states.touch_0_y.value
-
-    @property
-    def l2(self) -> int:
-        return self._states.l2.value
-
-    @property
-    def btn_left(self) -> bool:
-        return self._states.btn_left.value
-
-    @property
-    def touch_0_active(self) -> bool:
-        return self._states.touch_0_active.value
-
-    @property
-    def btn_l1(self) -> bool:
-        return self._states.btn_l1.value
-
-    @property
-    def btn_l3(self) -> bool:
-        return self._states.btn_l3.value
-
-    @property
-    def btn_l2(self) -> bool:
-        return self._states.btn_l2.value
-
-    @property
-    def gyroscope_z(self) -> int:
-        return self._states.gyroscope_z.value
-
-    @property
-    def gyroscope_y(self) -> int:
-        return self._states.gyroscope_y.value
-
-    @property
-    def btn_mute(self) -> bool:
-        return self._states.btn_mute.value
-
-    @property
-    def r2_feedback_active(self) -> bool:
-        return self._states.r2_feedback_active.value
+_StateType = TypeVar('_StateType')
 
 
 class ReadStates:
@@ -213,7 +23,6 @@ class ReadStates:
         self._gyroscope_threshold: int = gyroscope_threshold
         self._accelerometer_threshold: int = accelerometer_threshold
         self._states_dict: Final[dict[ReadStateName, State]] = {}
-        self.state_values: Final[_StateValueAccess] = _StateValueAccess(self)
 
         self.left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X, int, threshold=analog_threshold
@@ -390,21 +199,24 @@ class ReadStates:
         self.gyroscope_y.threshold = gyroscope_threshold
         self.gyroscope_z.threshold = gyroscope_threshold
 
-    def on_change(self, name: ReadStateName, callback: StateChangeCallback):
-        self._get_state_by_name(name).on_change(lambda _, old_value, new_value: callback(old_value, new_value))
+    def on_change(self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
+        if callback is None:
+            self.on_any_change(name_or_callback)
+        else:
+            self._get_state_by_name(name_or_callback).on_change(callback)
 
-    def on_change_any(self, callback: AnyStateChangeCallback):
+    def on_any_change(self, callback: AnyStateChangeCallback):
         for state_name, state in self._states_dict.items():
-            state.on_change(callback)
+            state.on_change(lambda old_value, new_value: callback(state_name, old_value, new_value))
 
     def _create_and_register_state(
             self,
             name: ReadStateName,
-            data_type: StateType,
+            data_type: _StateType,
             threshold: int = 0,
             skip_none: False = True
     ) -> State:
-        state: State[StateType] = State[data_type](name, threshold=threshold, skip_none=skip_none)
+        state: State[_StateType] = State[data_type](name, threshold=threshold, skip_none=skip_none)
         self._states_dict[name] = state
         return state
 

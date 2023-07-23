@@ -36,14 +36,20 @@ class Example:
         self._dualsense_controller.on_state_change(ReadStateName.BTN_RIGHT, self._on_btn_right)
         self._dualsense_controller.on_state_change(ReadStateName.BTN_DOWN, self._on_btn_down)
 
+        # 4 methods to get all state changes
         self._dualsense_controller.on_any_state_change(self._on_any_state)
+        self._dualsense_controller.states.on_any_change(self._on_any_state_3)
+        self._dualsense_controller.on_state_change(self._on_any_state_2)
+        self._dualsense_controller.states.on_change(self._on_any_state_4)
+
+        # 3 methods to get state changes of specific property
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute)
+        self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
+        self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
 
     def run(self) -> None:
         self._stay_alive = True
         self._dualsense_controller.init()
-        sleep(1)
-        print(self._dualsense_controller.states)
-        sleep(1)
         while self._stay_alive:
             sleep(1)
         self._dualsense_controller.deinit()
@@ -125,8 +131,34 @@ class Example:
     # all
     #
     def _on_any_state(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'{name}: {state}')
+        # print(f'Any State {name}: {state}')
         pass
+
+    def _on_any_state_2(self, name: ReadStateName, _: Any, state: Any) -> None:
+        # print(f'Any State 2 {name}: {state}')
+        pass
+
+    def _on_any_state_3(self, name: ReadStateName, _: Any, state: Any) -> None:
+        # print(f'Any State 3 {name}: {state}')
+        pass
+
+    def _on_any_state_4(self, name: ReadStateName, _: Any, state: Any) -> None:
+        # print(f'Any State 4 {name}: {state}')
+        pass
+
+    def _on_btn_mute(self, _: bool, state: bool) -> None:
+        print(f'Mute Button pressed: {state}')
+        print(self._dualsense_controller.states.btn_mute.value)
+        try:
+            self._dualsense_controller.states.btn_mute.value = False
+        except:
+            print('set stave value not allowed')
+
+    def _on_btn_mute_2(self, _: bool, state: bool) -> None:
+        print(f'Mute Button pressed 2: {state}')
+
+    def _on_btn_mute_3(self, _: bool, state: bool) -> None:
+        print(f'Mute Button pressed 3: {state}')
 
 
 def main():
