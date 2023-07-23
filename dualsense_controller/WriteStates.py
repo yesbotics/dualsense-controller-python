@@ -99,5 +99,5 @@ class WriteStates:
     def _get_state(self, name: WriteStateName) -> State:
         return self._states_dict[name]
 
-    def _on_change(self, _, __, ___):
+    def _on_change(self, _, __):
         self._changed = True
