@@ -59,6 +59,10 @@ class Example:
         # blubb
         self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
 
+        # touch
+        self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
+        self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
+
     def run(self) -> None:
         self._stay_alive = True
         self._dualsense_controller.init()
@@ -129,7 +133,7 @@ class Example:
 
     def _on_btn_create(self, _: bool, state: bool) -> None:
         print(f"lightbar false")
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR, False)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR, state)
         self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
 
     #
@@ -172,12 +176,33 @@ class Example:
         if state is False:
             print(f"R3 -> pulse FADE_OUT")
             self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT)
-            # self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT if state else OutPulseOptions.OFF)
 
     def _on_btn_l3(self, _: bool, state: bool) -> None:
         if state is False:
             print(f"L3 -> pulse FADE_BLUE")
             self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
+
+    #
+    # Touch0 x-value -> rgb-color
+    #
+    def _on_touch_0(self, _: bool, state: bool) -> None:
+        x_max = 1920
+        y_max = 1080
+        x = self._dualsense_controller.states.touch_0_x.value
+        y = self._dualsense_controller.states.touch_0_y.value
+        x = min(x_max, max(0, x))
+        y = min(y_max, max(0, y))
+
+        color = int(0xffffff * x / x_max)
+        red = (color >> 16) & 0xff
+        green = (color >> 8) & 0xff
+        blue = color & 0xff
+
+        # print(f"Touch {x}-{y} -> color {hex(color)} {red}-{green}-{blue}")
+
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, red)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, green)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, blue)
 
     #
     # all
