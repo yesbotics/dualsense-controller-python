@@ -151,8 +151,8 @@ class Example:
         print(self._dualsense_controller.states.btn_mute.value)
         try:
             self._dualsense_controller.states.btn_mute.value = False
-        except:
-            print('set stave value not allowed')
+        except AttributeError:
+            print('change the state from outside is not allowed.')
 
     def _on_btn_mute_2(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed 2: {state}')

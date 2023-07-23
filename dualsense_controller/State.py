@@ -43,7 +43,7 @@ class State(Generic[ValueType]):
             if old_value != value:
                 self._set_value(old_value, value)
 
-    def on_change(self, callback: StateChangeCallback):
+    def on_change(self, callback: StateChangeCallback)->None:
         self._event_emitter.on(self.name, callback)
 
     def _set_value(self, old_value: ValueType, new_value: ValueType) -> None:
