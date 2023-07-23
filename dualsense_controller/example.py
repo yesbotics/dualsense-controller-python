@@ -50,6 +50,8 @@ class Example:
         self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
         self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
 
+        self._dualsense_controller.on_battery_low(75, self._on_battery_low)
+
     def run(self) -> None:
         self._stay_alive = True
         self._dualsense_controller.init()
@@ -159,6 +161,9 @@ class Example:
         # print(f'Any State 4 {name}: {state}')
         pass
 
+    #
+    # misc
+    #
     def _on_btn_mute(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed: {state}')
         print(self._dualsense_controller.states.btn_mute.value)
@@ -172,6 +177,9 @@ class Example:
 
     def _on_btn_mute_3(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed 3: {state}')
+
+    def _on_battery_low(self, percentage: float):
+        print(f'Battery is low: {percentage}')
 
 
 def main():
