@@ -6,7 +6,13 @@ from dualsense_controller.common import StateValueType, ReadStateName, StateChan
 
 
 class State(Generic[StateValueType]):
-    def __init__(self, name: ReadStateName, value: StateValueType | None = None, skip_none: bool = True, threshold: int = 0):
+    def __init__(
+            self,
+            name: ReadStateName,
+            value: StateValueType = None,
+            skip_none: bool = True,
+            threshold: int = 0
+    ):
         super().__init__()
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self.name: Final[ReadStateName] = name
