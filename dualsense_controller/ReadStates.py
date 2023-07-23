@@ -231,15 +231,6 @@ class ReadStates(BaseStates[ReadStateName]):
         for state_name, state in self._states_dict.items():
             state.on_change(lambda old_value, new_value: callback(state_name, old_value, new_value))
 
-    def _create_and_register_state(
-            self,
-            name: ReadStateName,
-            value: StateValueType = None,
-            threshold: int = 0,
-            skip_none: False = True
-    ) -> State[StateValueType]:
-        return super()._create_and_register_state(name, value=value, threshold=threshold, skip_none=skip_none)
-
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
         # ##### ANALOG STICKS #####

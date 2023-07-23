@@ -10,15 +10,15 @@ class State(Generic[StateValueType]):
             self,
             name: ReadStateName,
             value: StateValueType = None,
+            threshold: int = 0,
             skip_none: bool = True,
-            threshold: int = 0
     ):
         super().__init__()
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self.name: Final[ReadStateName] = name
-        self._skip_none: bool = skip_none
         self._value: StateValueType | None = value
         self._threshold: int = threshold
+        self._skip_none: bool = skip_none
 
     def __repr__(self) -> str:
         return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
