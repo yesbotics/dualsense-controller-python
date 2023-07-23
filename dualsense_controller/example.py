@@ -52,6 +52,8 @@ class Example:
 
         self._dualsense_controller.on_battery_low(75, self._on_battery_low)
 
+        self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
+
     def run(self) -> None:
         self._stay_alive = True
         self._dualsense_controller.init()
@@ -182,11 +184,15 @@ class Example:
     #
     def _on_btn_mute(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed: {state}')
-        # print(self._dualsense_controller.states.btn_mute.value)
-        # try:
-        #     self._dualsense_controller.states.btn_mute.value = False
-        # except AttributeError:
-        #     print('change the state from outside is not allowed.')
+        if state:
+            print(self._dualsense_controller.states.btn_mute.value)
+            try:
+                self._dualsense_controller.states.btn_mute.value = False
+            except AttributeError:
+                print('change the state from outside is not allowed.')
+            print("batt lvl:", self._dualsense_controller.states.battery_level_percent.value)
+            print("batt is full:", self._dualsense_controller.states.battery_full.value)
+            print("batt is charging", self._dualsense_controller.states.battery_charging.value)
 
     def _on_btn_mute_2(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed 2: {state}')

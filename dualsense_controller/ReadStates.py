@@ -329,7 +329,11 @@ class ReadStates:
         self._r2_feedback_value.value = in_report.r2_feedback & 0xff
 
         # ##### BATTERY #####
-        self._battery_level_percent.value = (in_report.battery_0 & 0x0f) * 100 / 8
+        batt_level_raw: int = in_report.battery_0 & 0x0f
+        if batt_level_raw > 8:
+            batt_level_raw = 8
+        batt_level: float = batt_level_raw / 8
+        self._battery_level_percent.value = batt_level * 100
         self._battery_full.value = not not (in_report.battery_0 & 0x20)
         self._battery_charging.value = not not (in_report.battery_1 & 0x08)
 
