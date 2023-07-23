@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Final
 
-from dualsense_controller.common import OutReportLength, OutReportId
+from dualsense_controller.common import OutReportLength, OutReportId, OutOperatingMode, OutLightEffectControl, \
+    OutLedOptions, \
+    OutPulseOptions, OutBrightness
 
 
 class OutReport(ABC):
@@ -10,8 +12,10 @@ class OutReport(ABC):
         self.lightbar_red: int = 0xff
         self.lightbar_green: int = 0xff
         self.lightbar_blue: int = 0xff
+
         self.motor_left: int = 0x00
         self.motor_right: int = 0x00
+
         self.l2_effect_mode: int = 0x26
         self.l2_effect_param1: int = 0x90
         self.l2_effect_param2: int = 0xA0
@@ -20,6 +24,7 @@ class OutReport(ABC):
         self.l2_effect_param5: int = 0x00
         self.l2_effect_param6: int = 0x00
         self.l2_effect_param7: int = 0x00
+
         self.r2_effect_mode: int = 0x26
         self.r2_effect_param1: int = 0x90
         self.r2_effect_param2: int = 0xA0
@@ -29,6 +34,20 @@ class OutReport(ABC):
         self.r2_effect_param6: int = 0x00
         self.r2_effect_param7: int = 0x00
 
+        # New
+        self.lightbar: bool = True
+
+        self.microphone_led: bool = False
+        self.microphone_mute: bool = True
+
+        self.led_options: OutLedOptions = OutLedOptions.ALL
+        self.pulse_options: OutPulseOptions = OutPulseOptions.OFF
+        self.brightness: OutBrightness = OutBrightness.HIGH
+        self.player_led: int = 0x00
+        # self.touchpad_color_red: int = 0xff
+        # self.touchpad_color_green: int = 0xff
+        # self.touchpad_color_blue: int = 0xff
+
     @abstractmethod
     def to_bytes(self) -> bytearray:
         pass
@@ -36,64 +55,113 @@ class OutReport(ABC):
 
 class Usb01OutReport(OutReport):
     def to_bytes(self) -> bytearray:
-
         # print("-----------> usb")
 
-        reportId = 0x02
+        # reportId = 0x02
 
-        bytes = bytearray(OutReportLength.USB_01)
+        out_report = bytearray(OutReportLength.USB_01)
 
-        bytes[0] = OutReportId.USB_01
+        out_report[0] = OutReportId.USB_01
 
-        # JS:
-        # valid_flag0
+        #
+        # valid_flag0 - flags determing what changes this packet will perform
+        # or: OperatingMode
+        #
         # bit 0: COMPATIBLE_VIBRATION
         # bit 1: HAPTICS_SELECT
+        out_report[1] = OutOperatingMode.ALL
+
         #
-        # pydualsense:
-        # packet type
-        bytes[1] = 0xff
-
-        # # valid_flag1
-        # # bit 0: MIC_MUTE_LED_CONTROL_ENABLE
-        # # bit 1: POWER_SAVE_CONTROL_ENABLE
-        # # bit 2: LIGHTBAR_CONTROL_ENABLE
-        # # bit 3: RELEASE_LEDS
-        # # bit 4: PLAYER_INDICATOR_CONTROL_ENABLE
-        # bytes[1] = 0xf7
-
-        # further flags determining what changes this packet will perform
-        # 0x01 toggling microphone LED
-        # 0x02 toggling audio/mic mute
-        # 0x04 toggling LED strips on the sides of the touchpad
-        # 0x08 will actively turn all LEDs off? Convenience flag? (if so, third parties might not support it properly)
-        # 0x10 toggling white player indicator LEDs below touchpad
-        # 0x20 ???
-        # 0x40 adjustment of overall motor/effect power (index 37 - read note on triggers)
-        # 0x80 ???
-        bytes[3] = 0x1 | 0x2 | 0x4 | 0x10 | 0x40
+        # valid_flag1 - further flags determining what changes this packet will perform
+        # or: LightEffectMode
+        #
+        # bit 0: MIC_MUTE_LED_CONTROL_ENABLE - toggling microphone LED
+        # bit 1: POWER_SAVE_CONTROL_ENABLE - toggling audio/mic mute
+        # bit 2: LIGHTBAR_CONTROL_ENABLE - toggling LED strips on the sides of the touchpad
+        # bit 3: RELEASE_LEDS - will actively turn all LEDs off? Convenience flag?
+        # bit 4: PLAYER_INDICATOR_CONTROL_ENABLE - toggling white player indicator LEDs below touchpad
+        # bit 5: ???
+        # bit 6: adjustment of overall motor/effect power (index 37 - read note on triggers)
+        # bit 7: ???
+        out_report[2] = (
+                OutLightEffectControl.LIGHTBAR_CONTROL_ENABLE |
+                OutLightEffectControl.PLAYER_INDICATOR_CONTROL_ENABLE
+        )
+        # out_report[2] = OutLightEffectControl.ALL_FORCE
 
         # DualShock 4 compatibility mode.
-        bytes[3] = clamp(self.motor_right, 0, 255)
-        bytes[4] = clamp(self.motor_left, 0, 255)
+        out_report[3] = clamp_byte(self.motor_right)
+        out_report[4] = clamp_byte(self.motor_left)
 
-        return bytes
+        # mute_button_led
+        # 0: mute LED off
+        # 1: mute LED on
+        out_report[9] = self.microphone_led
+
+        # power_save_control
+        # bit 4: POWER_SAVE_CONTROL_MIC_MUTE
+        out_report[10] = 0x10 if self.microphone_mute else 0x00
+
+        # Right trigger effect
+        # Mode
+        # 0x00: off
+        # 0x01: mode1
+        # 0x02: mode2
+        # 0x05: mode1 + mode4
+        # 0x06: mode2 + mode4
+        # 0x21: mode1 + mode20
+        # 0x25: mode1 + mode4 + mode20
+        # 0x26: mode2 + mode4 + mode20
+        # 0xFC: calibration
+        out_report[11] = self.r2_effect_mode
+        out_report[12] = self.r2_effect_param1
+        out_report[13] = self.r2_effect_param2
+        out_report[14] = self.r2_effect_param3
+        out_report[15] = self.r2_effect_param4
+        out_report[16] = self.r2_effect_param5
+        out_report[17] = self.r2_effect_param6
+        out_report[20] = self.r2_effect_param7
+
+        out_report[22] = self.l2_effect_mode
+        out_report[23] = self.l2_effect_param1
+        out_report[24] = self.l2_effect_param2
+        out_report[25] = self.l2_effect_param3
+        out_report[26] = self.l2_effect_param4
+        out_report[27] = self.l2_effect_param5
+        out_report[28] = self.l2_effect_param6
+        out_report[31] = self.l2_effect_param7
+
+        out_report[39] = self.led_options
+
+        # Lightbar on/off
+        # bytes[41] = 2 ** 0 if self.lightbar else 2 ** 1
+
+        # Disable/Endable LEDs or Pulse/Fade-Options?
+        # out_report[42] = self.pulse_options
+        # out_report[43] = self.brightness
+        out_report[44] = self.player_led
+
+        out_report[45] = self.lightbar_red
+        out_report[46] = self.lightbar_green
+        out_report[47] = self.lightbar_blue
+
+        return out_report
 
 
 class Bt01OutReport(OutReport):
     def to_bytes(self) -> bytearray:
         # print("-----------> BT01")
 
-        bytes = bytearray(OutReportLength.BT_01)
-        return bytes
+        out_report = bytearray(OutReportLength.BT_01)
+        return out_report
 
 
 class Bt31OutReport(OutReport):
     def to_bytes(self) -> bytearray:
         # print("-----------> BT31")
 
-        bytes = bytearray(OutReportLength.BT_31)
-        return bytes
+        out_report = bytearray(OutReportLength.BT_31)
+        return out_report
 
 
 class InReport(ABC):
@@ -454,3 +522,7 @@ class Bt01InReport(InReport):
 
 def clamp(value: int, val_min: int, val_max: int) -> int:
     return min(val_max, max(val_min, value))
+
+
+def clamp_byte(value: int) -> int:
+    return min(255, max(0, value))

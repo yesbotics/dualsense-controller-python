@@ -17,12 +17,11 @@ class ControllerDevice:
     ):
         super().__init__()
 
-        self._hid_device = device
+        self._hid_device: hidapi.Device = device
         self._connection_type: ConnectionType = ConnectionType.UNDEFINED
         self._report_length: InReportLength = InReportLength.DUMMY
         self._in_report_class = None
-        self._out_report = None
-        # self._out_report_class = None
+        self._out_report: OutReport | None = None
         self._init()
 
     def _init(self):
@@ -63,6 +62,7 @@ class ControllerDevice:
     def write(self):
         data = self.out_report.to_bytes()
         # print(data)
+        print(data.hex(' '), end='\n')
         self._hid_device.write(data)
 
     def close(self):

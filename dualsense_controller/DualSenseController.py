@@ -130,6 +130,7 @@ class DualSenseController:
         try:
             while not self._stop_thread_event.is_set():
                 in_report = self._controller_device.read()
+                self._read_states.update(in_report, self._controller_device.connection_type)
 
                 if self._write_states.changed:
                     # print(f'Sending report.')
@@ -137,6 +138,5 @@ class DualSenseController:
                     self._write_states.set_unchanged()
                     self._controller_device.write()
 
-                self._read_states.update(in_report, self._controller_device.connection_type)
         except Exception as exception:
             self._event_emitter.emit(EventType.EXCEPTION, exception)

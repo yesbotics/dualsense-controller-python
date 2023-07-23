@@ -2,7 +2,7 @@ from typing import Type, Generic
 
 from dualsense_controller import State
 from dualsense_controller.common import ReadStateName, StateChangeCallback, AnyStateChangeCallback, ConnectionType, \
-    WriteStateName, ValueType
+    WriteStateName, ValueType, OutLedOptions, OutPulseOptions, OutBrightness
 from dualsense_controller.reports import InReport, OutReport, Usb01OutReport, Bt01OutReport, Bt31OutReport
 from dualsense_controller.exceptions import InvalidConnectionTypeException
 
@@ -38,6 +38,14 @@ class WriteStates:
         self._create_state(WriteStateName.R2_EFFECT_PARAM5, int, 0x00)
         self._create_state(WriteStateName.R2_EFFECT_PARAM6, int, 0x00)
         self._create_state(WriteStateName.R2_EFFECT_PARAM7, int, 0x00)
+
+        self._create_state(WriteStateName.LIGHTBAR, bool, True)
+        self._create_state(WriteStateName.MICROPHONE_LED, bool, False)
+        self._create_state(WriteStateName.MICROPHONE_MUTE, bool, True)
+        self._create_state(WriteStateName.LED_OPTIONS, int, OutLedOptions.ALL)
+        self._create_state(WriteStateName.PULSE_OPTIONS, int, OutPulseOptions.FADE_OUT)
+        self._create_state(WriteStateName.BRIGHTNESS, int, OutBrightness.HIGH)
+        self._create_state(WriteStateName.PLAYER_LED, int, 0x00)
 
     # @property
     # def states_dict(self) -> dict[ReadStateName, State]:
@@ -76,9 +84,13 @@ class WriteStates:
         out_report.r2_effect_param6 = self._get_state(WriteStateName.R2_EFFECT_PARAM6).value
         out_report.r2_effect_param7 = self._get_state(WriteStateName.R2_EFFECT_PARAM7).value
 
-    def _on_change(self, state_name: WriteStateName, _: bool, value: int):
-        # print(F'State written: {state_name}')
-        self._changed = True
+        out_report.lightbar = self._get_state(WriteStateName.LIGHTBAR.LIGHTBAR).value
+        out_report.microphone_led = self._get_state(WriteStateName.MICROPHONE_LED.MICROPHONE_LED).value
+        out_report.microphone_mute = self._get_state(WriteStateName.MICROPHONE_MUTE.MICROPHONE_MUTE).value
+        out_report.led_options = self._get_state(WriteStateName.LED_OPTIONS.LED_OPTIONS).value
+        out_report.pulse_options = self._get_state(WriteStateName.PULSE_OPTIONS.PULSE_OPTIONS).value
+        out_report.brightness = self._get_state(WriteStateName.BRIGHTNESS.BRIGHTNESS).value
+        out_report.player_led = self._get_state(WriteStateName.PLAYER_LED.PLAYER_LED).value
 
     def _create_state(self, name: WriteStateName, data_type: Type, start_value) -> None:
         self._states_dict[name] = State[data_type](name, start_value)
@@ -86,3 +98,6 @@ class WriteStates:
 
     def _get_state(self, name: WriteStateName) -> State:
         return self._states_dict[name]
+
+    def _on_change(self, _, __, ___):
+        self._changed = True
