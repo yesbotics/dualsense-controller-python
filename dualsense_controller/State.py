@@ -2,7 +2,7 @@ from typing import Generic, Final
 
 import pyee
 
-from dualsense_controller.common import ValueType, ReadStateName, AnyStateChangeCallback, SimpleCallback
+from dualsense_controller.common import ValueType, ReadStateName, StateChangeCallback
 
 
 class State(Generic[ValueType]):
@@ -43,9 +43,9 @@ class State(Generic[ValueType]):
             if old_value != value:
                 self._set_value(old_value, value)
 
-    def on_change(self, callback: AnyStateChangeCallback):
+    def on_change(self, callback: StateChangeCallback)->None:
         self._event_emitter.on(self.name, callback)
 
     def _set_value(self, old_value: ValueType, new_value: ValueType) -> None:
         self._value = new_value
-        self._event_emitter.emit(self.name, self.name, old_value, new_value)
+        self._event_emitter.emit(self.name, old_value, new_value)
