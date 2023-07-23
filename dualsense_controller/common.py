@@ -28,7 +28,7 @@ class OutReportLength(int, Enum):
 #
 # Not clear
 #
-class OutOperatingMode(int, Enum):
+class OutFlagsPhysics(int, Enum):
     # Alternativ:
     # DS4_COMPATIBILITY_MODE = 1 << 0
     # DS5_MODE = 1 << 1
@@ -40,7 +40,7 @@ class OutOperatingMode(int, Enum):
     )
 
 
-class OutLightEffectControl(int, Enum):
+class OutFlagsLights(int, Enum):
     MIC_MUTE_LED_CONTROL_ENABLE = 1 << 0
     POWER_SAVE_CONTROL_ENABLE = 1 << 1
     LIGHTBAR_CONTROL_ENABLE = 1 << 2
@@ -50,10 +50,18 @@ class OutLightEffectControl(int, Enum):
     OVERALL_EFFECT_POWER = 1 << 6
     UNKNOWN_FLAG_7 = 1 << 7
     ALL = (
+            # RELEASE_LEDS |
             MIC_MUTE_LED_CONTROL_ENABLE |
             POWER_SAVE_CONTROL_ENABLE |
             LIGHTBAR_CONTROL_ENABLE |
-            RELEASE_LEDS |
+            PLAYER_INDICATOR_CONTROL_ENABLE |
+            OVERALL_EFFECT_POWER
+    )
+    ALL_BUT_MUTE_LED = (
+            # RELEASE_LEDS |
+            # MIC_MUTE_LED_CONTROL_ENABLE |
+            POWER_SAVE_CONTROL_ENABLE |
+            LIGHTBAR_CONTROL_ENABLE |
             PLAYER_INDICATOR_CONTROL_ENABLE |
             OVERALL_EFFECT_POWER
     )
@@ -82,8 +90,8 @@ class OutLightbarMode(int, Enum):
 
 class OutBrightness(int, Enum):
     HIGH = 0
-    MEDIUM = 1 << 0
-    LOW = 1 << 1
+    MEDIUM = 0x01
+    LOW = 0x02
 
 
 class OutPulseOptions(int, Enum):
@@ -116,6 +124,8 @@ class ConnectionType(Enum):
 
 
 class WriteStateName(str, Enum):
+    FLAGS_LIGHTS = 'FLAGS_LIGHTS'
+    FLAGS_PHYSICS = 'FLAGS_PHYSICS'
     LIGHTBAR_RED = 'LIGHTBAR_RED'
     LIGHTBAR_GREEN = 'LIGHTBAR_GREEN'
     LIGHTBAR_BLUE = 'LIGHTBAR_BLUE'

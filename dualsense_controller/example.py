@@ -74,6 +74,9 @@ class Example:
         if state is False:  # if stop holding ps key
             self._stop()
 
+    #
+    # L1 / R1 -> brightness
+    #
     def _on_btn_l1(self, _: bool, state: bool) -> None:
         print(f'L1 Button pressed: {state} -> brightness ')
         self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
@@ -84,6 +87,9 @@ class Example:
         self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
                                              OutBrightness.MEDIUM if state else OutBrightness.HIGH)
 
+    #
+    # L2 / R2 -> rumble
+    #
     def _on_l2(self, _: bool, value: int) -> None:
         self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value if value > 20 else 0)
 
@@ -92,6 +98,7 @@ class Example:
 
     #
     # Left Controls -> lightbar color
+    # Btn Create -> Lightbar off + Micro Mute
     #
     def _on_btn_left(self, _: bool, state: bool) -> None:
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
@@ -116,9 +123,11 @@ class Example:
     def _on_btn_create(self, _: bool, state: bool) -> None:
         print(f"lightbar false")
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR, False)
+        self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
 
     #
     # Right Controls -> Player LED
+    # Btn Options -> Player LED off + Micro LED
     #
     def _on_btn_square(self, _: bool, state: bool) -> None:
         print(f"player led center + outer")
@@ -139,14 +148,15 @@ class Example:
     def _on_btn_options(self, _: bool, state: bool) -> None:
         print(f"player led off")
         self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OFF)
+        self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
 
     #
-    #
+    # Microphone
     #
     def _on_btn_mute(self, _: bool, state: bool) -> None:
         print(f"mute")
         # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
-        self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
+        # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
 
     #
     # all
@@ -172,11 +182,11 @@ class Example:
     #
     def _on_btn_mute(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed: {state}')
-        print(self._dualsense_controller.states.btn_mute.value)
-        try:
-            self._dualsense_controller.states.btn_mute.value = False
-        except AttributeError:
-            print('change the state from outside is not allowed.')
+        # print(self._dualsense_controller.states.btn_mute.value)
+        # try:
+        #     self._dualsense_controller.states.btn_mute.value = False
+        # except AttributeError:
+        #     print('change the state from outside is not allowed.')
 
     def _on_btn_mute_2(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed 2: {state}')

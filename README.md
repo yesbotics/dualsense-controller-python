@@ -50,7 +50,19 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
         <td>2</td>
         <td>0x02</td>
         <td>Feature flags (lights)</td>
-        <td></td>
+        <td>
+            bit 0: MIC_MUTE_LED_CONTROL_ENABLE <br>
+            bit 1: POWER_SAVE_CONTROL_ENABLE <br> 
+            bit 2: LIGHTBAR_CONTROL_ENABLE <br> 
+            bit 3: RELEASE_LEDS <br> 
+            bit 4: PLAYER_INDICATOR_CONTROL_ENABLE <br> 
+            bit 5: UNKNOWN_FLAG_5 <br> 
+            bit 6: OVERALL_EFFECT_POWER <br> 
+            bit 7: UNKNOWN_FLAG_7 
+        </td>
+        <td>
+            Flag RELEASE_LEDS makes trouble and is currently disabled. All other known flags are enabled. 
+        </td>
     </tr>
     <tr>
         <td>3</td>
@@ -330,7 +342,10 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
             0x03 - LOW
             </nobr> 
         </td>
-        <td>Sets brightness of mute button led only(?)</td>
+        <td>Sets brightness of mute button and player leds.<br>
+            Only works when light-effects flag MIC_MUTE_LED_CONTROL_ENABLE is NOT set. This is done interally when
+            setting brightness. 
+        </td>
     </tr>
     <tr>
         <td>44</td>

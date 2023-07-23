@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Final
 
-from dualsense_controller.common import OutReportLength, OutReportId, OutOperatingMode, OutLightEffectControl, \
+from dualsense_controller.common import OutReportLength, OutReportId, OutFlagsPhysics, OutFlagsLights, \
     OutLedOptions, \
     OutPulseOptions, OutBrightness, OutPlayerLed, OutLightbarMode
 
@@ -9,6 +9,9 @@ from dualsense_controller.common import OutReportLength, OutReportId, OutOperati
 class OutReport(ABC):
 
     def __init__(self):
+        self.flags_physics: int = OutFlagsPhysics.ALL
+        self.flags_lights: int = OutFlagsLights.ALL
+
         self.lightbar_red: int = 0xff
         self.lightbar_green: int = 0xff
         self.lightbar_blue: int = 0xff
@@ -34,7 +37,6 @@ class OutReport(ABC):
         self.r2_effect_param6: int = 0x00
         self.r2_effect_param7: int = 0x00
 
-        # New
         self.lightbar: bool = True
 
         self.microphone_led: bool = False
@@ -44,9 +46,6 @@ class OutReport(ABC):
         self.pulse_options: OutPulseOptions = OutPulseOptions.OFF
         self.brightness: OutBrightness = OutBrightness.HIGH
         self.player_led: int = OutPlayerLed.OFF
-        # self.touchpad_color_red: int = 0xff
-        # self.touchpad_color_green: int = 0xff
-        # self.touchpad_color_blue: int = 0xff
 
     @abstractmethod
     def to_bytes(self) -> bytearray:
@@ -69,7 +68,7 @@ class Usb01OutReport(OutReport):
         #
         # bit 0: COMPATIBLE_VIBRATION
         # bit 1: HAPTICS_SELECT
-        out_report[1] = OutOperatingMode.ALL
+        out_report[1] = self.flags_physics
 
         #
         # valid_flag1 - further flags determining what changes this packet will perform
@@ -83,11 +82,7 @@ class Usb01OutReport(OutReport):
         # bit 5: ???
         # bit 6: adjustment of overall motor/effect power (index 37 - read note on triggers)
         # bit 7: ???
-        out_report[2] = (
-                OutLightEffectControl.LIGHTBAR_CONTROL_ENABLE |
-                OutLightEffectControl.PLAYER_INDICATOR_CONTROL_ENABLE
-        )
-        # out_report[2] = OutLightEffectControl.ALL_FORCE
+        out_report[2] = self.flags_lights
 
         # DualShock 4 compatibility mode.
         out_report[3] = clamp_byte(self.motor_right)
