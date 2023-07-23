@@ -8,9 +8,13 @@ from dualsense_controller.common import (
     StateChangeCallback,
     AnyStateChangeCallback,
     ConnectionType,
-    StateValueType
+    StateValueType,
+    Accelerometer,
+    Gyroscope,
+    Orientation
 )
 from dualsense_controller.reports import InReport
+from dualsense_controller.utils import calculate_orientation
 
 
 class _StatePublicAccess(Generic[StateValueType]):
@@ -184,42 +188,58 @@ class ReadStates(BaseStates[ReadStateName]):
         self._battery_charging: Final[State[int]] = self._create_and_register_state(
             ReadStateName.BATTERY_CHARGING, skip_none=False
         )
+        self._gyroscope: Final[State[Gyroscope]] = self._create_and_register_state(
+            ReadStateName.GYROSCOPE
+        )
+        self._accelerometer: Final[State[Accelerometer]] = self._create_and_register_state(
+            ReadStateName.ACCELEROMETER
+        )
+        self._orientation: Final[State[Orientation]] = self._create_and_register_state(
+            ReadStateName.ORIENTATION
+        )
 
-    @property
-    def analog_threshold(self) -> int:
-        return self._analog_threshold
+        self._gyroscope_x.on_change(self._on_gyro_x_or_y_or_z)
+        self._gyroscope_y.on_change(self._on_gyro_x_or_y_or_z)
+        self._gyroscope_z.on_change(self._on_gyro_x_or_y_or_z)
+        self._accelerometer_x.on_change(self._on_accel_x_or_y_or_z)
+        self._accelerometer_y.on_change(self._on_accel_x_or_y_or_z)
+        self._accelerometer_z.on_change(self._on_accel_x_or_y_or_z)
+        self._gyroscope.on_change(self._on_gyro_or_accel)
+        self._accelerometer.on_change(self._on_gyro_or_accel)
 
-    @analog_threshold.setter
-    def analog_threshold(self, analog_threshold: int) -> None:
-        self._analog_threshold = analog_threshold
-        self._left_stick_x.threshold = analog_threshold
-        self._left_stick_y.threshold = analog_threshold
-        self._right_stick_x.threshold = analog_threshold
-        self._right_stick_y.threshold = analog_threshold
-        self._l2.threshold = analog_threshold
-        self._r2.threshold = analog_threshold
+    def _on_gyro_x_or_y_or_z(self, _: int, __: int) -> None:
+        gyro: Gyroscope = Gyroscope(
+            x=self._gyroscope_x.value,
+            y=self._gyroscope_y.value,
+            z=self._gyroscope_z.value,
+        )
+        self._gyroscope.value = gyro
 
-    @property
-    def accelerometer_threshold(self) -> int:
-        return self._accelerometer_threshold
+    def _on_accel_x_or_y_or_z(self, _: int, __: int) -> None:
+        gyro: Accelerometer = Accelerometer(
+            x=self._gyroscope_x.value,
+            y=self._gyroscope_y.value,
+            z=self._gyroscope_z.value,
+        )
+        self._accelerometer.value = gyro
 
-    @accelerometer_threshold.setter
-    def accelerometer_threshold(self, accelerometer_threshold: int) -> None:
-        self._accelerometer_threshold = accelerometer_threshold
-        self._accelerometer_x.threshold = accelerometer_threshold
-        self._accelerometer_y.threshold = accelerometer_threshold
-        self._accelerometer_z.threshold = accelerometer_threshold
-
-    @property
-    def gyroscope_threshold(self) -> int:
-        return self._gyroscope_threshold
-
-    @gyroscope_threshold.setter
-    def gyroscope_threshold(self, gyroscope_threshold: int) -> None:
-        self._gyroscope_threshold = gyroscope_threshold
-        self._gyroscope_x.threshold = gyroscope_threshold
-        self._gyroscope_y.threshold = gyroscope_threshold
-        self._gyroscope_z.threshold = gyroscope_threshold
+    def _on_gyro_or_accel(self, _: int, __: int) -> None:
+        # print('calc orientation -> impl')
+        o = calculate_orientation(
+            [self._gyroscope_x.value],
+            [self._gyroscope_y.value],
+            [self._gyroscope_z.value],
+            self._accelerometer_x.value,
+            self._accelerometer_y.value,
+            self._accelerometer_z.value,
+        )
+        print(o)
+        orientation: Orientation = Orientation(
+            yaw=0,
+            pitch=0,
+            roll=0,
+        )
+        self._orientation.value = orientation
 
     def on_change(self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
         if callback is None:
@@ -319,6 +339,42 @@ class ReadStates(BaseStates[ReadStateName]):
         self._battery_level_percent.value = batt_level * 100
         self._battery_full.value = not not (in_report.battery_0 & 0x20)
         self._battery_charging.value = not not (in_report.battery_1 & 0x08)
+
+    @property
+    def analog_threshold(self) -> int:
+        return self._analog_threshold
+
+    @analog_threshold.setter
+    def analog_threshold(self, analog_threshold: int) -> None:
+        self._analog_threshold = analog_threshold
+        self._left_stick_x.threshold = analog_threshold
+        self._left_stick_y.threshold = analog_threshold
+        self._right_stick_x.threshold = analog_threshold
+        self._right_stick_y.threshold = analog_threshold
+        self._l2.threshold = analog_threshold
+        self._r2.threshold = analog_threshold
+
+    @property
+    def accelerometer_threshold(self) -> int:
+        return self._accelerometer_threshold
+
+    @accelerometer_threshold.setter
+    def accelerometer_threshold(self, accelerometer_threshold: int) -> None:
+        self._accelerometer_threshold = accelerometer_threshold
+        self._accelerometer_x.threshold = accelerometer_threshold
+        self._accelerometer_y.threshold = accelerometer_threshold
+        self._accelerometer_z.threshold = accelerometer_threshold
+
+    @property
+    def gyroscope_threshold(self) -> int:
+        return self._gyroscope_threshold
+
+    @gyroscope_threshold.setter
+    def gyroscope_threshold(self, gyroscope_threshold: int) -> None:
+        self._gyroscope_threshold = gyroscope_threshold
+        self._gyroscope_x.threshold = gyroscope_threshold
+        self._gyroscope_y.threshold = gyroscope_threshold
+        self._gyroscope_z.threshold = gyroscope_threshold
 
     @property
     def left_stick_x(self) -> _StatePublicAccess[int]:
@@ -503,3 +559,15 @@ class ReadStates(BaseStates[ReadStateName]):
     @property
     def battery_charging(self) -> _StatePublicAccess[int]:
         return _StatePublicAccess(self._battery_charging)
+
+    @property
+    def gyroscope(self) -> _StatePublicAccess[Gyroscope]:
+        return _StatePublicAccess(self._gyroscope)
+
+    @property
+    def accelerometer(self) -> _StatePublicAccess[Accelerometer]:
+        return _StatePublicAccess(self._accelerometer)
+
+    @property
+    def orientation(self) -> _StatePublicAccess[Orientation]:
+        return _StatePublicAccess(self._orientation)

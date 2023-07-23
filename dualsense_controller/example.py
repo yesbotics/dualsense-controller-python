@@ -2,7 +2,8 @@ from time import sleep
 from typing import Any
 
 from dualsense_controller import DualSenseController, ReadStateName, ConnectionType, WriteStateName
-from dualsense_controller.common import OutPlayerLed, OutBrightness, OutPulseOptions
+from dualsense_controller.common import OutPlayerLed, OutBrightness, OutPulseOptions, Gyroscope, Accelerometer, \
+    Orientation
 
 
 class Example:
@@ -62,6 +63,11 @@ class Example:
         # touch
         self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
         self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
+
+        # complex values
+        self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
+        self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
+        self._dualsense_controller.states.orientation.on_change(self._on_orientation)
 
     def run(self) -> None:
         self._stay_alive = True
@@ -245,8 +251,20 @@ class Example:
     def _on_btn_mute_3(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed 3: {state}')
 
-    def _on_battery_low(self, percentage: float):
+    def _on_battery_low(self, percentage: float) -> None:
         print(f'Battery is low: {percentage}')
+
+    def _on_gyroscope(self, _: Gyroscope, state: Gyroscope) -> None:
+        # print(f'Gyroscope: {state}')
+        pass
+
+    def _on_accelerometer(self, _: Accelerometer, state: Accelerometer) -> None:
+        # print(f'Accelerometer: {state}')
+        pass
+
+    def _on_orientation(self, _: Orientation, state: Orientation) -> None:
+        # print(f'Orientation: {state}')
+        pass
 
 
 def main():

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Final, TypeVar, Callable, Any
 
@@ -50,7 +51,7 @@ class OutFlagsLights(int, Enum):
     OVERALL_EFFECT_POWER = 1 << 6
     UNKNOWN_FLAG_7 = 1 << 7
     ALL = (
-            # RELEASE_LEDS |
+        # RELEASE_LEDS |
             MIC_MUTE_LED_CONTROL_ENABLE |
             POWER_SAVE_CONTROL_ENABLE |
             LIGHTBAR_CONTROL_ENABLE |
@@ -58,8 +59,8 @@ class OutFlagsLights(int, Enum):
             OVERALL_EFFECT_POWER
     )
     ALL_BUT_MUTE_LED = (
-            # RELEASE_LEDS |
-            # MIC_MUTE_LED_CONTROL_ENABLE |
+        # RELEASE_LEDS |
+        # MIC_MUTE_LED_CONTROL_ENABLE |
             POWER_SAVE_CONTROL_ENABLE |
             LIGHTBAR_CONTROL_ENABLE |
             PLAYER_INDICATOR_CONTROL_ENABLE |
@@ -210,6 +211,11 @@ class ReadStateName(str, Enum):
     BATTERY_FULL = 'BATTERY_FULL'
     BATTERY_CHARGING = 'BATTERY_CHARGING'
 
+    # custom collections
+    GYROSCOPE = 'GYROSCOPE'
+    ACCELEROMETER = 'ACCELEROMETER'
+    ORIENTATION = 'ORIENTATION'
+
 
 class EventType(str, Enum):
     EXCEPTION = 'EXCEPTION'
@@ -229,3 +235,24 @@ ConnectionChangeCallback = Callable[[bool, ConnectionType], None]
 StateChangeCallback = Callable[[Any, Any], None]
 AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
 BatteryLowCallback = Callable[[float], None]
+
+
+@dataclass(frozen=True, slots=True)
+class Gyroscope:
+    x: int
+    y: int
+    z: int
+
+
+@dataclass(frozen=True, slots=True)
+class Accelerometer:
+    x: int
+    y: int
+    z: int
+
+
+@dataclass(frozen=True, slots=True)
+class Orientation:
+    yaw: int
+    pitch: int
+    roll: int
