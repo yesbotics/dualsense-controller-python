@@ -1,6 +1,17 @@
 # dualsense-controller-python
 
-Use the Dualsense Controller in Python
+Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
+
+# TODOs
+
+- remove event listener
+- only calculate values on subscribed event listeners
+- complex state packets (gyro value, pad x/y values (-1..1), orientation, touch finger, ...)
+- fix batt level
+- impl set properties (rumble, triggerFX, li50ghts, ...)
+- impl raw report in/out (hex)
+- unify states read/write
+- docs: table for input report like out report
 
 # Links / Inspiration
 

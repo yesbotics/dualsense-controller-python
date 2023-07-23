@@ -25,13 +25,6 @@ from dualsense_controller.exceptions import (
 )
 
 
-# TODO: remove event listener
-# TODO: only calculate values on subscribed event listeners
-# TODO: complex state packets (gyro value, pad x/y values (-1..1), orientation, touch finger, ...)
-# TODO: fix batt level
-# TODO: impl set properties (rumble, triggerFX, li50ghts, ...)
-
-
 class DualSenseController:
 
     @staticmethod
