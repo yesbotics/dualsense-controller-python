@@ -207,7 +207,7 @@ class ReadStateName(str, Enum):
 
 class EventType(str, Enum):
     EXCEPTION = 'EXCEPTION'
-    CONNECTION_CHANGE = 'CONNECTION_CHANGE',
+    CONNECTION_CHANGE = 'CONNECTION_CHANGE'
 
 
 def flag(bit: int) -> int:
@@ -221,3 +221,4 @@ SimpleCallback = Callable[[], None]
 ConnectionChangeCallback = Callable[[bool, ConnectionType], None]
 StateChangeCallback = Callable[[Any, Any], None]
 AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
+BatteryLowCallback = Callable[[float], None]

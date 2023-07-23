@@ -15,7 +15,7 @@ from dualsense_controller.common import (
     ExceptionCallback,
     StateChangeCallback,
     AnyStateChangeCallback,
-    WriteStateName
+    WriteStateName, BatteryLowCallback
 )
 from dualsense_controller.exceptions import (
     AlreadyInitializedException,
@@ -28,8 +28,8 @@ from dualsense_controller.exceptions import (
 # TODO: remove event listener
 # TODO: only calculate values on subscribed event listeners
 # TODO: complex state packets (gyro value, pad x/y values (-1..1), orientation, touch finger, ...)
-# TODO: Batt low warn option
-# TODO: impl set properties (rumble, triggerFX, lights, ...)
+# TODO: fix batt level
+# TODO: impl set properties (rumble, triggerFX, li50ghts, ...)
 
 
 class DualSenseController:
@@ -60,8 +60,17 @@ class DualSenseController:
         self._initialized: bool = False
 
     @property
-    def states(self):  # dont define type here for intellisense
+    def states(self) -> ReadStates:
         return self._read_states
+
+    def on_battery_low(self, level_percentage: float, callback: BatteryLowCallback):
+        battery_low_level_percentage: float = level_percentage
+
+        def check(_: float | None, batt_level_percentage: float) -> None:
+            if batt_level_percentage <= battery_low_level_percentage:
+                callback(batt_level_percentage)
+
+        self.states.battery_level_percent.on_change(check)
 
     def on_connection_change(self, callback: ConnectionChangeCallback):
         self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)
