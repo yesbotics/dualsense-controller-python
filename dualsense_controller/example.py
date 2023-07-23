@@ -46,12 +46,14 @@ class Example:
         self._dualsense_controller.states.on_change(self._on_any_state_4)
 
         # 3 methods to get state changes of specific property
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
         self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
         self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
 
+        # batt
         self._dualsense_controller.on_battery_low(75, self._on_battery_low)
 
+        # blubb
         self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
 
     def run(self) -> None:
@@ -182,11 +184,12 @@ class Example:
     #
     # misc
     #
-    def _on_btn_mute(self, _: bool, state: bool) -> None:
+    def _on_btn_mute_1(self, _: bool, state: bool) -> None:
         print(f'Mute Button pressed: {state}')
         if state:
             print(self._dualsense_controller.states.btn_mute.value)
             try:
+                # noinspection PyPropertyAccess
                 self._dualsense_controller.states.btn_mute.value = False
             except AttributeError:
                 print('change the state from outside is not allowed.')
