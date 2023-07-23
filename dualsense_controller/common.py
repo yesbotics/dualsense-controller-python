@@ -61,11 +61,22 @@ class OutLightEffectControl(int, Enum):
 
 
 class OutPlayerLed(int, Enum):
-    PLAYER_1 = 1 << 0
-    PLAYER_2 = 1 << 1
-    PLAYER_3 = 1 << 2
-    PLAYER_4 = 1 << 3
-    ALL = PLAYER_1 | PLAYER_2 | PLAYER_3 | PLAYER_4
+    OFF = 0
+
+    # Enables the single, center LED
+    CENTER = 1 << 2
+
+    # Enables the two LEDs adjacent to and directly surrounding the CENTER LED
+    INNER = 1 << 1 | 1 << 3
+
+    # Enables the two outermost LEDs surrounding the INNER LEDs
+    OUTER = 1 << 0 | 1 << 4
+
+    # PLAYER_1 = 1 << 0
+    # PLAYER_2 = 1 << 1
+    # PLAYER_3 = 1 << 2
+    # PLAYER_4 = 1 << 3
+    ALL = CENTER | INNER | OUTER
     # PLAYER_1 = 4
     # PLAYER_2 = 10
     # PLAYER_3 = 21

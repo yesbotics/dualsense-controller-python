@@ -3,7 +3,7 @@ from typing import Final
 
 from dualsense_controller.common import OutReportLength, OutReportId, OutOperatingMode, OutLightEffectControl, \
     OutLedOptions, \
-    OutPulseOptions, OutBrightness
+    OutPulseOptions, OutBrightness, OutPlayerLed
 
 
 class OutReport(ABC):
@@ -43,7 +43,7 @@ class OutReport(ABC):
         self.led_options: OutLedOptions = OutLedOptions.ALL
         self.pulse_options: OutPulseOptions = OutPulseOptions.OFF
         self.brightness: OutBrightness = OutBrightness.HIGH
-        self.player_led: int = 0x00
+        self.player_led: int = OutPlayerLed.OFF
         # self.touchpad_color_red: int = 0xff
         # self.touchpad_color_green: int = 0xff
         # self.touchpad_color_blue: int = 0xff

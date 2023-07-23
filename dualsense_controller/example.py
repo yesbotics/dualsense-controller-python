@@ -29,6 +29,7 @@ class Example:
         self._dualsense_controller.on_state_change(ReadStateName.BTN_SQUARE, self._on_btn_square)
         self._dualsense_controller.on_state_change(ReadStateName.BTN_TRIANGLE, self._on_btn_triangle)
         self._dualsense_controller.on_state_change(ReadStateName.BTN_CIRCLE, self._on_btn_circle)
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_OPTIONS, self._on_btn_options)
 
         self._dualsense_controller.on_state_change(ReadStateName.BTN_LEFT, self._on_btn_left)
         self._dualsense_controller.on_state_change(ReadStateName.BTN_UP, self._on_btn_up)
@@ -101,16 +102,24 @@ class Example:
     # Right Controls -> Player LED
     #
     def _on_btn_square(self, _: bool, state: bool) -> None:
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.PLAYER_1)
+        print(f"player led center")
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.CENTER)
 
     def _on_btn_triangle(self, _: bool, state: bool) -> None:
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.PLAYER_2)
+        print(f"player led inner")
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.INNER)
 
     def _on_btn_circle(self, _: bool, state: bool) -> None:
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.PLAYER_3)
+        print(f"player led outer")
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OUTER)
 
     def _on_btn_cross(self, _: bool, state: bool) -> None:
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.PLAYER_4)
+        print(f"player led all")
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.ALL)
+
+    def _on_btn_options(self, _: bool, state: bool) -> None:
+        print(f"player led off")
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OFF)
 
     #
     # all

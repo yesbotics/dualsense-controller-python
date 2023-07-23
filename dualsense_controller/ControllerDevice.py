@@ -33,17 +33,14 @@ class ControllerDevice:
                 self._connection_type = ConnectionType.USB_01
                 self._in_report_class = Usb01InReport
                 self._out_report = Usb01OutReport()
-                # self._out_report_class = Usb01OutReport
             case InReportLength.BT_31:
                 self._connection_type = ConnectionType.BT_31
                 self._in_report_class = Bt31InReport
                 self._out_report = Bt31OutReport()
-                # self._out_report_class = Bt31OutReport
             case InReportLength.BT_01:
                 self._connection_type = ConnectionType.BT_01
                 self._in_report_class = Bt01InReport
                 self._out_report = Bt01OutReport()
-                # self._out_report_class = Bt01OutReport
             case _:
                 raise InvalidConnectionTypeException
 
