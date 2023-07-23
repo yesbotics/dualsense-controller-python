@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Final, Generic, Callable
 
-from dualsense_controller import State
+from dualsense_controller import State, BaseStates
 from dualsense_controller.common import (
     ReadStateName,
     StateChangeCallback,
@@ -34,7 +34,7 @@ class _StatePublicAccess(Generic[StateValueType]):
         self._state.threshold = threshold
 
 
-class ReadStates:
+class ReadStates(BaseStates[ReadStateName]):
 
     def __init__(
             self,
@@ -43,149 +43,146 @@ class ReadStates:
             accelerometer_threshold: int = 0,
     ):
         super().__init__()
-
         self._analog_threshold: int = analog_threshold
         self._gyroscope_threshold: int = gyroscope_threshold
         self._accelerometer_threshold: int = accelerometer_threshold
-        self._states_dict: Final[dict[ReadStateName, State]] = {}
 
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.LEFT_STICK_X, int, threshold=analog_threshold
+            ReadStateName.LEFT_STICK_X, threshold=analog_threshold
         )
         self._left_stick_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.LEFT_STICK_Y, int, threshold=analog_threshold
+            ReadStateName.LEFT_STICK_Y, threshold=analog_threshold
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.RIGHT_STICK_X, int, threshold=analog_threshold
+            ReadStateName.RIGHT_STICK_X, threshold=analog_threshold
         )
         self._right_stick_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.RIGHT_STICK_Y, int, threshold=analog_threshold
+            ReadStateName.RIGHT_STICK_Y, threshold=analog_threshold
         )
         self._l2: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.L2, int, threshold=analog_threshold
+            ReadStateName.L2, threshold=analog_threshold
         )
         self._r2: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.R2, int, threshold=analog_threshold
+            ReadStateName.R2, threshold=analog_threshold
         )
         self._btn_up: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_UP, bool
-        )
+            ReadStateName.BTN_UP)
         self._btn_left: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_LEFT, bool
+            ReadStateName.BTN_LEFT
         )
         self._btn_down: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_DOWN, bool
+            ReadStateName.BTN_DOWN
         )
         self._btn_right: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_RIGHT, bool
+            ReadStateName.BTN_RIGHT
         )
         self._btn_square: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_SQUARE, bool
+            ReadStateName.BTN_SQUARE
         )
         self._btn_cross: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_CROSS, bool
+            ReadStateName.BTN_CROSS
         )
         self._btn_circle: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_CIRCLE, bool
+            ReadStateName.BTN_CIRCLE
         )
         self._btn_triangle: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_TRIANGLE, bool
+            ReadStateName.BTN_TRIANGLE
         )
         self._btn_l1: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_L1, bool
+            ReadStateName.BTN_L1
         )
         self._btn_r1: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_R1, bool
+            ReadStateName.BTN_R1
         )
         self._btn_l2: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_L2, bool
+            ReadStateName.BTN_L2
         )
         self._btn_r2: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_R2, bool
+            ReadStateName.BTN_R2
         )
         self._btn_create: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_CREATE, bool
+            ReadStateName.BTN_CREATE
         )
         self._btn_options: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_OPTIONS, bool
+            ReadStateName.BTN_OPTIONS
         )
         self._btn_l3: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_L3, bool
+            ReadStateName.BTN_L3
         )
         self._btn_r3: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_R3, bool
+            ReadStateName.BTN_R3
         )
         self._btn_ps: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_PS, bool
+            ReadStateName.BTN_PS
         )
         self._btn_touchpad: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_TOUCHPAD, bool
+            ReadStateName.BTN_TOUCHPAD
         )
         self._btn_mute: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BTN_MUTE, bool
+            ReadStateName.BTN_MUTE
         )
         self._gyroscope_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.GYROSCOPE_X, int, threshold=gyroscope_threshold
+            ReadStateName.GYROSCOPE_X, threshold=gyroscope_threshold
         )
         self._gyroscope_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.GYROSCOPE_Y, int, threshold=gyroscope_threshold
+            ReadStateName.GYROSCOPE_Y, threshold=gyroscope_threshold
         )
         self._gyroscope_z: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.GYROSCOPE_Z, int, threshold=gyroscope_threshold
+            ReadStateName.GYROSCOPE_Z, threshold=gyroscope_threshold
         )
         self._accelerometer_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.ACCELEROMETER_X, int, threshold=accelerometer_threshold
+            ReadStateName.ACCELEROMETER_X, threshold=accelerometer_threshold
         )
         self._accelerometer_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.ACCELEROMETER_Y, int, threshold=accelerometer_threshold
+            ReadStateName.ACCELEROMETER_Y, threshold=accelerometer_threshold
         )
         self._accelerometer_z: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.ACCELEROMETER_Z, int, threshold=accelerometer_threshold
+            ReadStateName.ACCELEROMETER_Z, threshold=accelerometer_threshold
         )
         self._touch_0_active: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_ACTIVE, bool
+            ReadStateName.TOUCH_0_ACTIVE
         )
         self._touch_0_id: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_ID, int
+            ReadStateName.TOUCH_0_ID
         )
         self._touch_0_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_X, int
+            ReadStateName.TOUCH_0_X
         )
         self._touch_0_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_Y, int
+            ReadStateName.TOUCH_0_Y
         )
         self._touch_1_active: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_ACTIVE, bool
+            ReadStateName.TOUCH_1_ACTIVE
         )
         self._touch_1_id: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_ID, int
+            ReadStateName.TOUCH_1_ID
         )
         self._touch_1_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_X, int
+            ReadStateName.TOUCH_1_X
         )
         self._touch_1_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_Y, int
+            ReadStateName.TOUCH_1_Y
         )
         self._l2_feedback_active: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.L2_FEEDBACK_ACTIVE, bool
+            ReadStateName.L2_FEEDBACK_ACTIVE
         )
         self._l2_feedback_value: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.L2_FEEDBACK_VALUE, int
+            ReadStateName.L2_FEEDBACK_VALUE
         )
         self._r2_feedback_active: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.R2_FEEDBACK_ACTIVE, bool
+            ReadStateName.R2_FEEDBACK_ACTIVE
         )
         self._r2_feedback_value: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.R2_FEEDBACK_VALUE, int
+            ReadStateName.R2_FEEDBACK_VALUE
         )
         self._battery_level_percent: Final[State[float]] = self._create_and_register_state(
-            ReadStateName.BATTERY_LEVEL_PERCENT, float, skip_none=False
+            ReadStateName.BATTERY_LEVEL_PERCENT, skip_none=False
         )
         self._battery_full: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BATTERY_FULL, bool, skip_none=False
+            ReadStateName.BATTERY_FULL, skip_none=False
         )
         self._battery_charging: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.BATTERY_CHARGING, int, skip_none=False
+            ReadStateName.BATTERY_CHARGING, skip_none=False
         )
 
     @property
@@ -237,16 +234,11 @@ class ReadStates:
     def _create_and_register_state(
             self,
             name: ReadStateName,
-            data_type: StateValueType,
+            value: StateValueType = None,
             threshold: int = 0,
             skip_none: False = True
-    ) -> State:
-        state: State[StateValueType] = State[data_type](name, threshold=threshold, skip_none=skip_none)
-        self._states_dict[name] = state
-        return state
-
-    def _get_state_by_name(self, name: ReadStateName) -> State:
-        return self._states_dict[name]
+    ) -> State[StateValueType]:
+        return super()._create_and_register_state(name, value=value, threshold=threshold, skip_none=skip_none)
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
