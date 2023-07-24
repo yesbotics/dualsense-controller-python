@@ -4,9 +4,20 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
 
 # TODOs
 
+## RFCT/PERF
+
+- restrict state access via state.restricted_access()
 - only calculate values on subscribed event listeners
-- tests
 - remove event listener
+- update report instead of recreate?
+
+## FIX
+
+- fix batt level
+
+## FEAT
+
+- tests
 - State mapped values as option for DSC default (0 ... 255 -> 0.0 ... 1.0, -128 ... 127 -> -1.0 ... 1.0)
     - remap in StateValueMapping enum
     - Stick Deadzone
@@ -21,10 +32,14 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
     - touch fingers (both)
     - orientation
     - L2 (Btn and analog)
-- fix batt level
+
 - impl set properties (rumble, triggerFX, li50ghts, ...)
 - impl raw report in/out (hex)
-- unify states read/write
+
+# DOCS
+
+- explain (Getting started)
+- rework example
 - docs: table for input report like out report
 
 # Links / Inspiration
