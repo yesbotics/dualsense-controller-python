@@ -11,11 +11,11 @@ from dualsense_controller.common import (
     StateValueType,
     Accelerometer,
     Gyroscope,
+    StateValueMapping,
     JoyStick,
     Orientation
 )
 from dualsense_controller.reports import InReport
-from dualsense_controller.utils import calculate_orientation
 
 
 class _StatePublicAccess(Generic[StateValueType]):
@@ -54,11 +54,13 @@ class ReadStates(BaseStates[ReadStateName]):
             analog_threshold: int = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
+            state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
     ):
         super().__init__()
         self._analog_threshold: int = analog_threshold
         self._gyroscope_threshold: int = gyroscope_threshold
         self._accelerometer_threshold: int = accelerometer_threshold
+        self._state_value_mapping: StateValueMapping = state_value_mapping
 
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X, threshold=analog_threshold
@@ -213,49 +215,6 @@ class ReadStates(BaseStates[ReadStateName]):
         self._orientation: Final[State[Orientation]] = self._create_and_register_state(
             ReadStateName.ORIENTATION
         )
-
-        self._gyroscope_x.on_change(self._on_gyro_x_or_y_or_z)
-        self._gyroscope_y.on_change(self._on_gyro_x_or_y_or_z)
-        self._gyroscope_z.on_change(self._on_gyro_x_or_y_or_z)
-        self._accelerometer_x.on_change(self._on_accel_x_or_y_or_z)
-        self._accelerometer_y.on_change(self._on_accel_x_or_y_or_z)
-        self._accelerometer_z.on_change(self._on_accel_x_or_y_or_z)
-        self._gyroscope.on_change(self._on_gyro_or_accel)
-        self._accelerometer.on_change(self._on_gyro_or_accel)
-
-    def _on_gyro_x_or_y_or_z(self, _: int, __: int) -> None:
-        gyro: Gyroscope = Gyroscope(
-            x=self._gyroscope_x.value,
-            y=self._gyroscope_y.value,
-            z=self._gyroscope_z.value,
-        )
-        self._gyroscope.value = gyro
-
-    def _on_accel_x_or_y_or_z(self, _: int, __: int) -> None:
-        gyro: Accelerometer = Accelerometer(
-            x=self._gyroscope_x.value,
-            y=self._gyroscope_y.value,
-            z=self._gyroscope_z.value,
-        )
-        self._accelerometer.value = gyro
-
-    def _on_gyro_or_accel(self, _: int, __: int) -> None:
-        # print('calc orientation -> impl')
-        o = calculate_orientation(
-            [self._gyroscope_x.value],
-            [self._gyroscope_y.value],
-            [self._gyroscope_z.value],
-            self._accelerometer_x.value,
-            self._accelerometer_y.value,
-            self._accelerometer_z.value,
-        )
-        print(o)
-        orientation: Orientation = Orientation(
-            yaw=0,
-            pitch=0,
-            roll=0,
-        )
-        self._orientation.value = orientation
 
     def on_change(self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
         if callback is None:

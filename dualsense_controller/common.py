@@ -239,7 +239,12 @@ AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
 BatteryLowCallback = Callable[[float], None]
 
 
-#### COMPLEX STATE VALUE TYPES ##########
+class StateValueMapping(Enum):
+    RAW = 0
+    DEFAULT = 1
+
+
+######### COMPLEX STATE VALUE TYPES ##########
 
 @dataclass(frozen=True, slots=True)
 class JoyStick:

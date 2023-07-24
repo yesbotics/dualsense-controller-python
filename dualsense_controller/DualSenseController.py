@@ -15,7 +15,7 @@ from dualsense_controller.common import (
     ExceptionCallback,
     StateChangeCallback,
     AnyStateChangeCallback,
-    WriteStateName, BatteryLowCallback
+    WriteStateName, BatteryLowCallback, StateValueMapping
 )
 from dualsense_controller.exceptions import (
     AlreadyInitializedException,
@@ -38,12 +38,14 @@ class DualSenseController:
             analog_threshold: int = 0,
             gyro_threshold: int = 0,
             accelerometer_threshold: int = 0,
+            state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
     ):
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self._read_states: Final[ReadStates] = ReadStates(
             analog_threshold=analog_threshold,
             gyroscope_threshold=gyro_threshold,
             accelerometer_threshold=accelerometer_threshold,
+            state_value_mapping=state_value_mapping,
         )
         self._write_states: Final[WriteStates] = WriteStates()
         self._device_index: int = device_index
