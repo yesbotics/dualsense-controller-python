@@ -6,7 +6,6 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
 
 ## RFCT/PERF
 
-- only calculate values on subscribed event listeners
 - remove event listener
 - update report instead of recreate?
 - slotify readstates instead of getters?

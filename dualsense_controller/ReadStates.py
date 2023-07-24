@@ -220,43 +220,43 @@ class ReadStates(BaseStates[ReadStateName]):
 
         # ##### BUTTONS #####
         dpad: int = in_report.buttons_0 & 0x0f
-        if self._btn_up.changed:
+        if self._btn_up.has_listeners:
             self._btn_up.value = dpad == 0 or dpad == 1 or dpad == 7
-        if self._btn_down.changed:
+        if self._btn_down.has_listeners:
             self._btn_down.value = dpad == 3 or dpad == 4 or dpad == 5
-        if self._btn_left.changed:
+        if self._btn_left.has_listeners:
             self._btn_left.value = dpad == 5 or dpad == 6 or dpad == 7
-        if self._btn_right.changed:
+        if self._btn_right.has_listeners:
             self._btn_right.value = dpad == 1 or dpad == 2 or dpad == 3
-        if self._btn_square.changed:
+        if self._btn_square.has_listeners:
             self._btn_square.value = bool(in_report.buttons_0 & 0x10)
-        if self._btn_cross.changed:
+        if self._btn_cross.has_listeners:
             self._btn_cross.value = bool(in_report.buttons_0 & 0x20)
-        if self._btn_circle.changed:
+        if self._btn_circle.has_listeners:
             self._btn_circle.value = bool(in_report.buttons_0 & 0x40)
-        if self._btn_triangle.changed:
+        if self._btn_triangle.has_listeners:
             self._btn_triangle.value = bool(in_report.buttons_0 & 0x80)
-        if self._btn_l1.changed:
+        if self._btn_l1.has_listeners:
             self._btn_l1.value = bool(in_report.buttons_1 & 0x01)
-        if self._btn_r1.changed:
+        if self._btn_r1.has_listeners:
             self._btn_r1.value = bool(in_report.buttons_1 & 0x02)
-        if self._btn_l2.changed:
+        if self._btn_l2.has_listeners:
             self._btn_l2.value = bool(in_report.buttons_1 & 0x04)
-        if self._btn_r2.changed:
+        if self._btn_r2.has_listeners:
             self._btn_r2.value = bool(in_report.buttons_1 & 0x08)
-        if self._btn_create.changed:
+        if self._btn_create.has_listeners:
             self._btn_create.value = bool(in_report.buttons_1 & 0x10)
-        if self._btn_options.changed:
+        if self._btn_options.has_listeners:
             self._btn_options.value = bool(in_report.buttons_1 & 0x20)
-        if self._btn_l3.changed:
+        if self._btn_l3.has_listeners:
             self._btn_l3.value = bool(in_report.buttons_1 & 0x40)
-        if self._btn_r3.changed:
+        if self._btn_r3.has_listeners:
             self._btn_r3.value = bool(in_report.buttons_1 & 0x80)
-        if self._btn_ps.changed:
+        if self._btn_ps.has_listeners:
             self._btn_ps.value = bool(in_report.buttons_2 & 0x01)
-        if self._btn_mute.changed:
+        if self._btn_mute.has_listeners:
             self._btn_mute.value = bool(in_report.buttons_2 & 0x04)
-        if self._btn_touchpad.changed:
+        if self._btn_touchpad.has_listeners:
             self._btn_touchpad.value = bool(in_report.buttons_2 & 0x02)
 
         # following not supported for BT01
@@ -313,7 +313,7 @@ class ReadStates(BaseStates[ReadStateName]):
                 z=self._accelerometer_z.value,
             )
 
-        # ##### ACCEL #####
+        # ##### ORIENTATION #####
         if self._orientation.has_listeners and (self._accelerometer.changed or self._gyroscope.changed):
             # o = calculate_orientation(
             #     [self._gyroscope_x.value],
@@ -332,30 +332,49 @@ class ReadStates(BaseStates[ReadStateName]):
             pass
 
         # ##### TOUCH #####
-        self._touch_0_active.value = not (in_report.touch_0_0 & 0x80)
-        self._touch_0_id.value = (in_report.touch_0_0 & 0x7F)
-        self._touch_0_x.value = ((in_report.touch_0_2 & 0x0F) << 8) | in_report.touch_0_1
-        self._touch_0_y.value = (in_report.touch_0_3 << 4) | ((in_report.touch_0_2 & 0xF0) >> 4)
+        touch_0_active: bool = False
+        if self._touch_0_active.has_listeners:
+            touch_0_active = not (in_report.touch_0_0 & 0x80)
+            self._touch_0_active.value = touch_0_active
+        if touch_0_active and self._touch_0_id.has_listeners:
+            self._touch_0_id.value = (in_report.touch_0_0 & 0x7F)
+        if touch_0_active and self._touch_0_x.has_listeners:
+            self._touch_0_x.value = ((in_report.touch_0_2 & 0x0F) << 8) | in_report.touch_0_1
+        if touch_0_active and self._touch_0_y.has_listeners:
+            self._touch_0_y.value = (in_report.touch_0_3 << 4) | ((in_report.touch_0_2 & 0xF0) >> 4)
 
-        self._touch_1_active.value = not (in_report.touch_1_0 & 0x80)
-        self._touch_1_id.value = (in_report.touch_1_0 & 0x7F)
-        self._touch_1_x.value = ((in_report.touch_1_2 & 0x0F) << 8) | in_report.touch_1_1
-        self._touch_1_y.value = (in_report.touch_1_3 << 4) | ((in_report.touch_1_2 & 0xF0) >> 4)
+        touch_1_active: bool = False
+        if self._touch_1_active.has_listeners:
+            touch_1_active = not (in_report.touch_1_0 & 0x80)
+            self._touch_1_active.value = touch_1_active
+        if touch_1_active and self._touch_1_id.has_listeners:
+            self._touch_1_id.value = (in_report.touch_1_0 & 0x7F)
+        if touch_1_active and self._touch_1_x.has_listeners:
+            self._touch_1_x.value = ((in_report.touch_1_2 & 0x0F) << 8) | in_report.touch_1_1
+        if touch_1_active and self._touch_1_y.has_listeners:
+            self._touch_1_y.value = (in_report.touch_1_3 << 4) | ((in_report.touch_1_2 & 0xF0) >> 4)
 
         # ##### TRIGGER FEEDBACK #####
-        self._l2_feedback_active.value = bool(in_report.l2_feedback & 0x10)
-        self._l2_feedback_value.value = in_report.l2_feedback & 0xff
-        self._r2_feedback_active.value = bool(in_report.r2_feedback & 0x10)
-        self._r2_feedback_value.value = in_report.r2_feedback & 0xff
+        if self._l2_feedback_active.has_listeners:
+            self._l2_feedback_active.value = bool(in_report.l2_feedback & 0x10)
+        if self._l2_feedback_value.has_listeners:
+            self._l2_feedback_value.value = in_report.l2_feedback & 0xff
+        if self._r2_feedback_active.has_listeners:
+            self._r2_feedback_active.value = bool(in_report.r2_feedback & 0x10)
+        if self._r2_feedback_value.has_listeners:
+            self._r2_feedback_value.value = in_report.r2_feedback & 0xff
 
         # ##### BATTERY #####
-        batt_level_raw: int = in_report.battery_0 & 0x0f
-        if batt_level_raw > 8:
-            batt_level_raw = 8
-        batt_level: float = batt_level_raw / 8
-        self._battery_level_percent.value = batt_level * 100
-        self._battery_full.value = not not (in_report.battery_0 & 0x20)
-        self._battery_charging.value = not not (in_report.battery_1 & 0x08)
+        if self._battery_level_percent.has_listeners:
+            batt_level_raw: int = in_report.battery_0 & 0x0f
+            if batt_level_raw > 8:
+                batt_level_raw = 8
+            batt_level: float = batt_level_raw / 8
+            self._battery_level_percent.value = batt_level * 100
+        if self._battery_full.has_listeners:
+            self._battery_full.value = not not (in_report.battery_0 & 0x20)
+        if self._battery_charging.has_listeners:
+            self._battery_charging.value = not not (in_report.battery_1 & 0x08)
 
     @property
     def analog_threshold(self) -> int:
