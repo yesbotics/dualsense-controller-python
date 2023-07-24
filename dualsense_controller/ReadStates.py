@@ -22,8 +22,16 @@ class _StatePublicAccess(Generic[StateValueType]):
         self._state = state
 
     @property
-    def value(self) -> StateValueType:
+    def value(self) -> StateValueType | None:
         return self._state.value
+
+    @property
+    def changed(self) -> bool:
+        return self._state.changed
+
+    @property
+    def last_value(self) -> StateValueType | None:
+        return self._state.last_value
 
     @property
     def on_change(self) -> Callable[[StateChangeCallback], None]:
