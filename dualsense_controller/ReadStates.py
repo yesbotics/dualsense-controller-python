@@ -1,14 +1,11 @@
-from __future__ import annotations
+from typing import Final
 
-from typing import Final, Generic, Callable
-
-from dualsense_controller import State, BaseStates
+from dualsense_controller import State, BaseStates, RestrictedStateAccess
 from dualsense_controller.common import (
     ReadStateName,
     StateChangeCallback,
     AnyStateChangeCallback,
     ConnectionType,
-    StateValueType,
     Accelerometer,
     Gyroscope,
     StateValueMapping,
@@ -16,35 +13,6 @@ from dualsense_controller.common import (
     Orientation
 )
 from dualsense_controller.reports import InReport
-
-
-class _StatePublicAccess(Generic[StateValueType]):
-    def __init__(self, state: State[StateValueType]):
-        self._state = state
-
-    @property
-    def value(self) -> StateValueType | None:
-        return self._state.value
-
-    @property
-    def changed(self) -> bool:
-        return self._state.changed
-
-    @property
-    def last_value(self) -> StateValueType | None:
-        return self._state.last_value
-
-    @property
-    def on_change(self) -> Callable[[StateChangeCallback], None]:
-        return self._state.on_change
-
-    @property
-    def threshold(self) -> int:
-        return self._state.threshold
-
-    @threshold.setter
-    def threshold(self, threshold: int) -> None:
-        self._state.threshold = threshold
 
 
 class ReadStates(BaseStates[ReadStateName]):
@@ -399,206 +367,206 @@ class ReadStates(BaseStates[ReadStateName]):
         self._gyroscope_z.threshold = gyroscope_threshold
 
     @property
-    def left_stick_x(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._left_stick_x)
+    def left_stick_x(self) -> RestrictedStateAccess[int]:
+        return self._left_stick_x.restricted_access
 
     @property
-    def left_stick_y(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._left_stick_y)
+    def left_stick_y(self) -> RestrictedStateAccess[int]:
+        return self._left_stick_y.restricted_access
 
     @property
-    def right_stick_x(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._right_stick_x)
+    def right_stick_x(self) -> RestrictedStateAccess[int]:
+        return self._right_stick_x.restricted_access
 
     @property
-    def right_stick_y(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._right_stick_y)
+    def right_stick_y(self) -> RestrictedStateAccess[int]:
+        return self._right_stick_y.restricted_access
 
     @property
-    def l2(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._l2)
+    def l2(self) -> RestrictedStateAccess[int]:
+        return self._l2.restricted_access
 
     @property
-    def r2(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._r2)
+    def r2(self) -> RestrictedStateAccess[int]:
+        return self._r2.restricted_access
 
     @property
-    def btn_up(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_up)
+    def btn_up(self) -> RestrictedStateAccess[bool]:
+        return self._btn_up.restricted_access
 
     @property
-    def btn_left(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_left)
+    def btn_left(self) -> RestrictedStateAccess[bool]:
+        return self._btn_left.restricted_access
 
     @property
-    def btn_down(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_down)
+    def btn_down(self) -> RestrictedStateAccess[bool]:
+        return self._btn_down.restricted_access
 
     @property
-    def btn_right(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_right)
+    def btn_right(self) -> RestrictedStateAccess[bool]:
+        return self._btn_right.restricted_access
 
     @property
-    def btn_square(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_square)
+    def btn_square(self) -> RestrictedStateAccess[bool]:
+        return self._btn_square.restricted_access
 
     @property
-    def btn_cross(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_cross)
+    def btn_cross(self) -> RestrictedStateAccess[bool]:
+        return self._btn_cross.restricted_access
 
     @property
-    def btn_circle(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_circle)
+    def btn_circle(self) -> RestrictedStateAccess[bool]:
+        return self._btn_circle.restricted_access
 
     @property
-    def btn_triangle(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_triangle)
+    def btn_triangle(self) -> RestrictedStateAccess[bool]:
+        return self._btn_triangle.restricted_access
 
     @property
-    def btn_l1(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_l1)
+    def btn_l1(self) -> RestrictedStateAccess[bool]:
+        return self._btn_l1.restricted_access
 
     @property
-    def btn_r1(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_r1)
+    def btn_r1(self) -> RestrictedStateAccess[bool]:
+        return RestrictedStateAccess(self._btn_r1)
 
     @property
-    def btn_l2(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_l2)
+    def btn_l2(self) -> RestrictedStateAccess[bool]:
+        return self._btn_l2.restricted_access
 
     @property
-    def btn_r2(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_r2)
+    def btn_r2(self) -> RestrictedStateAccess[bool]:
+        return self._btn_r2.restricted_access
 
     @property
-    def btn_create(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_create)
+    def btn_create(self) -> RestrictedStateAccess[bool]:
+        return self._btn_create.restricted_access
 
     @property
-    def btn_options(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_options)
+    def btn_options(self) -> RestrictedStateAccess[bool]:
+        return self._btn_options.restricted_access
 
     @property
-    def btn_l3(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_l3)
+    def btn_l3(self) -> RestrictedStateAccess[bool]:
+        return self._btn_l3.restricted_access
 
     @property
-    def btn_r3(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_r3)
+    def btn_r3(self) -> RestrictedStateAccess[bool]:
+        return self._btn_r3.restricted_access
 
     @property
-    def btn_ps(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_ps)
+    def btn_ps(self) -> RestrictedStateAccess[bool]:
+        return self._btn_ps.restricted_access
 
     @property
-    def btn_touchpad(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_touchpad)
+    def btn_touchpad(self) -> RestrictedStateAccess[bool]:
+        return self._btn_touchpad.restricted_access
 
     @property
-    def btn_mute(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._btn_mute)
+    def btn_mute(self) -> RestrictedStateAccess[bool]:
+        return self._btn_mute.restricted_access
 
     @property
-    def gyroscope_x(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._gyroscope_x)
+    def gyroscope_x(self) -> RestrictedStateAccess[int]:
+        return self._gyroscope_x.restricted_access
 
     @property
-    def gyroscope_y(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._gyroscope_y)
+    def gyroscope_y(self) -> RestrictedStateAccess[int]:
+        return self._gyroscope_y.restricted_access
 
     @property
-    def gyroscope_z(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._gyroscope_z)
+    def gyroscope_z(self) -> RestrictedStateAccess[int]:
+        return self._gyroscope_z.restricted_access
 
     @property
-    def accelerometer_x(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._accelerometer_x)
+    def accelerometer_x(self) -> RestrictedStateAccess[int]:
+        return self._accelerometer_x.restricted_access
 
     @property
-    def accelerometer_y(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._accelerometer_y)
+    def accelerometer_y(self) -> RestrictedStateAccess[int]:
+        return self._accelerometer_y.restricted_access
 
     @property
-    def accelerometer_z(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._accelerometer_z)
+    def accelerometer_z(self) -> RestrictedStateAccess[int]:
+        return self._accelerometer_z.restricted_access
 
     @property
-    def touch_0_active(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._touch_0_active)
+    def touch_0_active(self) -> RestrictedStateAccess[bool]:
+        return self._touch_0_active.restricted_access
 
     @property
-    def touch_0_id(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._touch_0_id)
+    def touch_0_id(self) -> RestrictedStateAccess[int]:
+        return self._touch_0_id.restricted_access
 
     @property
-    def touch_0_x(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._touch_0_x)
+    def touch_0_x(self) -> RestrictedStateAccess[int]:
+        return self._touch_0_x.restricted_access
 
     @property
-    def touch_0_y(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._touch_0_y)
+    def touch_0_y(self) -> RestrictedStateAccess[int]:
+        return self._touch_0_y.restricted_access
 
     @property
-    def touch_1_active(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._touch_1_active)
+    def touch_1_active(self) -> RestrictedStateAccess[bool]:
+        return self._touch_1_active.restricted_access
 
     @property
-    def touch_1_id(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._touch_1_id)
+    def touch_1_id(self) -> RestrictedStateAccess[int]:
+        return self._touch_1_id.restricted_access
 
     @property
-    def touch_1_x(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._touch_1_x)
+    def touch_1_x(self) -> RestrictedStateAccess[int]:
+        return self._touch_1_x.restricted_access
 
     @property
-    def touch_1_y(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._touch_1_y)
+    def touch_1_y(self) -> RestrictedStateAccess[int]:
+        return self._touch_1_y.restricted_access
 
     @property
-    def l2_feedback_active(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._l2_feedback_active)
+    def l2_feedback_active(self) -> RestrictedStateAccess[bool]:
+        return self._l2_feedback_active.restricted_access
 
     @property
-    def l2_feedback_value(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._l2_feedback_value)
+    def l2_feedback_value(self) -> RestrictedStateAccess[int]:
+        return self._l2_feedback_value.restricted_access
 
     @property
-    def r2_feedback_active(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._r2_feedback_active)
+    def r2_feedback_active(self) -> RestrictedStateAccess[bool]:
+        return self._r2_feedback_active.restricted_access
 
     @property
-    def r2_feedback_value(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._r2_feedback_value)
+    def r2_feedback_value(self) -> RestrictedStateAccess[int]:
+        return self._r2_feedback_value.restricted_access
 
     @property
-    def battery_level_percent(self) -> _StatePublicAccess[float]:
-        return _StatePublicAccess(self._battery_level_percent)
+    def battery_level_percent(self) -> RestrictedStateAccess[float]:
+        return self._battery_level_percent.restricted_access
 
     @property
-    def battery_full(self) -> _StatePublicAccess[bool]:
-        return _StatePublicAccess(self._battery_full)
+    def battery_full(self) -> RestrictedStateAccess[bool]:
+        return self._battery_full.restricted_access
 
     @property
-    def battery_charging(self) -> _StatePublicAccess[int]:
-        return _StatePublicAccess(self._battery_charging)
+    def battery_charging(self) -> RestrictedStateAccess[int]:
+        return self._battery_charging.restricted_access
 
     # ####### COMPLEX ########
     @property
-    def left_stick(self) -> _StatePublicAccess[JoyStick]:
-        return _StatePublicAccess(self._left_stick)
+    def left_stick(self) -> RestrictedStateAccess[JoyStick]:
+        return self._left_stick.restricted_access
 
     @property
-    def right_stick(self) -> _StatePublicAccess[JoyStick]:
-        return _StatePublicAccess(self._right_stick)
+    def right_stick(self) -> RestrictedStateAccess[JoyStick]:
+        return self._right_stick.restricted_access
 
     @property
-    def gyroscope(self) -> _StatePublicAccess[Gyroscope]:
-        return _StatePublicAccess(self._gyroscope)
+    def gyroscope(self) -> RestrictedStateAccess[Gyroscope]:
+        return self._gyroscope.restricted_access
 
     @property
-    def accelerometer(self) -> _StatePublicAccess[Accelerometer]:
-        return _StatePublicAccess(self._accelerometer)
+    def accelerometer(self) -> RestrictedStateAccess[Accelerometer]:
+        return self._accelerometer.restricted_access
 
     @property
-    def orientation(self) -> _StatePublicAccess[Orientation]:
-        return _StatePublicAccess(self._orientation)
+    def orientation(self) -> RestrictedStateAccess[Orientation]:
+        return self._orientation.restricted_access

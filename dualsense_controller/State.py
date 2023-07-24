@@ -1,8 +1,39 @@
-from typing import Generic, Final
+from __future__ import annotations
+
+from typing import Generic, Final, Callable
 
 import pyee
 
 from dualsense_controller.common import StateValueType, ReadStateName, StateChangeCallback
+
+
+class RestrictedStateAccess(Generic[StateValueType]):
+    def __init__(self, state: State[StateValueType]):
+        self._state = state
+
+    @property
+    def value(self) -> StateValueType | None:
+        return self._state.value
+
+    @property
+    def changed(self) -> bool:
+        return self._state.changed
+
+    @property
+    def last_value(self) -> StateValueType | None:
+        return self._state.last_value
+
+    @property
+    def on_change(self) -> Callable[[StateChangeCallback], None]:
+        return self._state.on_change
+
+    @property
+    def threshold(self) -> int:
+        return self._state.threshold
+
+    @threshold.setter
+    def threshold(self, threshold: int) -> None:
+        self._state.threshold = threshold
 
 
 class State(Generic[StateValueType]):
@@ -19,9 +50,16 @@ class State(Generic[StateValueType]):
         self._value: StateValueType | None = value
         self._last_value: StateValueType | None = None
         self._changed_since_last_update: bool = False
+        self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
         # extra
         self._threshold: int = threshold
         self._skip_none: bool = skip_none
+
+    @property
+    def restricted_access(self) -> RestrictedStateAccess[StateValueType]:
+        if self._restricted_access is None:
+            self._restricted_access = RestrictedStateAccess(self)
+        return self._restricted_access
 
     def __repr__(self) -> str:
         return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
