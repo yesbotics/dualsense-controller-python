@@ -6,12 +6,12 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
 
 ## RFCT/PERF
 
-- remove event listener
 - update report instead of recreate?
 - slotify readstates instead of getters?
 
 ## FEAT
 
+- disconnect for bt?
 - tests
 - State mapped values as option for DSC default (0 ... 255 -> 0.0 ... 1.0, -128 ... 127 -> -1.0 ... 1.0)
     - remap in StateValueMapping enum

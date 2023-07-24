@@ -13,8 +13,8 @@ class Example:
         self._dualsense_controller: DualSenseController = DualSenseController(
             device_index=0,
             analog_threshold=30,
-            gyro_threshold=30,
-            accelerometer_threshold=50,
+            gyro_threshold=100,
+            accelerometer_threshold=100,
         )
 
         self._dualsense_controller.on_exception(self._on_exception)
@@ -216,19 +216,19 @@ class Example:
     # all
     #
     def _on_any_state(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State {name}: {state}')
+        print(f'Any State {name}: {state}')
         pass
 
     def _on_any_state_2(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State 2 {name}: {state}')
+        print(f'Any State 2 {name}: {state}')
         pass
 
     def _on_any_state_3(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State 3 {name}: {state}')
+        print(f'Any State 3 {name}: {state}')
         pass
 
     def _on_any_state_4(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State 4 {name}: {state}')
+        print(f'Any State 4 {name}: {state}')
         pass
 
     #

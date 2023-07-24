@@ -1,4 +1,4 @@
-from typing import Final
+from typing import Final, Any
 
 from dualsense_controller import State, BaseStates, RestrictedStateAccess
 from dualsense_controller.common import (
@@ -192,7 +192,7 @@ class ReadStates(BaseStates[ReadStateName]):
 
     def on_any_change(self, callback: AnyStateChangeCallback):
         for state_name, state in self._states_dict.items():
-            state.on_change(lambda old_value, new_value: callback(state_name, old_value, new_value))
+            state.on_change(callback)
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
@@ -375,6 +375,24 @@ class ReadStates(BaseStates[ReadStateName]):
             self._battery_full.value = not not (in_report.battery_0 & 0x20)
         if self._battery_charging.has_listeners:
             self._battery_charging.value = not not (in_report.battery_1 & 0x08)
+
+    def remove_change_listener(
+            self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None
+    ) -> None:
+        if isinstance(name_or_callback, ReadStateName):
+            self._get_state_by_name(name_or_callback).remove_change_listener(callback)
+        elif callable(name_or_callback):
+            self.remove_any_change_listener(name_or_callback)
+        else:
+            self.remove_all_change_listeners()
+
+    def remove_all_change_listeners(self) -> None:
+        for state_name, state in self._states_dict.items():
+            state.remove_all_change_listeners()
+
+    def remove_any_change_listener(self, callback: AnyStateChangeCallback) -> None:
+        for state_name, state in self._states_dict.items():
+            state.remove_change_listener(callback)
 
     @property
     def analog_threshold(self) -> int:

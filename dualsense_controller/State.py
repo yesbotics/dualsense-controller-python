@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import inspect
 from typing import Generic, Final, Callable
 
 import pyee
 
-from dualsense_controller.common import StateValueType, ReadStateName, StateChangeCallback
+from dualsense_controller.common import StateValueType, ReadStateName, StateChangeCallback, AnyStateChangeCallback
 
 
 class RestrictedStateAccess(Generic[StateValueType]):
@@ -24,16 +25,24 @@ class RestrictedStateAccess(Generic[StateValueType]):
         return self._state.last_value
 
     @property
-    def on_change(self) -> Callable[[StateChangeCallback], None]:
-        return self._state.on_change
-
-    @property
     def threshold(self) -> int:
         return self._state.threshold
 
     @threshold.setter
     def threshold(self, threshold: int) -> None:
         self._state.threshold = threshold
+
+    @property
+    def on_change(self) -> Callable[[StateChangeCallback], None]:
+        return self._state.on_change
+
+    @property
+    def remove_change_listener(self) -> Callable[[AnyStateChangeCallback | StateChangeCallback | None], None]:
+        return self._state.remove_change_listener
+
+    @property
+    def remove_all_change_listeners(self) -> Callable[[], None]:
+        return self._state.remove_all_change_listeners
 
 
 class State(Generic[StateValueType]):
@@ -47,6 +56,8 @@ class State(Generic[StateValueType]):
         super().__init__()
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self.name: Final[ReadStateName] = name
+        self._event_name_2_args: Final[str] = f'{name}_2'
+        self._event_name_3_args: Final[str] = f'{name}_3'
         self._value: StateValueType | None = value
         self._last_value: StateValueType | None = None
         self._changed_since_last_update: bool = False
@@ -63,7 +74,7 @@ class State(Generic[StateValueType]):
 
     @property
     def has_listeners(self) -> bool:
-        return len(self._event_emitter.listeners(self.name)) > 0
+        return len(self._event_emitter.event_names()) > 0
 
     def __repr__(self) -> str:
         return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
@@ -109,8 +120,25 @@ class State(Generic[StateValueType]):
     def set_value_without_triggering_change(self, new_value: StateValueType | None):
         self.change_value(old_value=self._value, new_value=new_value, changed=True, trigger_change=False)
 
-    def on_change(self, callback: StateChangeCallback) -> None:
-        self._event_emitter.on(self.name, callback)
+    def on_change(self, callback: AnyStateChangeCallback | StateChangeCallback) -> None:
+        num_params: int = len(inspect.signature(callback).parameters)
+        self._event_emitter.on(
+            self._event_name_2_args if num_params == 2 else self._event_name_3_args,
+            callback
+        )
+
+    def remove_change_listener(self, callback: AnyStateChangeCallback | StateChangeCallback | None = None) -> None:
+        if callback is None:
+            self.remove_all_change_listeners()
+        else:
+            num_params: int = len(inspect.signature(callback).parameters)
+            self._event_emitter.remove_listener(
+                self._event_name_2_args if num_params == 2 else self._event_name_3_args,
+                callback
+            )
+
+    def remove_all_change_listeners(self) -> None:
+        self._event_emitter.remove_all_listeners()
 
     def change_value(
             self,
@@ -123,7 +151,8 @@ class State(Generic[StateValueType]):
         self._value = new_value
         self._changed_since_last_update = changed
         if trigger_change:
-            self._event_emitter.emit(self.name, old_value, new_value)
+            self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
+            self._event_emitter.emit(self._event_name_3_args, self.name, old_value, new_value)
 
     def do_not_change_value(self) -> None:
         self._changed_since_last_update = False
