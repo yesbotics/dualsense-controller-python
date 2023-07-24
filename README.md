@@ -4,9 +4,23 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
 
 # TODOs
 
-- remove event listener
 - only calculate values on subscribed event listeners
-- complex state packets (gyro value, pad x/y values (-1..1), orientation, touch finger, ...)
+- tests
+- remove event listener
+- State mapped values as option for DSC default (0 ... 255 -> 0.0 ... 1.0, -128 ... 127 -> -1.0 ... 1.0)
+    - remap in StateValueMapping enum
+    - Stick Deadzone
+- StateValue change detection -> comparison rework
+    - impl depends on `StateValueMapping` enum function
+    - Analog deadzone (threshold can only define diff between changes, but no)
+    - int, custom data types (maybe via __eq__)
+    - threshold
+- complex state packets:
+    - all_in_one
+    - touch finger0 and 1
+    - touch fingers (both)
+    - orientation
+    - L2 (Btn and analog)
 - fix batt level
 - impl set properties (rumble, triggerFX, li50ghts, ...)
 - impl raw report in/out (hex)
