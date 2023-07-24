@@ -80,7 +80,7 @@ class State(Generic[StateValueType]):
     def value(self, value: StateValueType | None) -> None:
         old_value: StateValueType = self._value
         if old_value is None and self._skip_none:
-            self.change_value(old_value=self._value, new_value=value, trigger_change=False)
+            self.change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
             return
         if isinstance(value, int):
             if old_value != value:
@@ -103,7 +103,7 @@ class State(Generic[StateValueType]):
         return self._changed_since_last_update
 
     def set_value_without_triggering_change(self, new_value: StateValueType | None):
-        self.change_value(old_value=self._value, new_value=new_value, trigger_change=False)
+        self.change_value(old_value=self._value, new_value=new_value, changed=True, trigger_change=False)
 
     def on_change(self, callback: StateChangeCallback) -> None:
         self._event_emitter.on(self.name, callback)
@@ -113,10 +113,11 @@ class State(Generic[StateValueType]):
             old_value: StateValueType,
             new_value: StateValueType,
             trigger_change: bool = True,
+            changed: bool = True,
     ) -> None:
         self._last_value = old_value
         self._value = new_value
-        self._changed_since_last_update = True
+        self._changed_since_last_update = changed
         if trigger_change:
             self._event_emitter.emit(self.name, old_value, new_value)
 

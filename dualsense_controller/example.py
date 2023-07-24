@@ -12,7 +12,7 @@ class Example:
 
         self._dualsense_controller: DualSenseController = DualSenseController(
             device_index=0,
-            analog_threshold=10,
+            analog_threshold=30,
             gyro_threshold=30,
             accelerometer_threshold=50,
         )
@@ -65,6 +65,16 @@ class Example:
         self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
 
         # complex values
+
+        def x(_,x_):
+            print('x', x_)
+
+        def y(_,y_):
+            print('y', y_)
+
+        self._dualsense_controller.states.left_stick_x.on_change(x)
+        self._dualsense_controller.states.left_stick_y.on_change(y)
+
         self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
         self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
         self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
