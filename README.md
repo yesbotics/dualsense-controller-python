@@ -6,14 +6,10 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
 
 ## RFCT/PERF
 
-- slotify readstates instead of getters?
 - only calculate values on subscribed event listeners
 - remove event listener
 - update report instead of recreate?
-
-## FIX
-
-- fix batt level
+- slotify readstates instead of getters?
 
 ## FEAT
 
