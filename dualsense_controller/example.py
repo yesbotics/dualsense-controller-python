@@ -3,7 +3,7 @@ from typing import Any
 
 from dualsense_controller import DualSenseController, ReadStateName, ConnectionType, WriteStateName
 from dualsense_controller.common import OutPlayerLed, OutBrightness, OutPulseOptions, Gyroscope, Accelerometer, \
-    Orientation
+    Orientation, JoyStick
 
 
 class Example:
@@ -12,7 +12,7 @@ class Example:
 
         self._dualsense_controller: DualSenseController = DualSenseController(
             device_index=0,
-            analog_threshold=2,
+            analog_threshold=10,
             gyro_threshold=30,
             accelerometer_threshold=50,
         )
@@ -65,6 +65,8 @@ class Example:
         self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
 
         # complex values
+        self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
+        self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
         self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
         self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
         self._dualsense_controller.states.orientation.on_change(self._on_orientation)
@@ -253,6 +255,17 @@ class Example:
 
     def _on_battery_low(self, percentage: float) -> None:
         print(f'Battery is low: {percentage}')
+
+    #
+    # COMPLEX
+    #
+    def _on_left_stick(self, _: JoyStick, state: JoyStick) -> None:
+        print(f'Left JoyStick: {state}')
+        pass
+
+    def _on_right_stick(self, _: JoyStick, state: JoyStick) -> None:
+        print(f'Right JoyStick: {state}')
+        pass
 
     def _on_gyroscope(self, _: Gyroscope, state: Gyroscope) -> None:
         # print(f'Gyroscope: {state}')

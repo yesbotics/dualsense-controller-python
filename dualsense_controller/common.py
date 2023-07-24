@@ -211,7 +211,9 @@ class ReadStateName(str, Enum):
     BATTERY_FULL = 'BATTERY_FULL'
     BATTERY_CHARGING = 'BATTERY_CHARGING'
 
-    # custom collections
+    # COMPLEX
+    LEFT_STICK = 'LEFT_STICK'
+    RIGHT_STICK = 'RIGHT_STICK'
     GYROSCOPE = 'GYROSCOPE'
     ACCELEROMETER = 'ACCELEROMETER'
     ORIENTATION = 'ORIENTATION'
@@ -235,6 +237,14 @@ ConnectionChangeCallback = Callable[[bool, ConnectionType], None]
 StateChangeCallback = Callable[[Any, Any], None]
 AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
 BatteryLowCallback = Callable[[float], None]
+
+
+#### COMPLEX STATE VALUE TYPES ##########
+
+@dataclass(frozen=True, slots=True)
+class JoyStick:
+    x: int
+    y: int
 
 
 @dataclass(frozen=True, slots=True)

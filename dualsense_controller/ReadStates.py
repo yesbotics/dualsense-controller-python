@@ -11,6 +11,7 @@ from dualsense_controller.common import (
     StateValueType,
     Accelerometer,
     Gyroscope,
+    JoyStick,
     Orientation
 )
 from dualsense_controller.reports import InReport
@@ -196,6 +197,13 @@ class ReadStates(BaseStates[ReadStateName]):
         self._battery_charging: Final[State[int]] = self._create_and_register_state(
             ReadStateName.BATTERY_CHARGING, skip_none=False
         )
+        # COMPLEX
+        self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
+            ReadStateName.LEFT_STICK
+        )
+        self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
+            ReadStateName.RIGHT_STICK
+        )
         self._gyroscope: Final[State[Gyroscope]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE
         )
@@ -262,10 +270,26 @@ class ReadStates(BaseStates[ReadStateName]):
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
         # ##### ANALOG STICKS #####
-        self._left_stick_x.value = in_report.axes_0
-        self._left_stick_y.value = in_report.axes_1
-        self._right_stick_x.value = in_report.axes_2
-        self._right_stick_y.value = in_report.axes_3
+        left_stick_x: int = in_report.axes_0
+        left_stick_y: int = in_report.axes_1
+        self._left_stick_x.value = left_stick_x
+        self._left_stick_y.value = left_stick_y
+        if self._left_stick_x.changed or self._left_stick_y.changed:
+            self._left_stick.value = JoyStick(
+                x=left_stick_x,
+                y=left_stick_y
+            )
+
+        right_stick_x: int = in_report.axes_2
+        right_stick_y: int = in_report.axes_3
+        self._right_stick_x.value = right_stick_x
+        self._right_stick_y.value = right_stick_y
+        if self._right_stick_x.changed or self._right_stick_y.changed:
+            self._right_stick.value = JoyStick(
+                x=right_stick_x,
+                y=right_stick_y
+            )
+
         self._l2.value = in_report.axes_4
         self._r2.value = in_report.axes_5
 
@@ -309,6 +333,13 @@ class ReadStates(BaseStates[ReadStateName]):
         self._gyroscope_y.value = gyro_y
         self._gyroscope_z.value = gyro_z
 
+        if self._gyroscope_x.changed or self._gyroscope_y.changed or self._gyroscope_z.changed:
+            self._gyroscope.value = Gyroscope(
+                x=gyro_x,
+                y=gyro_y,
+                z=gyro_z,
+            )
+
         # ##### ACCEL #####
         accel_x: int = (in_report.accel_x_1 << 8) | in_report.accel_x_0
         if accel_x > 0x7FFF:
@@ -322,6 +353,30 @@ class ReadStates(BaseStates[ReadStateName]):
         self._accelerometer_x.value = accel_x
         self._accelerometer_y.value = accel_y
         self._accelerometer_z.value = accel_z
+
+        if self._accelerometer_x.changed or self._accelerometer_y.changed or self._accelerometer_z.changed:
+            self._accelerometer.value = Accelerometer(
+                x=accel_x,
+                y=accel_y,
+                z=accel_z,
+            )
+
+        if self._accelerometer.changed or self._gyroscope.changed:
+            # o = calculate_orientation(
+            #     [self._gyroscope_x.value],
+            #     [self._gyroscope_y.value],
+            #     [self._gyroscope_z.value],
+            #     self._accelerometer_x.value,
+            #     self._accelerometer_y.value,
+            #     self._accelerometer_z.value,
+            # )
+            # orientation: Orientation = Orientation(
+            #     yaw=0,
+            #     pitch=0,
+            #     roll=0,
+            # )
+            # self._orientation.value = orientation
+            pass
 
         # ##### TOUCH #####
         self._touch_0_active.value = not (in_report.touch_0_0 & 0x80)
@@ -567,6 +622,15 @@ class ReadStates(BaseStates[ReadStateName]):
     @property
     def battery_charging(self) -> _StatePublicAccess[int]:
         return _StatePublicAccess(self._battery_charging)
+
+    # ####### COMPLEX ########
+    @property
+    def left_stick(self) -> _StatePublicAccess[JoyStick]:
+        return _StatePublicAccess(self._left_stick)
+
+    @property
+    def right_stick(self) -> _StatePublicAccess[JoyStick]:
+        return _StatePublicAccess(self._right_stick)
 
     @property
     def gyroscope(self) -> _StatePublicAccess[Gyroscope]:
