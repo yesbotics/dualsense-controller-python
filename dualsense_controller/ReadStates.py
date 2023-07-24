@@ -197,98 +197,124 @@ class ReadStates(BaseStates[ReadStateName]):
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
         # ##### ANALOG STICKS #####
-        left_stick_x: int = in_report.axes_0
-        left_stick_y: int = in_report.axes_1
-        self._left_stick_x.value = left_stick_x
-        self._left_stick_y.value = left_stick_y
-        if self._left_stick_x.changed or self._left_stick_y.changed:
-            self._left_stick.value = JoyStick(
-                x=left_stick_x,
-                y=left_stick_y
-            )
 
-        right_stick_x: int = in_report.axes_2
-        right_stick_y: int = in_report.axes_3
-        self._right_stick_x.value = right_stick_x
-        self._right_stick_y.value = right_stick_y
-        if self._right_stick_x.changed or self._right_stick_y.changed:
-            self._right_stick.value = JoyStick(
-                x=right_stick_x,
-                y=right_stick_y
-            )
+        if self._left_stick.has_listeners or self._left_stick_x.has_listeners:
+            self._left_stick_x.value = in_report.axes_0
+        if self._left_stick.has_listeners or self._left_stick_y.has_listeners:
+            self._left_stick_y.value = in_report.axes_1
+        if self._left_stick.has_listeners and (self._left_stick_x.changed or self._left_stick_y.changed):
+            self._left_stick.value = JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value)
 
-        self._l2.value = in_report.axes_4
-        self._r2.value = in_report.axes_5
+        if self._right_stick.has_listeners or self._right_stick_x.has_listeners:
+            self._right_stick_x.value = in_report.axes_2
+        if self._right_stick.has_listeners or self._right_stick_y.has_listeners:
+            self._right_stick_y.value = in_report.axes_3
+        if self._right_stick.has_listeners and (self._right_stick_x.changed or self._right_stick_y.changed):
+            self._right_stick.value = JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value)
+
+        if self._l2.changed:
+            self._l2.value = in_report.axes_4
+
+        if self._r2.changed:
+            self._r2.value = in_report.axes_5
 
         # ##### BUTTONS #####
         dpad: int = in_report.buttons_0 & 0x0f
-        self._btn_up.value = dpad == 0 or dpad == 1 or dpad == 7
-        self._btn_down.value = dpad == 3 or dpad == 4 or dpad == 5
-        self._btn_left.value = dpad == 5 or dpad == 6 or dpad == 7
-        self._btn_right.value = dpad == 1 or dpad == 2 or dpad == 3
-        self._btn_square.value = bool(in_report.buttons_0 & 0x10)
-        self._btn_cross.value = bool(in_report.buttons_0 & 0x20)
-        self._btn_circle.value = bool(in_report.buttons_0 & 0x40)
-        self._btn_triangle.value = bool(in_report.buttons_0 & 0x80)
-        self._btn_l1.value = bool(in_report.buttons_1 & 0x01)
-        self._btn_r1.value = bool(in_report.buttons_1 & 0x02)
-        self._btn_l2.value = bool(in_report.buttons_1 & 0x04)
-        self._btn_r2.value = bool(in_report.buttons_1 & 0x08)
-        self._btn_create.value = bool(in_report.buttons_1 & 0x10)
-        self._btn_options.value = bool(in_report.buttons_1 & 0x20)
-        self._btn_l3.value = bool(in_report.buttons_1 & 0x40)
-        self._btn_r3.value = bool(in_report.buttons_1 & 0x80)
-        self._btn_ps.value = bool(in_report.buttons_2 & 0x01)
-        self._btn_touchpad.value = bool(in_report.buttons_2 & 0x02)
-        self._btn_mute.value = bool(in_report.buttons_2 & 0x04)
+        if self._btn_up.changed:
+            self._btn_up.value = dpad == 0 or dpad == 1 or dpad == 7
+        if self._btn_down.changed:
+            self._btn_down.value = dpad == 3 or dpad == 4 or dpad == 5
+        if self._btn_left.changed:
+            self._btn_left.value = dpad == 5 or dpad == 6 or dpad == 7
+        if self._btn_right.changed:
+            self._btn_right.value = dpad == 1 or dpad == 2 or dpad == 3
+        if self._btn_square.changed:
+            self._btn_square.value = bool(in_report.buttons_0 & 0x10)
+        if self._btn_cross.changed:
+            self._btn_cross.value = bool(in_report.buttons_0 & 0x20)
+        if self._btn_circle.changed:
+            self._btn_circle.value = bool(in_report.buttons_0 & 0x40)
+        if self._btn_triangle.changed:
+            self._btn_triangle.value = bool(in_report.buttons_0 & 0x80)
+        if self._btn_l1.changed:
+            self._btn_l1.value = bool(in_report.buttons_1 & 0x01)
+        if self._btn_r1.changed:
+            self._btn_r1.value = bool(in_report.buttons_1 & 0x02)
+        if self._btn_l2.changed:
+            self._btn_l2.value = bool(in_report.buttons_1 & 0x04)
+        if self._btn_r2.changed:
+            self._btn_r2.value = bool(in_report.buttons_1 & 0x08)
+        if self._btn_create.changed:
+            self._btn_create.value = bool(in_report.buttons_1 & 0x10)
+        if self._btn_options.changed:
+            self._btn_options.value = bool(in_report.buttons_1 & 0x20)
+        if self._btn_l3.changed:
+            self._btn_l3.value = bool(in_report.buttons_1 & 0x40)
+        if self._btn_r3.changed:
+            self._btn_r3.value = bool(in_report.buttons_1 & 0x80)
+        if self._btn_ps.changed:
+            self._btn_ps.value = bool(in_report.buttons_2 & 0x01)
+        if self._btn_mute.changed:
+            self._btn_mute.value = bool(in_report.buttons_2 & 0x04)
+        if self._btn_touchpad.changed:
+            self._btn_touchpad.value = bool(in_report.buttons_2 & 0x02)
 
         # following not supported for BT01
         if connection_type == ConnectionType.BT_01:
             return
 
         # ##### GYRO #####
-        gyro_x: int = (in_report.gyro_x_1 << 8) | in_report.gyro_x_0
-        if gyro_x > 0x7FFF:
-            gyro_x -= 0x10000
-        gyro_y: int = (in_report.gyro_y_1 << 8) | in_report.gyro_y_0
-        if gyro_y > 0x7FFF:
-            gyro_y -= 0x10000
-        gyro_z: int = (in_report.gyro_z_1 << 8) | in_report.gyro_z_0
-        if gyro_z > 0x7FFF:
-            gyro_z -= 0x10000
-        self._gyroscope_x.value = gyro_x
-        self._gyroscope_y.value = gyro_y
-        self._gyroscope_z.value = gyro_z
+        if self._gyroscope.has_listeners or self._gyroscope_x.has_listeners:
+            gyro_x: int = (in_report.gyro_x_1 << 8) | in_report.gyro_x_0
+            if gyro_x > 0x7FFF:
+                gyro_x -= 0x10000
+            self._gyroscope_x.value = gyro_x
+        if self._gyroscope.has_listeners or self._gyroscope_y.has_listeners:
+            gyro_y: int = (in_report.gyro_y_1 << 8) | in_report.gyro_y_0
+            if gyro_y > 0x7FFF:
+                gyro_y -= 0x10000
+            self._gyroscope_y.value = gyro_y
+        if self._gyroscope.has_listeners or self._gyroscope_z.has_listeners:
+            gyro_z: int = (in_report.gyro_z_1 << 8) | in_report.gyro_z_0
+            if gyro_z > 0x7FFF:
+                gyro_z -= 0x10000
+            self._gyroscope_z.value = gyro_z
 
-        if self._gyroscope_x.changed or self._gyroscope_y.changed or self._gyroscope_z.changed:
+        if self._gyroscope.has_listeners \
+                and (self._gyroscope_x.changed or self._gyroscope_y.changed or self._gyroscope_z.changed):
             self._gyroscope.value = Gyroscope(
-                x=gyro_x,
-                y=gyro_y,
-                z=gyro_z,
+                x=self._gyroscope_x.value,
+                y=self._gyroscope_y.value,
+                z=self._gyroscope_z.value,
             )
 
         # ##### ACCEL #####
-        accel_x: int = (in_report.accel_x_1 << 8) | in_report.accel_x_0
-        if accel_x > 0x7FFF:
-            accel_x -= 0x10000
-        accel_y: int = (in_report.accel_y_1 << 8) | in_report.accel_y_0
-        if accel_y > 0x7FFF:
-            accel_y -= 0x10000
-        accel_z: int = (in_report.accel_z_1 << 8) | in_report.accel_z_0
-        if accel_z > 0x7FFF:
-            accel_z -= 0x10000
-        self._accelerometer_x.value = accel_x
-        self._accelerometer_y.value = accel_y
-        self._accelerometer_z.value = accel_z
+        if self._accelerometer.has_listeners or self._accelerometer_x.has_listeners:
+            accel_x: int = (in_report.accel_x_1 << 8) | in_report.accel_x_0
+            if accel_x > 0x7FFF:
+                accel_x -= 0x10000
+            self._accelerometer_x.value = accel_x
+        if self._accelerometer.has_listeners or self._accelerometer_y.has_listeners:
+            accel_y: int = (in_report.accel_y_1 << 8) | in_report.accel_y_0
+            if accel_y > 0x7FFF:
+                accel_y -= 0x10000
+            self._accelerometer_y.value = accel_y
+        if self._accelerometer.has_listeners or self._accelerometer_z.has_listeners:
+            accel_z: int = (in_report.accel_z_1 << 8) | in_report.accel_z_0
+            if accel_z > 0x7FFF:
+                accel_z -= 0x10000
+            self._accelerometer_z.value = accel_z
 
-        if self._accelerometer_x.changed or self._accelerometer_y.changed or self._accelerometer_z.changed:
+        if self._accelerometer.has_listeners \
+                and (self._accelerometer_x.changed or self._accelerometer_y.changed or self._accelerometer_z.changed):
             self._accelerometer.value = Accelerometer(
-                x=accel_x,
-                y=accel_y,
-                z=accel_z,
+                x=self._accelerometer_x.value,
+                y=self._accelerometer_y.value,
+                z=self._accelerometer_z.value,
             )
 
-        if self._accelerometer.changed or self._gyroscope.changed:
+        # ##### ACCEL #####
+        if self._orientation.has_listeners and (self._accelerometer.changed or self._gyroscope.changed):
             # o = calculate_orientation(
             #     [self._gyroscope_x.value],
             #     [self._gyroscope_y.value],
@@ -310,6 +336,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._touch_0_id.value = (in_report.touch_0_0 & 0x7F)
         self._touch_0_x.value = ((in_report.touch_0_2 & 0x0F) << 8) | in_report.touch_0_1
         self._touch_0_y.value = (in_report.touch_0_3 << 4) | ((in_report.touch_0_2 & 0xF0) >> 4)
+
         self._touch_1_active.value = not (in_report.touch_1_0 & 0x80)
         self._touch_1_id.value = (in_report.touch_1_0 & 0x7F)
         self._touch_1_x.value = ((in_report.touch_1_2 & 0x0F) << 8) | in_report.touch_1_1

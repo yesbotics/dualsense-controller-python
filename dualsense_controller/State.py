@@ -61,6 +61,10 @@ class State(Generic[StateValueType]):
             self._restricted_access = RestrictedStateAccess(self)
         return self._restricted_access
 
+    @property
+    def has_listeners(self) -> bool:
+        return len(self._event_emitter.listeners(self.name)) > 0
+
     def __repr__(self) -> str:
         return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
 
