@@ -20,28 +20,28 @@ class Example:
         self._dualsense_controller.on_exception(self._on_exception)
         self._dualsense_controller.on_connection_change(self._on_connection_change)
 
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_PS, self._on_btn_ps)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_L1, self._on_btn_l1)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_R1, self._on_btn_r1)
-        self._dualsense_controller.on_state_change(ReadStateName.L2, self._on_l2)
-        self._dualsense_controller.on_state_change(ReadStateName.R2, self._on_r2)
+        self._dualsense_controller.states.btn_ps.on_change(self._on_btn_ps)
+        self._dualsense_controller.states.btn_l1.on_change(self._on_btn_l1)
+        self._dualsense_controller.states.btn_r1.on_change(self._on_btn_r1)
+        self._dualsense_controller.states.l2.on_change(self._on_l2)
+        self._dualsense_controller.states.r2.on_change(self._on_r2)
 
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_CROSS, self._on_btn_cross)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_SQUARE, self._on_btn_square)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_TRIANGLE, self._on_btn_triangle)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_CIRCLE, self._on_btn_circle)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_OPTIONS, self._on_btn_options)
+        self._dualsense_controller.states.btn_cross.on_change(self._on_btn_cross)
+        self._dualsense_controller.states.btn_square.on_change(self._on_btn_square)
+        self._dualsense_controller.states.btn_triangle.on_change(self._on_btn_triangle)
+        self._dualsense_controller.states.btn_circle.on_change(self._on_btn_circle)
+        self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
 
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_LEFT, self._on_btn_left)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_UP, self._on_btn_up)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_RIGHT, self._on_btn_right)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_DOWN, self._on_btn_down)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_CREATE, self._on_btn_create)
+        self._dualsense_controller.states.btn_left.on_change(self._on_btn_left)
+        self._dualsense_controller.states.btn_up.on_change(self._on_btn_up)
+        self._dualsense_controller.states.btn_right.on_change(self._on_btn_right)
+        self._dualsense_controller.states.btn_down.on_change(self._on_btn_down)
+        self._dualsense_controller.states.btn_create.on_change(self._on_btn_create)
 
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute)
+        self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute)
 
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_R3, self._on_btn_r3)
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_L3, self._on_btn_l3)
+        self._dualsense_controller.states.btn_r3.on_change(self._on_btn_r3)
+        self._dualsense_controller.states.btn_l3.on_change(self._on_btn_l3)
 
         # 4 methods to get all state changes
         self._dualsense_controller.on_any_state_change(self._on_any_state)
@@ -65,16 +65,6 @@ class Example:
         self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
 
         # complex values
-
-        def x(_,x_):
-            print('x', x_)
-
-        def y(_,y_):
-            print('y', y_)
-
-        self._dualsense_controller.states.left_stick_x.on_change(x)
-        self._dualsense_controller.states.left_stick_y.on_change(y)
-
         self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
         self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
         self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
