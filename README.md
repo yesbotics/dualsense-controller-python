@@ -4,10 +4,9 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python
 
 # TODOs
 
-## RFCT/PERF
+## RFCT/PERF/OPT
 
 - update report instead of recreate?
-- slotify readstates instead of getters?
 
 ## FEAT
 
