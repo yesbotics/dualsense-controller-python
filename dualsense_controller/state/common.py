@@ -99,8 +99,9 @@ class WriteStateName(str, Enum):
 
 
 class StateValueMapping(Enum):
-    RAW = 0
-    DEFAULT = 1
+    RAW = 0  # 0 ... 255
+    DEFAULT = 1  # -128 ... 127
+    DEFAULT_2 = 1  # -1.0 ... 1.0
 
 
 StateValueType = TypeVar('StateValueType')

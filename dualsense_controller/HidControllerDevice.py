@@ -57,7 +57,7 @@ class HidControllerDevice:
         return self._device_index
 
     @property
-    def out_report(self):
+    def out_report(self) -> OutReport:
         return self._out_report
 
     @property

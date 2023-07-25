@@ -27,6 +27,11 @@ class OutReportLength(int, Enum):
 
 @dataclass(slots=True)
 class OutReport(ABC):
+
+    @abstractmethod
+    def to_bytes(self) -> bytes:
+        pass
+
     flags_physics: int = OutFlagsPhysics.ALL
     flags_lights: int = OutFlagsLights.ALL
 
@@ -64,11 +69,6 @@ class OutReport(ABC):
     pulse_options: OutPulseOptions = OutPulseOptions.OFF
     brightness: OutBrightness = OutBrightness.HIGH
     player_led: int = OutPlayerLed.OFF
-
-
-@abstractmethod
-def to_bytes(self) -> bytes:
-    pass
 
 
 class Usb01OutReport(OutReport):

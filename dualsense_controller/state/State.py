@@ -5,6 +5,7 @@ from typing import Generic, Final, Callable
 
 import pyee
 
+from dualsense_controller.state import AnyStateChangeCallback, StateChangeCallback, ReadStateName
 from dualsense_controller.state import StateValueType
 
 
@@ -95,17 +96,17 @@ class State(Generic[StateValueType]):
     def value(self, value: StateValueType | None) -> None:
         old_value: StateValueType = self._value
         if old_value is None and self._skip_none:
-            self.change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
+            self._change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
             return
-        if isinstance(value, int):
+        if self._threshold > 0 and isinstance(value, int):
             if old_value != value:
                 if old_value is None or abs(value - old_value) >= self._threshold:
-                    self.change_value(old_value=old_value, new_value=value)
+                    self._change_value(old_value=old_value, new_value=value)
                 else:
                     self.do_not_change_value()
         else:
             if old_value != value:
-                self.change_value(old_value=old_value, new_value=value)
+                self._change_value(old_value=old_value, new_value=value)
             else:
                 self.do_not_change_value()
 
@@ -118,7 +119,7 @@ class State(Generic[StateValueType]):
         return self._changed_since_last_update
 
     def set_value_without_triggering_change(self, new_value: StateValueType | None):
-        self.change_value(old_value=self._value, new_value=new_value, changed=True, trigger_change=False)
+        self._change_value(old_value=self._value, new_value=new_value, changed=True, trigger_change=False)
 
     def on_change(self, callback: AnyStateChangeCallback | StateChangeCallback) -> None:
         num_params: int = len(inspect.signature(callback).parameters)
@@ -140,7 +141,7 @@ class State(Generic[StateValueType]):
     def remove_all_change_listeners(self) -> None:
         self._event_emitter.remove_all_listeners()
 
-    def change_value(
+    def _change_value(
             self,
             old_value: StateValueType,
             new_value: StateValueType,

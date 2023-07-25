@@ -27,7 +27,7 @@ class Example:
 
         self._dualsense_controller: DualSenseController = DualSenseController(
             device_index=0,
-            analog_threshold=30,
+            analog_threshold=10,
             gyro_threshold=100,
             accelerometer_threshold=100,
         )
