@@ -214,10 +214,10 @@ class ReadStates(BaseStates[ReadStateName]):
         if self._right_stick.has_listeners and (self._right_stick_x.changed or self._right_stick_y.changed):
             self._right_stick.value = JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value)
 
-        if self._l2.changed:
+        if self._l2.has_listeners:
             self._l2.value = in_report.axes_4
 
-        if self._r2.changed:
+        if self._r2.has_listeners:
             self._r2.value = in_report.axes_5
 
         # ##### BUTTONS #####
