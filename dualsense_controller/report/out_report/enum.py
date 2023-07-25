@@ -4,6 +4,8 @@ from enum import Enum
 #
 # Not clear
 #
+
+
 class OutFlagsPhysics(int, Enum):
     # Alternativ:
     # DS4_COMPATIBILITY_MODE = 1 << 0

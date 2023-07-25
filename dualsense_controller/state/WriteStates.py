@@ -1,4 +1,4 @@
-from dualsense_controller.common import (
+from dualsense_controller.report import (
     OutLedOptions,
     OutPulseOptions,
     OutBrightness,

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 
-from dualsense_controller.common import (
+from .enum import (
     OutReportId,
     OutFlagsPhysics,
     OutFlagsLights,

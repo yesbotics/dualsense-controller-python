@@ -8,7 +8,7 @@ from dualsense_controller import (
     WriteStateName
 )
 
-from dualsense_controller.common import (
+from dualsense_controller.report import (
     OutPlayerLed,
     OutBrightness,
     OutPulseOptions,
