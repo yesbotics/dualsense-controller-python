@@ -110,6 +110,7 @@ This project's was heavily inspired by the following projects.
 A lot of implementation details were borrowed and know-how were extracted from them.
 
 - [pydualsense](https://github.com/flok/pydualsense)
+- [hidapi-usb](https://github.com/flok/hidapi-cffi)
 - [DualSense explorer tool](https://github.com/nondebug/dualsense)
 - [ds5ctl](https://github.com/theY4Kman/ds5ctl)
 - [PS5 Library of USB_Host_Shield_2.0](https://github.com/felis/USB_Host_Shield_2.0#ps5-library)
