@@ -1,9 +1,30 @@
+import traceback
+
 import numpy as np
 from pyquaternion import Quaternion
 
+
+def flag(bit: int) -> int:
+    return 1 << bit
+
+
+def clamp(value: int, val_min: int, val_max: int) -> int:
+    return min(val_max, max(val_min, value))
+
+
+def clamp_byte(value: int) -> int:
+    return min(255, max(0, value))
+
+
+def format_exception(exception: Exception) -> str:
+    traceback_list = traceback.format_exception(type(exception), exception, exception.__traceback__)
+    formatted_traceback = ''.join(traceback_list)
+    return formatted_traceback
+
+
 def calculate_orientation(gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z, sample_period=0.01, alpha=0.98):
     # Normalize the accelerometer data
-    norm_accel = np.sqrt(accel_x**2 + accel_y**2 + accel_z**2)
+    norm_accel = np.sqrt(accel_x ** 2 + accel_y ** 2 + accel_z ** 2)
     accel_x /= norm_accel
     accel_y /= norm_accel
     accel_z /= norm_accel

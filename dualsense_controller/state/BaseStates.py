@@ -1,7 +1,6 @@
 from typing import Generic, Final
 
-from dualsense_controller import State
-from dualsense_controller.common import StateValueType, StateNameEnumType
+from dualsense_controller.state import State, StateValueType, StateNameEnumType
 
 
 class BaseStates(Generic[StateNameEnumType]):

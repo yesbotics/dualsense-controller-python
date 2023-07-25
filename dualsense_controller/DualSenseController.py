@@ -1,36 +1,19 @@
-import threading
-from threading import Thread
 from typing import Final
 
-import hidapi
 import pyee as pyee
 
-from dualsense_controller import ReadStates, WriteStates, ControllerDevice
-from dualsense_controller.common import (
-    VENDOR_ID,
-    PRODUCT_ID,
-    ReadStateName,
-    ConnectionChangeCallback,
-    EventType,
-    ExceptionCallback,
-    StateChangeCallback,
-    AnyStateChangeCallback,
-    WriteStateName, BatteryLowCallback, StateValueMapping
+from .enum import EventType
+from .typedef import BatteryLowCallback, ConnectionChangeCallback, ExceptionCallback
+from dualsense_controller import HidControllerDevice
+from dualsense_controller.report import InReport
+from dualsense_controller.state import (
+    AnyStateChangeCallback, ReadStateName, ReadStates, StateChangeCallback,
+    StateValueMapping, WriteStateName, WriteStates
 )
-from dualsense_controller.exceptions import (
-    AlreadyInitializedException,
-    NotInitializedYetException,
-    NoDeviceDetectedException,
-    InvalidDeviceIndexException
-)
+from dualsense_controller.util import format_exception
 
 
 class DualSenseController:
-
-    @staticmethod
-    def enumerate_devices() -> list[hidapi.DeviceInfo]:
-        return [device_info for device_info in hidapi.enumerate(vendor_id=VENDOR_ID)
-                if device_info.vendor_id == VENDOR_ID and device_info.product_id == PRODUCT_ID]
 
     def __init__(
             self,
@@ -40,7 +23,10 @@ class DualSenseController:
             accelerometer_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
     ):
+        # Emitability
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
+
+        # State
         self._read_states: Final[ReadStates] = ReadStates(
             analog_threshold=analog_threshold,
             gyroscope_threshold=gyro_threshold,
@@ -48,11 +34,11 @@ class DualSenseController:
             state_value_mapping=state_value_mapping,
         )
         self._write_states: Final[WriteStates] = WriteStates()
-        self._device_index: int = device_index
-        self._stop_thread_event: threading.Event | None = None
-        self._thread_controller_report: Thread | None = None
-        self._controller_device: ControllerDevice | None = None
-        self._initialized: bool = False
+
+        # Hardware
+        self._hid_controller_device: HidControllerDevice = HidControllerDevice(device_index)
+        self._hid_controller_device.on_exception(self._on_thread_exception)
+        self._hid_controller_device.on_in_report(self._on_in_report)
 
     @property
     def states(self) -> ReadStates:
@@ -71,7 +57,7 @@ class DualSenseController:
         self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)
 
     def on_exception(self, callback: ExceptionCallback):
-        self._event_emitter.on(EventType.EXCEPTION, callback)
+        self._hid_controller_device.on_exception(callback)
 
     def on_state_change(self, state_name: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
         self._read_states.on_change(state_name, callback)
@@ -86,56 +72,23 @@ class DualSenseController:
         self._write_states.set_value(WriteStateName.MOTOR_LEFT, amount)
 
     def init(self) -> None:
-        if self._initialized:
-            raise AlreadyInitializedException
-        self._initialized = True
-        self._stop_thread_event = threading.Event()
-        self._open_device()
+        assert not self._hid_controller_device.opened, 'already opened'
+        self._hid_controller_device.open()
+        self._event_emitter.emit(EventType.CONNECTION_CHANGE, True, self._hid_controller_device.connection_type)
 
     def deinit(self) -> None:
-        if not self._initialized:
-            raise NotInitializedYetException
-        self._stop_thread_event.set()
-        self._close_device()
-        self._stop_thread_event = None
-        self._initialized = False
-
-    def _open_device(self) -> None:
-        devices: list[hidapi.DeviceInfo] = DualSenseController.enumerate_devices()
-        num_devices: int = len(devices)
-        if num_devices < 1:
-            raise NoDeviceDetectedException
-        if num_devices < self._device_index + 1:
-            raise InvalidDeviceIndexException(self._device_index)
-        device_info: hidapi.DeviceInfo = devices[self._device_index]
-        hid_device = hidapi.Device(vendor_id=device_info.vendor_id, product_id=device_info.product_id)
-        self._controller_device = ControllerDevice(hid_device)
-        self._event_emitter.emit(EventType.CONNECTION_CHANGE, True, self._controller_device.connection_type)
-        self._thread_controller_report = threading.Thread(
-            target=self._loop_controller_report,
-            daemon=True,
-        )
-        self._thread_controller_report.start()
-
-    def _close_device(self) -> None:
-        self._thread_controller_report.join()
-        self._thread_controller_report = None
-        connection_type = self._controller_device.connection_type
-        self._controller_device.close()
-        self._controller_device = None
+        assert self._hid_controller_device.opened, 'not opened yet'
+        connection_type = self._hid_controller_device.connection_type
+        self._hid_controller_device.close()
         self._event_emitter.emit(EventType.CONNECTION_CHANGE, False, connection_type)
 
-    def _loop_controller_report(self) -> None:
-        try:
-            while not self._stop_thread_event.is_set():
-                in_report = self._controller_device.read()
-                self._read_states.update(in_report, self._controller_device.connection_type)
+    def _on_in_report(self, in_report: InReport) -> None:
+        self._read_states.update(in_report, self._hid_controller_device.connection_type)
+        if self._write_states.changed:
+            # print(f'Sending report.')
+            self._write_states.update_out_report(self._hid_controller_device.out_report)
+            self._write_states.set_unchanged()
+            self._hid_controller_device.write()
 
-                if self._write_states.changed:
-                    # print(f'Sending report.')
-                    self._write_states.update_out_report(self._controller_device.out_report)
-                    self._write_states.set_unchanged()
-                    self._controller_device.write()
-
-        except Exception as exception:
-            self._event_emitter.emit(EventType.EXCEPTION, exception)
+    def _on_thread_exception(self, exception: Exception) -> None:
+        print('An Exception in the loop thread occured:', format_exception(exception))

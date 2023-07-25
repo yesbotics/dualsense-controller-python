@@ -5,7 +5,7 @@ from typing import Generic, Final, Callable
 
 import pyee
 
-from dualsense_controller.common import StateValueType, ReadStateName, StateChangeCallback, AnyStateChangeCallback
+from dualsense_controller.state import StateValueType
 
 
 class RestrictedStateAccess(Generic[StateValueType]):

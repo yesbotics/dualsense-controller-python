@@ -1,9 +1,24 @@
 from time import sleep
 from typing import Any
 
-from dualsense_controller import DualSenseController, ReadStateName, ConnectionType, WriteStateName
-from dualsense_controller.common import OutPlayerLed, OutBrightness, OutPulseOptions, Gyroscope, Accelerometer, \
-    Orientation, JoyStick
+from dualsense_controller import (
+    DualSenseController,
+    ReadStateName,
+    ConnectionType,
+    WriteStateName
+)
+
+from dualsense_controller.common import (
+    OutPlayerLed,
+    OutBrightness,
+    OutPulseOptions,
+)
+from dualsense_controller.state import (
+    Accelerometer,
+    Gyroscope,
+    JoyStick,
+    Orientation
+)
 
 
 class Example:
@@ -216,19 +231,19 @@ class Example:
     # all
     #
     def _on_any_state(self, name: ReadStateName, _: Any, state: Any) -> None:
-        print(f'Any State {name}: {state}')
+        # print(f'Any State {name}: {state}')
         pass
 
     def _on_any_state_2(self, name: ReadStateName, _: Any, state: Any) -> None:
-        print(f'Any State 2 {name}: {state}')
+        # print(f'Any State 2 {name}: {state}')
         pass
 
     def _on_any_state_3(self, name: ReadStateName, _: Any, state: Any) -> None:
-        print(f'Any State 3 {name}: {state}')
+        # print(f'Any State 3 {name}: {state}')
         pass
 
     def _on_any_state_4(self, name: ReadStateName, _: Any, state: Any) -> None:
-        print(f'Any State 4 {name}: {state}')
+        # print(f'Any State 4 {name}: {state}')
         pass
 
     #

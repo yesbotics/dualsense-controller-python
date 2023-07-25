@@ -1,18 +1,20 @@
-from typing import Final, Any
+from typing import Final
 
-from dualsense_controller import State, BaseStates, RestrictedStateAccess
-from dualsense_controller.common import (
+from dualsense_controller import ConnectionType
+from dualsense_controller.report import InReport
+from dualsense_controller.state import (
+    State,
+    RestrictedStateAccess,
+    BaseStates,
     ReadStateName,
-    StateChangeCallback,
     AnyStateChangeCallback,
-    ConnectionType,
+    StateChangeCallback,
+    StateValueMapping,
     Accelerometer,
     Gyroscope,
-    StateValueMapping,
     JoyStick,
     Orientation
 )
-from dualsense_controller.reports import InReport
 
 
 class ReadStates(BaseStates[ReadStateName]):
