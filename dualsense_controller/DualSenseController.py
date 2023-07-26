@@ -2,7 +2,7 @@ from typing import Final
 
 import pyee as pyee
 
-from .enum import EventType
+from .enums import EventType
 from .typedef import BatteryLowCallback, ConnectionChangeCallback, ExceptionCallback
 from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport

@@ -1,18 +1,13 @@
 import threading
 from threading import Thread
-from typing import Any, Final, TypedDict
+from typing import Any, Final
 
-import hid
-import hidapi
 import pyee
-
-from .typedef import ExceptionCallback
-from .enum import ConnectionType, EventType
 
 from dualsense_controller.exceptions import (
     InvalidConnectionTypeException,
-    NoDeviceDetectedException,
-    InvalidDeviceIndexException
+    InvalidDeviceIndexException,
+    NoDeviceDetectedException
 )
 from dualsense_controller.report import (
     InReport,
@@ -26,19 +21,9 @@ from dualsense_controller.report import (
     Bt31OutReport,
     Bt01OutReport
 )
-
-
-class HidDeviceInfo(TypedDict):
-    path: bytes
-    vendor_id: int
-    product_id: int
-    serial_number: str
-    release_number: int
-    manufacturer_string: str
-    product_string: str
-    usage_page: int
-    usage: int
-    interface_number: int
+from .core import hidapi
+from .enums import ConnectionType, EventType
+from .typedef import ExceptionCallback
 
 
 class HidControllerDevice:
@@ -46,8 +31,8 @@ class HidControllerDevice:
     PRODUCT_ID: Final[int] = 0x0ce6
 
     @staticmethod
-    def enumerate_devices() -> list[HidDeviceInfo]:
-        return hid.enumerate(vendor_id=HidControllerDevice.VENDOR_ID, product_id=HidControllerDevice.PRODUCT_ID)
+    def enumerate_devices() -> list[hidapi.DeviceInfo]:
+        return hidapi.enumerate(vendor_id=HidControllerDevice.VENDOR_ID, product_id=HidControllerDevice.PRODUCT_ID)
 
     @property
     def connection_type(self) -> ConnectionType:
@@ -72,15 +57,14 @@ class HidControllerDevice:
         self._stop_thread_event: threading.Event | None = None
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
 
-        hid_device_infos: list[HidDeviceInfo] = HidControllerDevice.enumerate_devices()
+        hid_device_infos: list[hidapi.DeviceInfo] = HidControllerDevice.enumerate_devices()
         num_hid_device_infos: int = len(hid_device_infos)
         if num_hid_device_infos < 1:
             raise NoDeviceDetectedException
         if num_hid_device_infos < self._device_index + 1:
             raise InvalidDeviceIndexException(self._device_index)
-        device_info: HidDeviceInfo = hid_device_infos[self._device_index]
-        self._serial_number = device_info['serial_number']
-        # self._hid_device: hid.device = hid.device()
+        device_info: hidapi.DeviceInfo = hid_device_infos[self._device_index]
+        self._serial_number = device_info.serial_number
         self._hid_device: hidapi.Device | None = None
 
         self._in_report_length: InReportLength = InReportLength.DUMMY
@@ -89,11 +73,6 @@ class HidControllerDevice:
 
     def open(self):
         assert self._hid_device is None, "Device already opened"
-        # self._hid_device.open(
-        #     HidControllerDevice.VENDOR_ID,
-        #     HidControllerDevice.PRODUCT_ID,
-        #     self._serial_number
-        # )
         self._hid_device: hidapi.Device = hidapi.Device(
             vendor_id=HidControllerDevice.VENDOR_ID,
             product_id=HidControllerDevice.PRODUCT_ID,

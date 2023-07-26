@@ -1,6 +1,6 @@
 from typing import Callable
 
-from .enum import ConnectionType
+from .enums import ConnectionType
 
 ExceptionCallback = Callable[[Exception], None]
 SimpleCallback = Callable[[], None]
