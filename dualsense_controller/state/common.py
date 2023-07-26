@@ -98,13 +98,8 @@ class WriteStateName(str, Enum):
     PLAYER_LED = 'PLAYER_LED'
 
 
-class StateValueMapping(Enum):
-    RAW = 0  # 0 ... 255
-    DEFAULT = 1  # -128 ... 127
-    DEFAULT_2 = 1  # -1.0 ... 1.0
-
-
 StateValueType = TypeVar('StateValueType')
+MappedStateValueType = TypeVar('MappedStateValueType')
 StateNameEnumType = TypeVar('StateNameEnumType')
 StateChangeCallback = Callable[[Any, Any], None]
 AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]

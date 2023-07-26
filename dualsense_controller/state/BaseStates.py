@@ -1,6 +1,6 @@
-from typing import Generic, Final
+from typing import Final, Generic
 
-from dualsense_controller.state import State, StateValueType, StateNameEnumType
+from dualsense_controller.state import CompareFn, State, StateNameEnumType, StateValueType
 
 
 class BaseStates(Generic[StateNameEnumType]):
@@ -22,14 +22,25 @@ class BaseStates(Generic[StateNameEnumType]):
             self,
             name: StateNameEnumType,
             value: StateValueType = None,
-            threshold: int = 0,
-            skip_none: False = True,
+            ignore_initial_none: bool = True,
+            compare_fn: CompareFn[StateValueType] = None,
+            **kwargs
     ) -> State[StateValueType]:
+
+        if compare_fn is not None:
+            compare_fn = BaseStates._wrap_compare_fn(compare_fn, **kwargs)
         state: State[StateValueType] = State[StateValueType](
             name,
             value=value,
-            threshold=threshold,
-            skip_none=skip_none
+            compare_fn=compare_fn,
+            ignore_initial_none=ignore_initial_none,
         )
         self._states_dict[name] = state
         return state
+
+    @staticmethod
+    def _wrap_compare_fn(compare_fn, **kwargs) -> CompareFn:
+        def _inner(before, after) -> bool:
+            return compare_fn(before, after, **kwargs)
+
+        return _inner

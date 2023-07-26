@@ -27,9 +27,11 @@ class Example:
 
         self._dualsense_controller: DualSenseController = DualSenseController(
             device_index=0,
-            analog_threshold=10,
-            gyro_threshold=100,
+            gyroscope_threshold=100,
             accelerometer_threshold=100,
+            joystick_threshold=10,
+            joystick_deadzone=10,
+            shoulder_key_deadzone=10,
         )
 
         self._dualsense_controller.on_exception(self._on_exception)

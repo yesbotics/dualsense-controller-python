@@ -8,7 +8,7 @@ from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     AnyStateChangeCallback, ReadStateName, ReadStates, StateChangeCallback,
-    StateValueMapping, WriteStateName, WriteStates
+    WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
 
@@ -18,20 +18,25 @@ class DualSenseController:
     def __init__(
             self,
             device_index: int = 0,
-            analog_threshold: int = 0,
-            gyro_threshold: int = 0,
+
+            joystick_threshold: int = 0,
+            joystick_deadzone: int = 0,
+            shoulder_key_threshold: int = 0,
+            shoulder_key_deadzone: int = 0,
+            gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
-            state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
     ):
         # Emitability
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
 
         # State
         self._read_states: Final[ReadStates] = ReadStates(
-            analog_threshold=analog_threshold,
-            gyroscope_threshold=gyro_threshold,
+            joystick_threshold=joystick_threshold,
+            joystick_deadzone=joystick_deadzone,
+            shoulder_key_deadzone=shoulder_key_deadzone,
+            shoulder_key_threshold=shoulder_key_threshold,
+            gyroscope_threshold=gyroscope_threshold,
             accelerometer_threshold=accelerometer_threshold,
-            state_value_mapping=state_value_mapping,
         )
         self._write_states: Final[WriteStates] = WriteStates()
 

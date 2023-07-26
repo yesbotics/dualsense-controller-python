@@ -3,53 +3,120 @@ from typing import Final
 from dualsense_controller import ConnectionType
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
-    State,
-    RestrictedStateAccess,
-    BaseStates,
-    ReadStateName,
-    AnyStateChangeCallback,
-    StateChangeCallback,
-    StateValueMapping,
-    Accelerometer,
-    Gyroscope,
-    JoyStick,
-    Orientation
+    Accelerometer, AnyStateChangeCallback, BaseStates, Gyroscope, JoyStick,
+    Orientation, ReadStateName, RestrictedStateAccess, State, StateChangeCallback
 )
+
+
+def _compare_joystick(before: JoyStick, after: JoyStick, deadzone: int = 0, threshold: int = 0) -> bool:
+    # if before is None or abs(value - old_value) >= self._threshold:
+    #     self._change_value(old_value=old_value, new_value=value)
+    return before != after
+
+
+def _compare_shoulder_key(before: int, after: int, deadzone: int = 0, threshold: int = 0) -> bool:
+    return before != after
+
+
+def _compare_gyroscope(before: Gyroscope, after: Gyroscope, threshold: int = 0) -> bool:
+    return before != after
+
+
+def _compare_accelerometer(before: Accelerometer, after: Accelerometer, threshold: int = 0) -> bool:
+    return before != after
+
+
+def _compare_orientation(before: Orientation, after: Orientation, threshold: int = 0) -> bool:
+    return before != after
 
 
 class ReadStates(BaseStates[ReadStateName]):
 
     def __init__(
             self,
-            analog_threshold: int = 0,
+            joystick_threshold: int = 0,
+            joystick_deadzone: int = 0,
+            shoulder_key_threshold: int = 0,
+            shoulder_key_deadzone: int = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
-            state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
     ):
         super().__init__()
-        self._analog_threshold: int = analog_threshold
-        self._gyroscope_threshold: int = gyroscope_threshold
-        self._accelerometer_threshold: int = accelerometer_threshold
-        self._state_value_mapping: StateValueMapping = state_value_mapping
 
+        # STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.LEFT_STICK_X, threshold=analog_threshold
+            ReadStateName.LEFT_STICK_X
         )
         self._left_stick_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.LEFT_STICK_Y, threshold=analog_threshold
+            ReadStateName.LEFT_STICK_Y,
+        )
+        self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
+            ReadStateName.LEFT_STICK,
+            compare_fn=_compare_joystick,
+            threshold=joystick_threshold,
+            deadzone=joystick_deadzone,
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.RIGHT_STICK_X, threshold=analog_threshold
+            ReadStateName.RIGHT_STICK_X,
         )
         self._right_stick_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.RIGHT_STICK_Y, threshold=analog_threshold
+            ReadStateName.RIGHT_STICK_Y,
         )
+        self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
+            ReadStateName.RIGHT_STICK,
+            compare_fn=_compare_joystick,
+            threshold=joystick_threshold,
+            deadzone=joystick_deadzone,
+        )
+
+        # GYRO, ACCEL, ORIENT
+        self._gyroscope_x: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.GYROSCOPE_X
+        )
+        self._gyroscope_y: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.GYROSCOPE_Y
+        )
+        self._gyroscope_z: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.GYROSCOPE_Z
+        )
+        self._gyroscope: Final[State[Gyroscope]] = self._create_and_register_state(
+            ReadStateName.GYROSCOPE,
+            compare_fn=_compare_gyroscope,
+            threshold=gyroscope_threshold,
+        )
+        self._accelerometer_x: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.ACCELEROMETER_X
+        )
+        self._accelerometer_y: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.ACCELEROMETER_Y
+        )
+        self._accelerometer_z: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.ACCELEROMETER_Z
+        )
+        self._accelerometer: Final[State[Accelerometer]] = self._create_and_register_state(
+            ReadStateName.ACCELEROMETER,
+            compare_fn=_compare_accelerometer,
+            threshold=accelerometer_threshold,
+        )
+        self._orientation: Final[State[Orientation]] = self._create_and_register_state(
+            ReadStateName.ORIENTATION, compare_fn=_compare_orientation
+        )
+
+        # SHOULDER KEYS
         self._l2: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.L2, threshold=analog_threshold
+            ReadStateName.L2,
+            compare_fn=_compare_shoulder_key,
+            threshold=shoulder_key_threshold,
+            deadzone=shoulder_key_deadzone,
         )
         self._r2: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.R2, threshold=analog_threshold
+            ReadStateName.R2,
+            compare_fn=_compare_shoulder_key,
+            threshold=shoulder_key_threshold,
+            deadzone=shoulder_key_deadzone,
         )
+
+        # DIG BTN
         self._btn_up: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_UP)
         self._btn_left: Final[State[bool]] = self._create_and_register_state(
@@ -106,24 +173,8 @@ class ReadStates(BaseStates[ReadStateName]):
         self._btn_mute: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_MUTE
         )
-        self._gyroscope_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.GYROSCOPE_X, threshold=gyroscope_threshold
-        )
-        self._gyroscope_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.GYROSCOPE_Y, threshold=gyroscope_threshold
-        )
-        self._gyroscope_z: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.GYROSCOPE_Z, threshold=gyroscope_threshold
-        )
-        self._accelerometer_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.ACCELEROMETER_X, threshold=accelerometer_threshold
-        )
-        self._accelerometer_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.ACCELEROMETER_Y, threshold=accelerometer_threshold
-        )
-        self._accelerometer_z: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.ACCELEROMETER_Z, threshold=accelerometer_threshold
-        )
+
+        # TOUCH
         self._touch_0_active: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.TOUCH_0_ACTIVE
         )
@@ -148,6 +199,8 @@ class ReadStates(BaseStates[ReadStateName]):
         self._touch_1_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.TOUCH_1_Y
         )
+
+        # FEEDBACK
         self._l2_feedback_active: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.L2_FEEDBACK_ACTIVE
         )
@@ -160,30 +213,16 @@ class ReadStates(BaseStates[ReadStateName]):
         self._r2_feedback_value: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2_FEEDBACK_VALUE
         )
+
+        # BATT
         self._battery_level_percent: Final[State[float]] = self._create_and_register_state(
-            ReadStateName.BATTERY_LEVEL_PERCENT, skip_none=False
+            ReadStateName.BATTERY_LEVEL_PERCENT, ignore_initial_none=False
         )
         self._battery_full: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.BATTERY_FULL, skip_none=False
+            ReadStateName.BATTERY_FULL, ignore_initial_none=False
         )
         self._battery_charging: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.BATTERY_CHARGING, skip_none=False
-        )
-        # COMPLEX
-        self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
-            ReadStateName.LEFT_STICK
-        )
-        self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
-            ReadStateName.RIGHT_STICK
-        )
-        self._gyroscope: Final[State[Gyroscope]] = self._create_and_register_state(
-            ReadStateName.GYROSCOPE
-        )
-        self._accelerometer: Final[State[Accelerometer]] = self._create_and_register_state(
-            ReadStateName.ACCELEROMETER
-        )
-        self._orientation: Final[State[Orientation]] = self._create_and_register_state(
-            ReadStateName.ORIENTATION
+            ReadStateName.BATTERY_CHARGING, ignore_initial_none=False
         )
 
     def on_change(self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
@@ -395,42 +434,6 @@ class ReadStates(BaseStates[ReadStateName]):
     def remove_any_change_listener(self, callback: AnyStateChangeCallback) -> None:
         for state_name, state in self._states_dict.items():
             state.remove_change_listener(callback)
-
-    @property
-    def analog_threshold(self) -> int:
-        return self._analog_threshold
-
-    @analog_threshold.setter
-    def analog_threshold(self, analog_threshold: int) -> None:
-        self._analog_threshold = analog_threshold
-        self._left_stick_x.threshold = analog_threshold
-        self._left_stick_y.threshold = analog_threshold
-        self._right_stick_x.threshold = analog_threshold
-        self._right_stick_y.threshold = analog_threshold
-        self._l2.threshold = analog_threshold
-        self._r2.threshold = analog_threshold
-
-    @property
-    def accelerometer_threshold(self) -> int:
-        return self._accelerometer_threshold
-
-    @accelerometer_threshold.setter
-    def accelerometer_threshold(self, accelerometer_threshold: int) -> None:
-        self._accelerometer_threshold = accelerometer_threshold
-        self._accelerometer_x.threshold = accelerometer_threshold
-        self._accelerometer_y.threshold = accelerometer_threshold
-        self._accelerometer_z.threshold = accelerometer_threshold
-
-    @property
-    def gyroscope_threshold(self) -> int:
-        return self._gyroscope_threshold
-
-    @gyroscope_threshold.setter
-    def gyroscope_threshold(self, gyroscope_threshold: int) -> None:
-        self._gyroscope_threshold = gyroscope_threshold
-        self._gyroscope_x.threshold = gyroscope_threshold
-        self._gyroscope_y.threshold = gyroscope_threshold
-        self._gyroscope_z.threshold = gyroscope_threshold
 
     @property
     def left_stick_x(self) -> RestrictedStateAccess[int]:
