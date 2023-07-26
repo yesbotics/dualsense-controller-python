@@ -31,7 +31,7 @@ class Example:
             shoulder_key_deadzone=50,
             gyroscope_threshold=100,
             accelerometer_threshold=100,
-            orientation_threshold=0,
+            orientation_threshold=100,
         )
 
         self._dualsense_controller.on_exception(self._on_exception)

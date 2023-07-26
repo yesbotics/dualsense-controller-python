@@ -7,9 +7,10 @@ import pyee
 
 from dualsense_controller.state import \
     AnyStateChangeCallback, \
-    MappedStateValueType, ReadStateName, \
+    CompareFn, MapFn, ReadStateName, \
     StateChangeCallback, \
     StateValueType
+from dualsense_controller.state.common import compare
 
 
 class RestrictedStateAccess(Generic[StateValueType]):
@@ -57,12 +58,7 @@ class RestrictedStateAccess(Generic[StateValueType]):
         return self._state.remove_all_change_listeners
 
 
-CompareFn = Callable[[StateValueType, StateValueType, ...], StateValueType | None]
-MapFn = Callable[[StateValueType], MappedStateValueType]
-
-
 class State(Generic[StateValueType]):
-    _DEFAULT_COMPARE_FN: Final[CompareFn[StateValueType]] = lambda before, after: before != after
 
     def __init__(
             self,
@@ -81,7 +77,7 @@ class State(Generic[StateValueType]):
         self._last_value: StateValueType | None = None
         self._changed_since_last_update: bool = False
         self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
-        self._compare_fn: CompareFn = compare_fn if compare_fn is not None else State._DEFAULT_COMPARE_FN
+        self._compare_fn: CompareFn = compare_fn if compare_fn is not None else compare
         self._map_fn: MapFn | None = map_fn
         # extra
         self._ignore_initial_none: bool = ignore_initial_none
@@ -123,10 +119,12 @@ class State(Generic[StateValueType]):
     def value(self, value: StateValueType | None) -> None:
         old_value: StateValueType = self._value
         if old_value is None and self._ignore_initial_none:
-            self._change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
-            return
-        if self._compare_fn(old_value, value):
-            self._change_value(old_value=old_value, new_value=value)
+            if self._ignore_initial_none:
+                self._change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
+                return
+        changed, new_value = self._compare_fn(old_value, value)
+        if changed:
+            self._change_value(old_value=old_value, new_value=new_value)
             return
         self.do_not_change_value()
 

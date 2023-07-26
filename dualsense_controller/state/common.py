@@ -104,6 +104,10 @@ StateNameEnumType = TypeVar('StateNameEnumType')
 StateChangeCallback = Callable[[Any, Any], None]
 AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
 
+CompareResult = tuple[bool, StateValueType]
+CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
+MapFn = Callable[[StateValueType], MappedStateValueType]
+
 
 @dataclass(frozen=True, slots=True)
 class JoyStick:
@@ -131,3 +135,60 @@ class Orientation:
     pitch: int
     roll: int
 
+
+def compare(before: StateValueType | None, after: StateValueType) -> CompareResult:
+    return (True, after) if before != after else (False, after)
+
+
+def compare_joystick(before: JoyStick | None, after: JoyStick, deadzone: int = 0) -> CompareResult:
+    if before is None:
+        return True, after
+    if deadzone > 0 and (((after.x - 127) ** 2) + ((after.y - 127) ** 2)) <= deadzone ** 2:
+        after = JoyStick(127, 127)
+    changed: bool = after.x != before.x or after.y != before.y
+    return changed, after
+
+
+def compare_shoulder_key(before: int | None, after: int, deadzone: int = 0) -> CompareResult:
+    if before is None:
+        return True, after
+    if deadzone > 0 and after <= deadzone:
+        after = 0
+    changed: bool = after != before
+    return changed, after
+
+
+def compare_gyroscope(before: Gyroscope, after: Gyroscope, threshold: int = 0) -> CompareResult:
+    if before is None:
+        return True, after
+    if threshold > 0:
+        if abs(after.x - before.x) < threshold \
+                and abs(after.y - before.y) < threshold \
+                and abs(after.z - before.z) < threshold:
+            after = Gyroscope(before.x, before.y, before.z)
+    changed: bool = after.x != before.x or after.y != before.y or after.z != before.z
+    return changed, after
+
+
+def compare_accel(before: Accelerometer, after: Accelerometer, threshold: int = 0) -> CompareResult:
+    if before is None:
+        return True, after
+    if threshold > 0:
+        if abs(after.x - before.x) < threshold \
+                and abs(after.y - before.y) < threshold \
+                and abs(after.z - before.z) < threshold:
+            after = Gyroscope(before.x, before.y, before.z)
+    changed: bool = after.x != before.x or after.y != before.y or after.z != before.z
+    return changed, after
+
+
+def compare_orientation(before: Orientation, after: Orientation, threshold: int = 0) -> CompareResult:
+    if before is None:
+        return True, after
+    if threshold > 0:
+        if abs(after.yaw - before.yaw) < threshold \
+                and abs(after.pitch - before.pitch) < threshold \
+                and abs(after.roll - before.roll) < threshold:
+            after = Orientation(before.yaw, before.pitch, before.roll)
+    changed: bool = after.yaw != before.yaw or after.pitch != before.pitch or after.roll != before.roll
+    return changed, after
