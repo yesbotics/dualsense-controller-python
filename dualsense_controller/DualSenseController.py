@@ -18,25 +18,22 @@ class DualSenseController:
     def __init__(
             self,
             device_index: int = 0,
-
-            joystick_threshold: int = 0,
             joystick_deadzone: int = 0,
-            shoulder_key_threshold: int = 0,
             shoulder_key_deadzone: int = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
+            orientation_threshold: int = 0,
     ):
         # Emitability
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
 
         # State
         self._read_states: Final[ReadStates] = ReadStates(
-            joystick_threshold=joystick_threshold,
             joystick_deadzone=joystick_deadzone,
             shoulder_key_deadzone=shoulder_key_deadzone,
-            shoulder_key_threshold=shoulder_key_threshold,
             gyroscope_threshold=gyroscope_threshold,
             accelerometer_threshold=accelerometer_threshold,
+            orientation_threshold=orientation_threshold,
         )
         self._write_states: Final[WriteStates] = WriteStates()
 

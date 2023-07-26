@@ -8,38 +8,58 @@ from dualsense_controller.state import (
 )
 
 
-def _compare_joystick(before: JoyStick, after: JoyStick, deadzone: int = 0, threshold: int = 0) -> bool:
-    # if before is None or abs(value - old_value) >= self._threshold:
-    #     self._change_value(old_value=old_value, new_value=value)
-    return before != after
+def _compare_joystick(before: JoyStick | None, after: JoyStick, deadzone: int = 0) -> bool:
+    in_deadzone: bool = False
+    if deadzone > 0:
+        if (((after.x - 127) ** 2) + ((after.y - 127) ** 2)) <= deadzone ** 2:
+            in_deadzone = True
+    return not in_deadzone and (after.x != before.x or after.y != before.y)
 
 
-def _compare_shoulder_key(before: int, after: int, deadzone: int = 0, threshold: int = 0) -> bool:
-    return before != after
+def _compare_shoulder_key(before: int, after: int, deadzone: int = 0) -> bool:
+    in_deadzone: bool = False if deadzone == 0 else after <= deadzone
+    return not in_deadzone and after != before
 
 
 def _compare_gyroscope(before: Gyroscope, after: Gyroscope, threshold: int = 0) -> bool:
-    return before != after
+    gte_threshold: bool = True
+    if threshold > 0:
+        if abs(after.x - before.x) < threshold \
+                and abs(after.y - before.y) < threshold \
+                and abs(after.z - before.z) < threshold:
+            gte_threshold = False
+    return gte_threshold and after.x != before.x or after.y != before.y or after.z != before.z
 
 
 def _compare_accelerometer(before: Accelerometer, after: Accelerometer, threshold: int = 0) -> bool:
-    return before != after
+    gte_threshold: bool = True
+    if threshold > 0:
+        if abs(after.x - before.x) < threshold \
+                and abs(after.y - before.y) < threshold \
+                and abs(after.z - before.z) < threshold:
+            gte_threshold = False
+    return gte_threshold and after.x != before.x or after.y != before.y or after.z != before.z
 
 
 def _compare_orientation(before: Orientation, after: Orientation, threshold: int = 0) -> bool:
-    return before != after
+    gte_threshold: bool = True
+    if threshold > 0:
+        if abs(after.yaw - before.yaw) < threshold \
+                and abs(after.pitch - before.pitch) < threshold \
+                and abs(after.roll - before.roll) < threshold:
+            gte_threshold = False
+    return gte_threshold and after.x != before.x or after.y != before.y or after.z != before.z
 
 
 class ReadStates(BaseStates[ReadStateName]):
 
     def __init__(
             self,
-            joystick_threshold: int = 0,
             joystick_deadzone: int = 0,
-            shoulder_key_threshold: int = 0,
             shoulder_key_deadzone: int = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
+            orientation_threshold: int = 0,
     ):
         super().__init__()
 
@@ -53,7 +73,6 @@ class ReadStates(BaseStates[ReadStateName]):
         self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
             compare_fn=_compare_joystick,
-            threshold=joystick_threshold,
             deadzone=joystick_deadzone,
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
@@ -65,7 +84,6 @@ class ReadStates(BaseStates[ReadStateName]):
         self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK,
             compare_fn=_compare_joystick,
-            threshold=joystick_threshold,
             deadzone=joystick_deadzone,
         )
 
@@ -99,20 +117,20 @@ class ReadStates(BaseStates[ReadStateName]):
             threshold=accelerometer_threshold,
         )
         self._orientation: Final[State[Orientation]] = self._create_and_register_state(
-            ReadStateName.ORIENTATION, compare_fn=_compare_orientation
+            ReadStateName.ORIENTATION,
+            compare_fn=_compare_orientation,
+            threshold=orientation_threshold
         )
 
         # SHOULDER KEYS
         self._l2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.L2,
             compare_fn=_compare_shoulder_key,
-            threshold=shoulder_key_threshold,
             deadzone=shoulder_key_deadzone,
         )
         self._r2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2,
             compare_fn=_compare_shoulder_key,
-            threshold=shoulder_key_threshold,
             deadzone=shoulder_key_deadzone,
         )
 

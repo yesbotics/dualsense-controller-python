@@ -57,12 +57,12 @@ class RestrictedStateAccess(Generic[StateValueType]):
         return self._state.remove_all_change_listeners
 
 
-CompareFn = Callable[[StateValueType, StateValueType, ...], bool]
+CompareFn = Callable[[StateValueType, StateValueType, ...], StateValueType | None]
 MapFn = Callable[[StateValueType], MappedStateValueType]
 
 
 class State(Generic[StateValueType]):
-    _DEFAULT_COMPARE_FN: Final[CompareFn[StateValueType]] = lambda before, after, **kwargs: before != after
+    _DEFAULT_COMPARE_FN: Final[CompareFn[StateValueType]] = lambda before, after: before != after
 
     def __init__(
             self,
@@ -125,7 +125,7 @@ class State(Generic[StateValueType]):
         if old_value is None and self._ignore_initial_none:
             self._change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
             return
-        if self._compare_fn(old_value, value) :
+        if self._compare_fn(old_value, value):
             self._change_value(old_value=old_value, new_value=value)
             return
         self.do_not_change_value()

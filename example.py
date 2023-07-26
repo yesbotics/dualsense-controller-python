@@ -27,11 +27,11 @@ class Example:
 
         self._dualsense_controller: DualSenseController = DualSenseController(
             device_index=0,
+            joystick_deadzone=50,
+            shoulder_key_deadzone=50,
             gyroscope_threshold=100,
             accelerometer_threshold=100,
-            joystick_threshold=10,
-            joystick_deadzone=10,
-            shoulder_key_deadzone=10,
+            orientation_threshold=0,
         )
 
         self._dualsense_controller.on_exception(self._on_exception)
@@ -126,10 +126,10 @@ class Example:
     #
     # L2 / R2 -> rumble
     #
-    def _on_l2(self, _: bool, value: int) -> None:
+    def _on_l2(self, _: int, value: int) -> None:
         self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value if value > 20 else 0)
 
-    def _on_r2(self, _: bool, value: int) -> None:
+    def _on_r2(self, _: int, value: int) -> None:
         self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, value if value > 20 else 0)
 
     #
