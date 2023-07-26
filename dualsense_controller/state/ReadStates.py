@@ -6,7 +6,7 @@ from dualsense_controller.state import (
     Accelerometer, AnyStateChangeCallback, BaseStates, Gyroscope, JoyStick,
     Orientation, ReadStateName, RestrictedStateAccess, State, StateChangeCallback
 )
-from .common import compare_accel, compare_gyroscope, compare_joystick, compare_orientation, \
+from .common import StateValueMapping, compare_accel, compare_gyroscope, compare_joystick, compare_orientation, \
     compare_shoulder_key
 
 
@@ -19,9 +19,11 @@ class ReadStates(BaseStates[ReadStateName]):
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
+            state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS
     ):
         super().__init__()
 
+        self._state_value_mapping: Final[StateValueMapping] = state_value_mapping
         # STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X

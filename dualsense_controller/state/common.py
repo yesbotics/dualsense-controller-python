@@ -192,3 +192,53 @@ def compare_orientation(before: Orientation, after: Orientation, threshold: int 
             after = Orientation(before.yaw, before.pitch, before.roll)
     changed: bool = after.yaw != before.yaw or after.pitch != before.pitch or after.roll != before.roll
     return changed, after
+
+
+Number = int | float
+FromToTuple = tuple[Number, Number, Number, Number]
+
+
+@dataclass(frozen=True, slots=True)
+class StateValueMappingData:
+    left_stick_x: FromToTuple = None
+    left_stick_y: FromToTuple = None
+    right_stick_x: FromToTuple = None
+    right_stick_y: FromToTuple = None
+    left_shoulder_key: FromToTuple = None
+    right_shoulder_key: FromToTuple = None
+
+
+class StateValueMapping(Enum):
+    RAW = StateValueMappingData()
+    KAPPA_J = StateValueMappingData(
+        left_stick_x=(0, 255, -128, 127),
+        left_stick_y=(0, 255, 127, -128),
+        right_stick_x=(0, 255, -128, 127),
+        right_stick_y=(0, 255, 127, -128),
+        left_shoulder_key=(0, 255, 0, 255),
+        right_shoulder_key=(0, 255, 0, 255),
+    ),
+    EINSPUNKTNULL = StateValueMappingData(
+        left_stick_x=(0, 255, -128, 127),
+        left_stick_y=(0, 255, -128, 127),
+        right_stick_x=(0, 255, -128, 127),
+        right_stick_y=(0, 255, -128, 127),
+        left_shoulder_key=(0, 255, 0, 255),
+        right_shoulder_key=(0, 255, 0, 255),
+    ),
+    FOR_NOOBS = StateValueMappingData(
+        left_stick_x=(0, 255, -1.0, 1.0),
+        left_stick_y=(0, 255, 1.0, -1.0),
+        right_stick_x=(0, 255, -1.0, 1.0),
+        right_stick_y=(0, 255, 1.0, -1.0),
+        left_shoulder_key=(0, 255, 0, 1.0),
+        right_shoulder_key=(0, 255, 0, 1.0),
+    ),
+    FOR_BOONS = StateValueMappingData(
+        left_stick_x=(0, 255, -1.0, 1.0),
+        left_stick_y=(0, 255, 1.0, -1.0),
+        right_stick_x=(0, 255, 1.0, -1.0),
+        right_stick_y=(0, 255, 1.0, -1.0),
+        left_shoulder_key=(0, 255, 0, 1.0),
+        right_shoulder_key=(0, 255, 0, 1.0),
+    ),

@@ -8,7 +8,7 @@ from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     AnyStateChangeCallback, ReadStateName, ReadStates, StateChangeCallback,
-    WriteStateName, WriteStates
+    StateValueMapping, WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
 
@@ -23,6 +23,7 @@ class DualSenseController:
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
+            state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS
     ):
         # Emitability
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
@@ -34,6 +35,7 @@ class DualSenseController:
             gyroscope_threshold=gyroscope_threshold,
             accelerometer_threshold=accelerometer_threshold,
             orientation_threshold=orientation_threshold,
+            state_value_mapping=state_value_mapping,
         )
         self._write_states: Final[WriteStates] = WriteStates()
 

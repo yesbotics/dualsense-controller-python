@@ -7,10 +7,10 @@ import pyee
 
 from dualsense_controller.state import \
     AnyStateChangeCallback, \
-    CompareFn, MapFn, ReadStateName, \
+    CompareFn, ReadStateName, \
     StateChangeCallback, \
     StateValueType
-from dualsense_controller.state.common import compare
+from dualsense_controller.state.common import StateValueMapping, compare
 
 
 class RestrictedStateAccess(Generic[StateValueType]):
@@ -28,22 +28,6 @@ class RestrictedStateAccess(Generic[StateValueType]):
     @property
     def last_value(self) -> StateValueType | None:
         return self._state.last_value
-
-    @property
-    def compare_fn(self) -> CompareFn:
-        return self._state.compare_fn
-
-    @compare_fn.setter
-    def compare_fn(self, compare_fn: CompareFn) -> None:
-        self._state.compare_fn = compare_fn
-
-    @property
-    def map_fn(self) -> MapFn:
-        return self._state.map_fn
-
-    @map_fn.setter
-    def map_fn(self, map_fn: MapFn) -> None:
-        self._state.map_fn = map_fn
 
     @property
     def on_change(self) -> Callable[[StateChangeCallback], None]:
@@ -65,7 +49,6 @@ class State(Generic[StateValueType]):
             name: ReadStateName,
             value: StateValueType = None,
             compare_fn: CompareFn = None,
-            map_fn: MapFn[StateValueType] = None,
             ignore_initial_none: bool = True,
     ):
         super().__init__()
@@ -78,7 +61,6 @@ class State(Generic[StateValueType]):
         self._changed_since_last_update: bool = False
         self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
         self._compare_fn: CompareFn = compare_fn if compare_fn is not None else compare
-        self._map_fn: MapFn | None = map_fn
         # extra
         self._ignore_initial_none: bool = ignore_initial_none
 
@@ -94,22 +76,6 @@ class State(Generic[StateValueType]):
 
     def __repr__(self) -> str:
         return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
-
-    @property
-    def compare_fn(self) -> CompareFn:
-        return self._compare_fn
-
-    @compare_fn.setter
-    def compare_fn(self, compare_fn: CompareFn) -> None:
-        self._compare_fn = compare_fn
-
-    @property
-    def map_fn(self) -> MapFn:
-        return self._map_fn
-
-    @map_fn.setter
-    def map_fn(self, map_fn: MapFn) -> None:
-        self._map_fn = map_fn
 
     @property
     def value(self) -> StateValueType:

@@ -127,10 +127,10 @@ class Example:
     # L2 / R2 -> rumble
     #
     def _on_l2(self, _: int, value: int) -> None:
-        self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value if value > 20 else 0)
+        self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value)
 
     def _on_r2(self, _: int, value: int) -> None:
-        self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, value if value > 20 else 0)
+        self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, value)
 
     #
     # Left Controls -> lightbar color
