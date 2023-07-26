@@ -19,10 +19,12 @@ class ReadStates(BaseStates[ReadStateName]):
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
-            state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS
+            state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS,
+            enforce_update: bool = True,
     ):
         super().__init__()
 
+        self._enforce_update: Final[bool] = enforce_update
         self._state_value_mapping: Final[StateValueMapping] = state_value_mapping
         # STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
@@ -220,65 +222,67 @@ class ReadStates(BaseStates[ReadStateName]):
 
         # ##### ANALOG STICKS #####
 
-        if self._left_stick.has_listeners or self._left_stick_x.has_listeners:
+        if self._enforce_update or (self._left_stick.has_listeners or self._left_stick_x.has_listeners):
             self._left_stick_x.value = in_report.axes_0
-        if self._left_stick.has_listeners or self._left_stick_y.has_listeners:
+        if self._enforce_update or (self._left_stick.has_listeners or self._left_stick_y.has_listeners):
             self._left_stick_y.value = in_report.axes_1
-        if self._left_stick.has_listeners and (self._left_stick_x.changed or self._left_stick_y.changed):
+        if self._enforce_update or (
+                self._left_stick.has_listeners and (self._left_stick_x.changed or self._left_stick_y.changed)):
             self._left_stick.value = JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value)
 
-        if self._right_stick.has_listeners or self._right_stick_x.has_listeners:
+        if self._enforce_update or self._right_stick.has_listeners or self._right_stick_x.has_listeners:
             self._right_stick_x.value = in_report.axes_2
-        if self._right_stick.has_listeners or self._right_stick_y.has_listeners:
+        if self._enforce_update or self._right_stick.has_listeners or self._right_stick_y.has_listeners:
             self._right_stick_y.value = in_report.axes_3
-        if self._right_stick.has_listeners and (self._right_stick_x.changed or self._right_stick_y.changed):
+        if self._enforce_update or (
+                self._right_stick.has_listeners and (self._right_stick_x.changed or self._right_stick_y.changed)):
             self._right_stick.value = JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value)
 
-        if self._l2.has_listeners:
+        if self._enforce_update or self._l2.has_listeners:
             self._l2.value = in_report.axes_4
 
-        if self._r2.has_listeners:
+        if self._enforce_update or self._r2.has_listeners:
             self._r2.value = in_report.axes_5
 
         # ##### BUTTONS #####
         dpad: int = in_report.buttons_0 & 0x0f
-        if self._btn_up.has_listeners:
+        if self._enforce_update or self._btn_up.has_listeners:
             self._btn_up.value = dpad == 0 or dpad == 1 or dpad == 7
-        if self._btn_down.has_listeners:
+        if self._enforce_update or self._btn_down.has_listeners:
             self._btn_down.value = dpad == 3 or dpad == 4 or dpad == 5
-        if self._btn_left.has_listeners:
+        if self._enforce_update or self._btn_left.has_listeners:
             self._btn_left.value = dpad == 5 or dpad == 6 or dpad == 7
-        if self._btn_right.has_listeners:
+        if self._enforce_update or self._btn_right.has_listeners:
             self._btn_right.value = dpad == 1 or dpad == 2 or dpad == 3
-        if self._btn_square.has_listeners:
+        if self._enforce_update or self._btn_square.has_listeners:
             self._btn_square.value = bool(in_report.buttons_0 & 0x10)
-        if self._btn_cross.has_listeners:
+        if self._enforce_update or self._btn_cross.has_listeners:
             self._btn_cross.value = bool(in_report.buttons_0 & 0x20)
-        if self._btn_circle.has_listeners:
+        if self._enforce_update or self._btn_circle.has_listeners:
             self._btn_circle.value = bool(in_report.buttons_0 & 0x40)
-        if self._btn_triangle.has_listeners:
+        if self._enforce_update or self._btn_triangle.has_listeners:
             self._btn_triangle.value = bool(in_report.buttons_0 & 0x80)
-        if self._btn_l1.has_listeners:
+        if self._enforce_update or self._btn_l1.has_listeners:
             self._btn_l1.value = bool(in_report.buttons_1 & 0x01)
-        if self._btn_r1.has_listeners:
+        if self._enforce_update or self._btn_r1.has_listeners:
             self._btn_r1.value = bool(in_report.buttons_1 & 0x02)
-        if self._btn_l2.has_listeners:
+        if self._enforce_update or self._btn_l2.has_listeners:
             self._btn_l2.value = bool(in_report.buttons_1 & 0x04)
-        if self._btn_r2.has_listeners:
+        if self._enforce_update or self._enforce_update or self._btn_r2.has_listeners:
             self._btn_r2.value = bool(in_report.buttons_1 & 0x08)
-        if self._btn_create.has_listeners:
+        if self._enforce_update or self._btn_create.has_listeners:
             self._btn_create.value = bool(in_report.buttons_1 & 0x10)
-        if self._btn_options.has_listeners:
+        if self._enforce_update or self._btn_options.has_listeners:
             self._btn_options.value = bool(in_report.buttons_1 & 0x20)
-        if self._btn_l3.has_listeners:
+        if self._enforce_update or self._btn_l3.has_listeners:
             self._btn_l3.value = bool(in_report.buttons_1 & 0x40)
-        if self._btn_r3.has_listeners:
+        if self._enforce_update or self._btn_r3.has_listeners:
             self._btn_r3.value = bool(in_report.buttons_1 & 0x80)
-        if self._btn_ps.has_listeners:
+        if self._enforce_update or self._btn_ps.has_listeners:
             self._btn_ps.value = bool(in_report.buttons_2 & 0x01)
-        if self._btn_mute.has_listeners:
+        if self._enforce_update or self._btn_mute.has_listeners:
             self._btn_mute.value = bool(in_report.buttons_2 & 0x04)
-        if self._btn_touchpad.has_listeners:
+        if self._enforce_update or self._btn_touchpad.has_listeners:
             self._btn_touchpad.value = bool(in_report.buttons_2 & 0x02)
 
         # following not supported for BT01
@@ -286,24 +290,24 @@ class ReadStates(BaseStates[ReadStateName]):
             return
 
         # ##### GYRO #####
-        if self._gyroscope.has_listeners or self._gyroscope_x.has_listeners:
+        if self._enforce_update or self._gyroscope.has_listeners or self._gyroscope_x.has_listeners:
             gyro_x: int = (in_report.gyro_x_1 << 8) | in_report.gyro_x_0
             if gyro_x > 0x7FFF:
                 gyro_x -= 0x10000
             self._gyroscope_x.value = gyro_x
-        if self._gyroscope.has_listeners or self._gyroscope_y.has_listeners:
+        if self._enforce_update or self._gyroscope.has_listeners or self._gyroscope_y.has_listeners:
             gyro_y: int = (in_report.gyro_y_1 << 8) | in_report.gyro_y_0
             if gyro_y > 0x7FFF:
                 gyro_y -= 0x10000
             self._gyroscope_y.value = gyro_y
-        if self._gyroscope.has_listeners or self._gyroscope_z.has_listeners:
+        if self._enforce_update or self._gyroscope.has_listeners or self._gyroscope_z.has_listeners:
             gyro_z: int = (in_report.gyro_z_1 << 8) | in_report.gyro_z_0
             if gyro_z > 0x7FFF:
                 gyro_z -= 0x10000
             self._gyroscope_z.value = gyro_z
 
-        if self._gyroscope.has_listeners \
-                and (self._gyroscope_x.changed or self._gyroscope_y.changed or self._gyroscope_z.changed):
+        if self._enforce_update or (self._gyroscope.has_listeners and (
+                self._gyroscope_x.changed or self._gyroscope_y.changed or self._gyroscope_z.changed)):
             self._gyroscope.value = Gyroscope(
                 x=self._gyroscope_x.value,
                 y=self._gyroscope_y.value,
@@ -311,23 +315,23 @@ class ReadStates(BaseStates[ReadStateName]):
             )
 
         # ##### ACCEL #####
-        if self._accelerometer.has_listeners or self._accelerometer_x.has_listeners:
+        if self._enforce_update or self._accelerometer.has_listeners or self._accelerometer_x.has_listeners:
             accel_x: int = (in_report.accel_x_1 << 8) | in_report.accel_x_0
             if accel_x > 0x7FFF:
                 accel_x -= 0x10000
             self._accelerometer_x.value = accel_x
-        if self._accelerometer.has_listeners or self._accelerometer_y.has_listeners:
+        if self._enforce_update or self._accelerometer.has_listeners or self._accelerometer_y.has_listeners:
             accel_y: int = (in_report.accel_y_1 << 8) | in_report.accel_y_0
             if accel_y > 0x7FFF:
                 accel_y -= 0x10000
             self._accelerometer_y.value = accel_y
-        if self._accelerometer.has_listeners or self._accelerometer_z.has_listeners:
+        if self._enforce_update or self._accelerometer.has_listeners or self._accelerometer_z.has_listeners:
             accel_z: int = (in_report.accel_z_1 << 8) | in_report.accel_z_0
             if accel_z > 0x7FFF:
                 accel_z -= 0x10000
             self._accelerometer_z.value = accel_z
 
-        if self._accelerometer.has_listeners \
+        if self._enforce_update or self._accelerometer.has_listeners \
                 and (self._accelerometer_x.changed or self._accelerometer_y.changed or self._accelerometer_z.changed):
             self._accelerometer.value = Accelerometer(
                 x=self._accelerometer_x.value,
@@ -336,7 +340,8 @@ class ReadStates(BaseStates[ReadStateName]):
             )
 
         # ##### ORIENTATION #####
-        if self._orientation.has_listeners and (self._accelerometer.changed or self._gyroscope.changed):
+        if self._enforce_update or (
+                self._orientation.has_listeners and (self._accelerometer.changed or self._gyroscope.changed)):
             # o = calculate_orientation(
             #     [self._gyroscope_x.value],
             #     [self._gyroscope_y.value],
@@ -355,47 +360,47 @@ class ReadStates(BaseStates[ReadStateName]):
 
         # ##### TOUCH #####
         touch_0_active: bool = False
-        if self._touch_0_active.has_listeners:
+        if self._enforce_update or self._touch_0_active.has_listeners:
             touch_0_active = not (in_report.touch_0_0 & 0x80)
             self._touch_0_active.value = touch_0_active
-        if touch_0_active and self._touch_0_id.has_listeners:
+        if self._enforce_update or (touch_0_active and self._touch_0_id.has_listeners):
             self._touch_0_id.value = (in_report.touch_0_0 & 0x7F)
-        if touch_0_active and self._touch_0_x.has_listeners:
+        if self._enforce_update or (touch_0_active and self._touch_0_x.has_listeners):
             self._touch_0_x.value = ((in_report.touch_0_2 & 0x0F) << 8) | in_report.touch_0_1
-        if touch_0_active and self._touch_0_y.has_listeners:
+        if self._enforce_update or (touch_0_active and self._touch_0_y.has_listeners):
             self._touch_0_y.value = (in_report.touch_0_3 << 4) | ((in_report.touch_0_2 & 0xF0) >> 4)
 
         touch_1_active: bool = False
-        if self._touch_1_active.has_listeners:
+        if self._enforce_update or self._touch_1_active.has_listeners:
             touch_1_active = not (in_report.touch_1_0 & 0x80)
             self._touch_1_active.value = touch_1_active
-        if touch_1_active and self._touch_1_id.has_listeners:
+        if self._enforce_update or (touch_1_active and self._touch_1_id.has_listeners):
             self._touch_1_id.value = (in_report.touch_1_0 & 0x7F)
-        if touch_1_active and self._touch_1_x.has_listeners:
+        if self._enforce_update or (touch_1_active and self._touch_1_x.has_listeners):
             self._touch_1_x.value = ((in_report.touch_1_2 & 0x0F) << 8) | in_report.touch_1_1
-        if touch_1_active and self._touch_1_y.has_listeners:
+        if self._enforce_update or (touch_1_active and self._touch_1_y.has_listeners):
             self._touch_1_y.value = (in_report.touch_1_3 << 4) | ((in_report.touch_1_2 & 0xF0) >> 4)
 
         # ##### TRIGGER FEEDBACK #####
-        if self._l2_feedback_active.has_listeners:
+        if self._enforce_update or self._l2_feedback_active.has_listeners:
             self._l2_feedback_active.value = bool(in_report.l2_feedback & 0x10)
-        if self._l2_feedback_value.has_listeners:
+        if self._enforce_update or self._l2_feedback_value.has_listeners:
             self._l2_feedback_value.value = in_report.l2_feedback & 0xff
-        if self._r2_feedback_active.has_listeners:
+        if self._enforce_update or self._r2_feedback_active.has_listeners:
             self._r2_feedback_active.value = bool(in_report.r2_feedback & 0x10)
-        if self._r2_feedback_value.has_listeners:
+        if self._enforce_update or self._r2_feedback_value.has_listeners:
             self._r2_feedback_value.value = in_report.r2_feedback & 0xff
 
         # ##### BATTERY #####
-        if self._battery_level_percent.has_listeners:
+        if self._enforce_update or self._battery_level_percent.has_listeners:
             batt_level_raw: int = in_report.battery_0 & 0x0f
             if batt_level_raw > 8:
                 batt_level_raw = 8
             batt_level: float = batt_level_raw / 8
             self._battery_level_percent.value = batt_level * 100
-        if self._battery_full.has_listeners:
+        if self._enforce_update or self._battery_full.has_listeners:
             self._battery_full.value = not not (in_report.battery_0 & 0x20)
-        if self._battery_charging.has_listeners:
+        if self._enforce_update or self._battery_charging.has_listeners:
             self._battery_charging.value = not not (in_report.battery_1 & 0x08)
 
     def remove_change_listener(
