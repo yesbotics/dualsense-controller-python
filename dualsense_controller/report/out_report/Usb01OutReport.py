@@ -1,74 +1,9 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from enum import Enum
-
+from dualsense_controller.util import clamp_byte
+from .OutReport import OutReport
 from .enum import (
     OutReportId,
-    OutFlagsPhysics,
-    OutFlagsLights,
-    OutLedOptions,
-    OutPulseOptions,
-    OutBrightness,
-    OutPlayerLed,
-    OutLightbarMode
+    OutLightbarMode, OutReportLength
 )
-from dualsense_controller.report import InReportLength
-from dualsense_controller.util import clamp_byte
-
-
-class OutReportLength(int, Enum):
-    USB_01 = 48
-    BT_31 = InReportLength.BT_31
-    BT_01 = InReportLength.BT_01
-    # USB_01 = 47
-    # BT_31 = 77
-    # BT_01 = 77  # ??
-
-
-@dataclass(slots=True)
-class OutReport(ABC):
-
-    @abstractmethod
-    def to_bytes(self) -> bytes:
-        pass
-
-    flags_physics: int = OutFlagsPhysics.ALL
-    flags_lights: int = OutFlagsLights.ALL
-
-    lightbar_red: int = 0xff
-    lightbar_green: int = 0xff
-    lightbar_blue: int = 0xff
-
-    motor_left: int = 0x00
-    motor_right: int = 0x00
-
-    l2_effect_mode: int = 0x26
-    l2_effect_param1: int = 0x90
-    l2_effect_param2: int = 0xA0
-    l2_effect_param3: int = 0xFF
-    l2_effect_param4: int = 0x00
-    l2_effect_param5: int = 0x00
-    l2_effect_param6: int = 0x00
-    l2_effect_param7: int = 0x00
-
-    r2_effect_mode: int = 0x26
-    r2_effect_param1: int = 0x90
-    r2_effect_param2: int = 0xA0
-    r2_effect_param3: int = 0xFF
-    r2_effect_param4: int = 0x00
-    r2_effect_param5: int = 0x00
-    r2_effect_param6: int = 0x00
-    r2_effect_param7: int = 0x00
-
-    lightbar: bool = True
-
-    microphone_led: bool = False
-    microphone_mute: bool = True
-
-    led_options: OutLedOptions = OutLedOptions.ALL
-    pulse_options: OutPulseOptions = OutPulseOptions.OFF
-    brightness: OutBrightness = OutBrightness.HIGH
-    player_led: int = OutPlayerLed.OFF
 
 
 class Usb01OutReport(OutReport):
@@ -159,20 +94,4 @@ class Usb01OutReport(OutReport):
         out_report_bytes[46] = self.lightbar_green
         out_report_bytes[47] = self.lightbar_blue
 
-        return out_report_bytes
-
-
-class Bt01OutReport(OutReport):
-    def to_bytes(self) -> bytes:
-        # print("-----------> BT01")
-
-        out_report_bytes: bytes = bytearray(OutReportLength.BT_01)
-        return out_report_bytes
-
-
-class Bt31OutReport(OutReport):
-    def to_bytes(self) -> bytes:
-        # print("-----------> BT31")
-
-        out_report_bytes: bytes = bytearray(OutReportLength.BT_31)
         return out_report_bytes

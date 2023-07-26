@@ -19,11 +19,12 @@ from dualsense_controller.report import (
     Usb01InReport,
     Bt31InReport,
     Bt01InReport,
+    InReportCallback,
+    InReportLength,
     OutReport,
     Usb01OutReport,
     Bt31OutReport,
-    Bt01OutReport,
-    InReportCallback, InReportLength
+    Bt01OutReport
 )
 
 

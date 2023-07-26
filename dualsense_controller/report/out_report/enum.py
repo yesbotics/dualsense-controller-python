@@ -4,8 +4,6 @@ from enum import Enum
 #
 # Not clear
 #
-
-
 class OutFlagsPhysics(int, Enum):
     # Alternativ:
     # DS4_COMPATIBILITY_MODE = 1 << 0
@@ -16,6 +14,15 @@ class OutFlagsPhysics(int, Enum):
             COMPATIBLE_VIBRATION |
             HAPTICS_SELECT
     )
+
+
+class OutReportLength(int, Enum):
+    USB_01 = 48
+    BT_31 = 78
+    BT_01 = 10
+    # USB_01 = 47
+    # BT_31 = 77
+    # BT_01 = 77  # ??
 
 
 class OutFlagsLights(int, Enum):

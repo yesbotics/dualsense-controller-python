@@ -5,7 +5,7 @@ from dualsense_controller.report import (
     OutFlagsLights,
     OutFlagsPhysics,
 )
-from dualsense_controller.report import OutReport
+from dualsense_controller.report.out_report import OutReport
 from dualsense_controller.state import BaseStates, StateValueType, StateChangeCallback, WriteStateName
 
 
