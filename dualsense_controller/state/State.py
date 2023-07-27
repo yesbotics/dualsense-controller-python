@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import asyncio
 import inspect
-from typing import Callable, Final, Generic
+from typing import Any, Callable, Final, Generic
 
 import pyee
 
@@ -12,7 +11,6 @@ from dualsense_controller.state import \
     StateChangeCallback, \
     StateValueType
 from dualsense_controller.state.common import compare
-from dualsense_controller.util import set_immediate
 
 
 class RestrictedStateAccess(Generic[StateValueType]):
@@ -39,10 +37,6 @@ class RestrictedStateAccess(Generic[StateValueType]):
     def enforce_update(self) -> bool:
         return self._state.enforce_update
 
-    @enforce_update.setter
-    def enforce_update(self, enforce_update: bool) -> None:
-        self._state.enforce_update = enforce_update
-
     @property
     def remove_change_listener(self) -> Callable[[AnyStateChangeCallback | StateChangeCallback | None], None]:
         return self._state.remove_change_listener
@@ -57,72 +51,61 @@ class State(Generic[StateValueType]):
     def __init__(
             self,
             name: ReadStateName,
+            # opts
             value: StateValueType = None,
             compare_fn: CompareFn = None,
             ignore_initial_none: bool = True,
-            trigger_change_async: bool = False,
             enforce_update: bool = False,
+            is_based_on: list[State[Any]] = None,
+            is_base_for: list[State[Any]] = None,
     ):
         super().__init__()
         self.name: Final[ReadStateName] = name
-        self._trigger_change_async: bool = trigger_change_async
-        self._enforce_update: bool = enforce_update
-        self._value: StateValueType | None = value
+        self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self._event_name_2_args: Final[str] = f'{name}_2'
         self._event_name_3_args: Final[str] = f'{name}_3'
+        self._value: StateValueType | None = value
         self._last_value: StateValueType | None = None
+        # opts
+        self._is_based_on: list[State[StateValueType]] = is_based_on if is_based_on is not None else []
+        self._is_base_for: list[State[StateValueType]] = is_base_for if is_base_for is not None else []
+        self._enforce_update: bool = enforce_update
         self._changed_since_last_update: bool = False
-        self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
         self._compare_fn: CompareFn = compare_fn if compare_fn is not None else compare
-        # extra
         self._ignore_initial_none: bool = ignore_initial_none
 
-    @property
-    def restricted_access(self) -> RestrictedStateAccess[StateValueType]:
-        if self._restricted_access is None:
-            self._restricted_access = RestrictedStateAccess(self)
-        return self._restricted_access
+        for based_on_state in self._is_based_on:
+            based_on_state.set_as_base_for(self)
 
-    @property
-    def has_listeners(self) -> bool:
-        return len(self._event_emitter.event_names()) > 0
+    # ################# PRIVATE ###############
+    def _do_not_change_value(self) -> None:
+        self._changed_since_last_update = False
+
+    def _change_value(
+            self,
+            old_value: StateValueType,
+            new_value: StateValueType,
+            trigger_change: bool = True,
+            changed: bool = True,
+    ) -> None:
+        self._last_value = old_value
+        self._value = new_value
+        self._changed_since_last_update = changed
+        if trigger_change:
+            self._emit_change(old_value, new_value)
+
+    def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
+        self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
+        self._event_emitter.emit(self._event_name_3_args, self.name, old_value, new_value)
 
     def __repr__(self) -> str:
         return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
 
-    @property
-    def value(self) -> StateValueType:
-        return self._value
+    # ################# PUBLIC ###############
 
-    @value.setter
-    def value(self, value: StateValueType | None) -> None:
-        old_value: StateValueType = self._value
-        if old_value is None and self._ignore_initial_none:
-            if self._ignore_initial_none:
-                self._change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
-                return
-        changed, new_value = self._compare_fn(old_value, value)
-        if changed:
-            self._change_value(old_value=old_value, new_value=new_value)
-            return
-        self._do_not_change_value()
-
-    @property
-    def last_value(self) -> StateValueType:
-        return self._last_value
-
-    @property
-    def enforce_update(self) -> bool:
-        return self._enforce_update
-
-    @enforce_update.setter
-    def enforce_update(self, enforce_update: bool) -> None:
-        self._enforce_update = enforce_update
-
-    @property
-    def changed(self) -> bool:
-        return self._changed_since_last_update
+    def set_as_base_for(self, state: State[Any]):
+        self._is_base_for.append(state)
 
     def set_value_without_triggering_change(self, new_value: StateValueType | None):
         self._change_value(old_value=self._value, new_value=new_value, changed=True, trigger_change=False)
@@ -147,29 +130,69 @@ class State(Generic[StateValueType]):
     def remove_all_change_listeners(self) -> None:
         self._event_emitter.remove_all_listeners()
 
-    def _do_not_change_value(self) -> None:
-        self._changed_since_last_update = False
+    # ################# GETTERS AND SETTERS ###############
 
-    def _change_value(
-            self,
-            old_value: StateValueType,
-            new_value: StateValueType,
-            trigger_change: bool = True,
-            changed: bool = True,
-    ) -> None:
-        self._last_value = old_value
-        self._value = new_value
-        self._changed_since_last_update = changed
-        if trigger_change:
-            if not self._trigger_change_async:
-                self._emit_change(old_value, new_value)
-            else:
-                set_immediate(self._emit_change_lazy, old_value, new_value)
-                asyncio.run(asyncio.sleep(0))
+    @property
+    def value(self) -> StateValueType:
+        return self._value
 
-    async def _emit_change_lazy(self, old_value: StateValueType, new_value: StateValueType):
-        self._emit_change(old_value, new_value)
+    @value.setter
+    def value(self, value: StateValueType | None) -> None:
+        old_value: StateValueType = self._value
+        if old_value is None and self._ignore_initial_none:
+            if self._ignore_initial_none:
+                self._change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
+                return
+        changed, new_value = self._compare_fn(old_value, value)
+        if changed:
+            self._change_value(old_value=old_value, new_value=new_value)
+            return
+        self._do_not_change_value()
 
-    def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
-        self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
-        self._event_emitter.emit(self._event_name_3_args, self.name, old_value, new_value)
+    @property
+    def restricted_access(self) -> RestrictedStateAccess[StateValueType]:
+        if self._restricted_access is None:
+            self._restricted_access = RestrictedStateAccess(self)
+        return self._restricted_access
+
+    @property
+    def last_value(self) -> StateValueType:
+        return self._last_value
+
+    @property
+    def needs_update(self) -> bool:
+        return (
+                self.enforce_update
+                or (len(self._is_based_on) == 0 and self.has_listeners)
+                or (self.has_listeners and any(state.changed for state in self._is_based_on))
+        )
+
+    @property
+    def has_listeners_self_only(self) -> bool:
+        return len(self._event_emitter.event_names()) > 0
+
+    @property
+    def has_listeners(self) -> bool:
+        return (
+                self.has_listeners_self_only
+                or any(state.has_listeners_self_only for state in self._is_base_for)
+                or any(state.has_listeners for state in self._is_based_on)
+        )
+
+    @property
+    def enforce_update_self_only(self) -> bool:
+        return self._enforce_update
+
+    @property
+    def enforce_update(self) -> bool:
+        return (
+                self.enforce_update_self_only
+                or any(state.enforce_update_self_only for state in self._is_base_for)
+                or any(state.enforce_update for state in self._is_based_on)
+        )
+
+    @property
+    def changed(self) -> bool:
+        return (
+            self._changed_since_last_update
+        )

@@ -1,4 +1,4 @@
-from typing import Final, Generic
+from typing import Any, Final, Generic
 
 from dualsense_controller.state import CompareFn, State, StateNameEnumType, StateValueType
 
@@ -24,8 +24,9 @@ class BaseStates(Generic[StateNameEnumType]):
             value: StateValueType = None,
             ignore_initial_none: bool = True,
             compare_fn: CompareFn[StateValueType] = None,
-            trigger_change_async: bool = False,
             enforce_update: bool = False,
+            is_based_on: list[State[Any]] = None,
+            is_base_for: list[State[Any]] = None,
             **kwargs
     ) -> State[StateValueType]:
 
@@ -37,7 +38,8 @@ class BaseStates(Generic[StateNameEnumType]):
             compare_fn=compare_fn,
             enforce_update=enforce_update,
             ignore_initial_none=ignore_initial_none,
-            trigger_change_async=trigger_change_async,
+            is_based_on=is_based_on,
+            is_base_for=is_base_for,
         )
         self._states_dict[name] = state
         return state

@@ -24,8 +24,8 @@ class DualSenseController:
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS,
-            trigger_change_async: bool = False,
-            enforce_update: bool = False,
+            trigger_change_lazy: bool = False,
+            enforce_update: bool = True,
     ):
         # Emitability
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
@@ -38,7 +38,7 @@ class DualSenseController:
             accelerometer_threshold=accelerometer_threshold,
             orientation_threshold=orientation_threshold,
             state_value_mapping=state_value_mapping,
-            trigger_change_async=trigger_change_async,
+            trigger_change_lazy=trigger_change_lazy,
             enforce_update=enforce_update,
         )
         self._write_states: Final[WriteStates] = WriteStates()

@@ -1,12 +1,14 @@
-from typing import Final
+from typing import Callable, Final
 
 from dualsense_controller import ConnectionType
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     Accelerometer, AnyStateChangeCallback, BaseStates, Gyroscope, JoyStick,
-    Orientation, ReadStateName, RestrictedStateAccess, State, StateChangeCallback
+    Orientation, ReadStateName, RestrictedStateAccess, State, StateChangeCallback,
+    calc_orientation, calc_sensor_axis, calc_touch_id, calc_touch_x, calc_touch_y
 )
-from .common import StateValueMapping, compare_accel, compare_gyroscope, compare_joystick, compare_orientation, \
+from .common import StateValueMapping, StateValueType, compare_accel, compare_gyroscope, compare_joystick, \
+    compare_orientation, \
     compare_shoulder_key
 
 
@@ -20,299 +22,402 @@ class ReadStates(BaseStates[ReadStateName]):
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS,
-            enforce_update: bool = False,
-            trigger_change_async: bool = False,
+            enforce_update: bool = True,
+            trigger_change_lazy: bool = True,
     ):
         super().__init__()
 
+        self._trigger_change_after_all_values_set: Final[bool] = trigger_change_lazy
+        self._states_to_trigger_after_all_states_set: Final[list[State]] = []
         self._state_value_mapping: Final[StateValueMapping] = state_value_mapping
-        # STICKS
+
+        # INIT STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._left_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_Y,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
+            is_based_on=[self._left_stick_x, self._left_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             ignore_initial_none=False,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_X,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._right_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_Y,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK,
+            is_based_on=[self._right_stick_x, self._right_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             ignore_initial_none=False,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
 
-        # GYRO, ACCEL, ORIENT
+        # INIT GYRO, ACCEL, ORIENT
         self._gyroscope_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE_X,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._gyroscope_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE_Y,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._gyroscope_z: Final[State[int]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE_Z,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._gyroscope: Final[State[Gyroscope]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE,
+            is_based_on=[self._gyroscope_x, self._gyroscope_y, self._gyroscope_z],
             compare_fn=compare_gyroscope,
             threshold=gyroscope_threshold,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._accelerometer_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.ACCELEROMETER_X,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._accelerometer_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.ACCELEROMETER_Y,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._accelerometer_z: Final[State[int]] = self._create_and_register_state(
             ReadStateName.ACCELEROMETER_Z,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._accelerometer: Final[State[Accelerometer]] = self._create_and_register_state(
             ReadStateName.ACCELEROMETER,
+            is_based_on=[self._accelerometer_x, self._accelerometer_y, self._accelerometer_z],
             compare_fn=compare_accel,
             threshold=accelerometer_threshold,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._orientation: Final[State[Orientation]] = self._create_and_register_state(
             ReadStateName.ORIENTATION,
+            is_based_on=[self._gyroscope, self._accelerometer],
             compare_fn=compare_orientation,
             threshold=orientation_threshold,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
 
-        # SHOULDER KEYS
+        # INIT SHOULDER KEYS
         self._l2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.L2,
             compare_fn=compare_shoulder_key,
             deadzone=shoulder_key_deadzone,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._r2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2,
             compare_fn=compare_shoulder_key,
             deadzone=shoulder_key_deadzone,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
 
-        # DIG BTN
+        # INIT DIG BTN
         self._btn_up: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_UP,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_left: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_LEFT,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_down: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_DOWN,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_right: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_RIGHT,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_square: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_SQUARE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_cross: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_CROSS,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
+            ignore_initial_none=False,
         )
         self._btn_circle: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_CIRCLE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_triangle: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_TRIANGLE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_l1: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_L1,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_r1: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_R1,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
+            ignore_initial_none=False,
         )
         self._btn_l2: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_L2,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_r2: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_R2,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_create: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_CREATE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_options: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_OPTIONS,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_l3: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_L3,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_r3: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_R3,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_ps: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_PS,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_touchpad: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_TOUCHPAD,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._btn_mute: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_MUTE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
 
-        # TOUCH
+        # INIT TOUCH
         self._touch_0_active: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.TOUCH_0_ACTIVE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._touch_0_id: Final[State[int]] = self._create_and_register_state(
             ReadStateName.TOUCH_0_ID,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._touch_0_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.TOUCH_0_X,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._touch_0_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.TOUCH_0_Y,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._touch_1_active: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.TOUCH_1_ACTIVE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._touch_1_id: Final[State[int]] = self._create_and_register_state(
             ReadStateName.TOUCH_1_ID,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._touch_1_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.TOUCH_1_X,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._touch_1_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.TOUCH_1_Y,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
 
-        # FEEDBACK
+        # INIT FEEDBACK
         self._l2_feedback_active: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.L2_FEEDBACK_ACTIVE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._l2_feedback_value: Final[State[int]] = self._create_and_register_state(
             ReadStateName.L2_FEEDBACK_VALUE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._r2_feedback_active: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.R2_FEEDBACK_ACTIVE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._r2_feedback_value: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2_FEEDBACK_VALUE,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
 
-        # BATT
+        # INIT BATT
         self._battery_level_percent: Final[State[float]] = self._create_and_register_state(
             ReadStateName.BATTERY_LEVEL_PERCENT,
             ignore_initial_none=False,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._battery_full: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BATTERY_FULL,
             ignore_initial_none=False,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
         self._battery_charging: Final[State[int]] = self._create_and_register_state(
             ReadStateName.BATTERY_CHARGING,
             ignore_initial_none=False,
-            trigger_change_async=trigger_change_async,
             enforce_update=enforce_update,
         )
+
+    # #################### PRIVATE #######################
+
+    def _handle_state(
+            self,
+            state: State[StateValueType],
+            value_or_calc_fn: StateValueType | Callable[[...], StateValueType],
+            *args,
+            determine_value: bool = False
+    ) -> StateValueType | None:
+        if determine_value:
+            return
+        if state.needs_update:
+            value_: StateValueType = value_or_calc_fn(*args) if callable(value_or_calc_fn) else value_or_calc_fn
+            state.value = value_
+            # if self._trigger_change_after_all_values_set:
+            #     state.set_value_without_triggering_change(value)
+            #     self._states_to_trigger_after_all_states_set.append(self._btn_cross)
+            # else:
+            #     state.value = value
+            return value_
+        return
+
+    # #################### PUBLIC #######################
+
+    def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
+
+        # ##### ANALOG STICKS #####
+        self._handle_state(self._left_stick_x, in_report.axes_0)
+        self._handle_state(self._left_stick_y, in_report.axes_1)
+        self._handle_state(self._left_stick, JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value))
+        self._handle_state(self._right_stick_x, in_report.axes_2)
+        self._handle_state(self._right_stick_y, in_report.axes_3)
+        self._handle_state(self._right_stick, JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value))
+
+        # ##### SHOULDER KEYS #####
+        self._handle_state(self._l2, in_report.axes_4)
+        self._handle_state(self._r2, in_report.axes_5)
+
+        # ##### BUTTONS #####
+        dpad: int = in_report.buttons_0 & 0x0f
+        self._handle_state(self._btn_cross, bool(in_report.buttons_0 & 0x20))
+        self._handle_state(self._btn_r1, bool(in_report.buttons_1 & 0x02))
+        self._handle_state(self._btn_up, dpad == 0 or dpad == 1 or dpad == 7)
+        self._handle_state(self._btn_down, dpad == 3 or dpad == 4 or dpad == 5)
+        self._handle_state(self._btn_left, dpad == 5 or dpad == 6 or dpad == 7)
+        self._handle_state(self._btn_right, dpad == 1 or dpad == 2 or dpad == 3)
+        self._handle_state(self._btn_square, bool(in_report.buttons_0 & 0x10))
+        self._handle_state(self._btn_circle, bool(in_report.buttons_0 & 0x40))
+        self._handle_state(self._btn_triangle, bool(in_report.buttons_0 & 0x80))
+        self._handle_state(self._btn_l1, bool(in_report.buttons_1 & 0x01))
+        self._handle_state(self._btn_l2, bool(in_report.buttons_1 & 0x04))
+        self._handle_state(self._btn_r2, bool(in_report.buttons_1 & 0x08))
+        self._handle_state(self._btn_create, bool(in_report.buttons_1 & 0x10))
+        self._handle_state(self._btn_options, bool(in_report.buttons_1 & 0x20))
+        self._handle_state(self._btn_l3, bool(in_report.buttons_1 & 0x40))
+        self._handle_state(self._btn_r3, bool(in_report.buttons_1 & 0x80))
+        self._handle_state(self._btn_ps, bool(in_report.buttons_2 & 0x01))
+        self._handle_state(self._btn_mute, bool(in_report.buttons_2 & 0x04))
+        self._handle_state(self._btn_touchpad, bool(in_report.buttons_2 & 0x02))
+
+        # following not supported for BT01
+        if connection_type == ConnectionType.BT_01:
+            return
+
+        # ##### GYRO #####
+
+        self._handle_state(self._gyroscope_x, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
+        self._handle_state(self._gyroscope_y, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
+        self._handle_state(self._gyroscope_z, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
+        self._handle_state(self._gyroscope, Gyroscope(
+            x=self._gyroscope_x.value,
+            y=self._gyroscope_y.value,
+            z=self._gyroscope_z.value,
+        ))
+
+        # ##### ACCEL #####
+        self._handle_state(self._accelerometer_x, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
+        self._handle_state(self._accelerometer_y, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
+        self._handle_state(self._accelerometer_z, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
+        self._handle_state(self._accelerometer, Accelerometer(
+            x=self._accelerometer_x.value,
+            y=self._accelerometer_y.value,
+            z=self._accelerometer_z.value,
+        ))
+
+        # ##### ORIENTATION #####
+        self._handle_state(self._orientation, calc_orientation, self._gyroscope, self._accelerometer)
+
+        # ##### TOUCH #####
+        touch_0_active: bool = self._handle_state(self._touch_0_active, not (in_report.touch_0_0 & 0x80))
+        self._handle_state(
+            self._touch_0_id,
+            calc_touch_id,
+            in_report.touch_0_0,
+            determine_value=touch_0_active,
+        )
+        self._handle_state(
+            self._touch_0_x,
+            calc_touch_x,
+            in_report.touch_0_2,
+            in_report.touch_0_1,
+            determine_value=touch_0_active
+        )
+        self._handle_state(
+            self._touch_0_y,
+            calc_touch_y,
+            in_report.touch_0_3,
+            in_report.touch_0_2,
+            determine_value=touch_0_active
+        )
+
+        touch_1_active: bool = self._handle_state(self._touch_1_active, not (in_report.touch_1_0 & 0x80), )
+        self._handle_state(
+            self._touch_1_id,
+            calc_touch_id,
+            in_report.touch_1_0,
+            determine_value=touch_1_active
+        )
+        self._handle_state(
+            self._touch_1_x,
+            calc_touch_x,
+            in_report.touch_1_2,
+            in_report.touch_1_1,
+            determine_value=touch_1_active
+        )
+        self._handle_state(
+            self._touch_1_y,
+            calc_touch_x,
+            in_report.touch_1_3,
+            in_report.touch_1_2,
+            determine_value=touch_1_active
+        )
+
+        # ##### TRIGGER FEEDBACK #####
+        self._handle_state(self._l2_feedback_active, bool(in_report.l2_feedback & 0x10))
+        self._handle_state(self._l2_feedback_value, in_report.l2_feedback & 0xff)
+        self._handle_state(self._r2_feedback_active, bool(in_report.r2_feedback & 0x10))
+        self._handle_state(self._r2_feedback_value, in_report.r2_feedback & 0xff)
+
+        # ##### BATTERY #####
+        self._handle_state(self._battery_level_percent, in_report.battery_0)
+        self._handle_state(self._battery_full, not not (in_report.battery_0 & 0x20))
+        self._handle_state(self._battery_charging, not not (in_report.battery_1 & 0x08))
 
     def on_change(self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
         if callback is None:
@@ -323,196 +428,6 @@ class ReadStates(BaseStates[ReadStateName]):
     def on_any_change(self, callback: AnyStateChangeCallback):
         for state_name, state in self._states_dict.items():
             state.on_change(callback)
-
-    def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
-
-        # ##### ANALOG STICKS #####
-
-        if (
-                self._left_stick.enforce_update or self._left_stick.has_listeners or self._left_stick_x.enforce_update or self._left_stick_x.has_listeners):
-            self._left_stick_x.value = in_report.axes_0
-        if (
-                self._left_stick.enforce_update or self._left_stick.has_listeners or self._left_stick_y.enforce_update or self._left_stick_y.has_listeners):
-            self._left_stick_y.value = in_report.axes_1
-        if (
-                self._left_stick.enforce_update or self._left_stick.has_listeners and (
-                self._left_stick_x.changed or self._left_stick_y.changed)):
-            self._left_stick.value = JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value)
-
-        if self._right_stick.enforce_update or self._right_stick.has_listeners or self._right_stick_x.enforce_update or self._right_stick_x.has_listeners:
-            self._right_stick_x.value = in_report.axes_2
-        if self._right_stick.enforce_update or self._right_stick.has_listeners or self._right_stick_y.enforce_update or self._right_stick_y.has_listeners:
-            self._right_stick_y.value = in_report.axes_3
-        if (
-                self._right_stick.enforce_update or self._right_stick.has_listeners and (
-                self._right_stick_x.changed or self._right_stick_y.changed)):
-            self._right_stick.value = JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value)
-
-        if self._l2.enforce_update or self._l2.has_listeners:
-            self._l2.value = in_report.axes_4
-
-        if self._r2.enforce_update or self._r2.has_listeners:
-            self._r2.value = in_report.axes_5
-
-        # ##### BUTTONS #####
-        dpad: int = in_report.buttons_0 & 0x0f
-        if self._btn_up.enforce_update or self._btn_up.has_listeners:
-            self._btn_up.value = dpad == 0 or dpad == 1 or dpad == 7
-        if self._btn_down.enforce_update or self._btn_down.has_listeners:
-            self._btn_down.value = dpad == 3 or dpad == 4 or dpad == 5
-        if self._btn_left.enforce_update or self._btn_left.has_listeners:
-            self._btn_left.value = dpad == 5 or dpad == 6 or dpad == 7
-        if self._btn_right.enforce_update or self._btn_right.has_listeners:
-            self._btn_right.value = dpad == 1 or dpad == 2 or dpad == 3
-        if self._btn_square.enforce_update or self._btn_square.has_listeners:
-            self._btn_square.value = bool(in_report.buttons_0 & 0x10)
-        if self._btn_cross.enforce_update or self._btn_cross.has_listeners:
-            self._btn_cross.value = bool(in_report.buttons_0 & 0x20)
-        if self._btn_circle.enforce_update or self._btn_circle.has_listeners:
-            self._btn_circle.value = bool(in_report.buttons_0 & 0x40)
-        if self._btn_triangle.enforce_update or self._btn_triangle.has_listeners:
-            self._btn_triangle.value = bool(in_report.buttons_0 & 0x80)
-        if self._btn_l1.enforce_update or self._btn_l1.has_listeners:
-            self._btn_l1.value = bool(in_report.buttons_1 & 0x01)
-        if self._btn_r1.enforce_update or self._btn_r1.has_listeners:
-            self._btn_r1.value = bool(in_report.buttons_1 & 0x02)
-        if self._btn_l2.enforce_update or self._btn_l2.has_listeners:
-            self._btn_l2.value = bool(in_report.buttons_1 & 0x04)
-        if self._btn_r2.enforce_update or self._btn_r2.has_listeners:
-            self._btn_r2.value = bool(in_report.buttons_1 & 0x08)
-        if self._btn_create.enforce_update or self._btn_create.has_listeners:
-            self._btn_create.value = bool(in_report.buttons_1 & 0x10)
-        if self._btn_options.enforce_update or self._btn_options.has_listeners:
-            self._btn_options.value = bool(in_report.buttons_1 & 0x20)
-        if self._btn_l3.enforce_update or self._btn_l3.has_listeners:
-            self._btn_l3.value = bool(in_report.buttons_1 & 0x40)
-        if self._btn_r3.enforce_update or self._btn_r3.has_listeners:
-            self._btn_r3.value = bool(in_report.buttons_1 & 0x80)
-        if self._btn_ps.enforce_update or self._btn_ps.has_listeners:
-            self._btn_ps.value = bool(in_report.buttons_2 & 0x01)
-        if self._btn_mute.enforce_update or self._btn_mute.has_listeners:
-            self._btn_mute.value = bool(in_report.buttons_2 & 0x04)
-        if self._btn_touchpad.enforce_update or self._btn_touchpad.has_listeners:
-            self._btn_touchpad.value = bool(in_report.buttons_2 & 0x02)
-
-        # following not supported for BT01
-        if connection_type == ConnectionType.BT_01:
-            return
-
-        # ##### GYRO #####
-        if self._gyroscope.enforce_update or self._gyroscope.has_listeners or self._gyroscope_x.enforce_update or self._gyroscope_x.has_listeners:
-            gyro_x: int = (in_report.gyro_x_1 << 8) | in_report.gyro_x_0
-            if gyro_x > 0x7FFF:
-                gyro_x -= 0x10000
-            self._gyroscope_x.value = gyro_x
-        if self._gyroscope.enforce_update or self._gyroscope.has_listeners or self._gyroscope_y.enforce_update or self._gyroscope_y.has_listeners:
-            gyro_y: int = (in_report.gyro_y_1 << 8) | in_report.gyro_y_0
-            if gyro_y > 0x7FFF:
-                gyro_y -= 0x10000
-            self._gyroscope_y.value = gyro_y
-        if self._gyroscope.enforce_update or self._gyroscope.has_listeners or self._gyroscope_z.enforce_update or self._gyroscope_z.has_listeners:
-            gyro_z: int = (in_report.gyro_z_1 << 8) | in_report.gyro_z_0
-            if gyro_z > 0x7FFF:
-                gyro_z -= 0x10000
-            self._gyroscope_z.value = gyro_z
-
-        if (self._gyroscope.enforce_update or self._gyroscope.has_listeners and (
-                self._gyroscope_x.changed or self._gyroscope_y.changed or self._gyroscope_z.changed)):
-            self._gyroscope.value = Gyroscope(
-                x=self._gyroscope_x.value,
-                y=self._gyroscope_y.value,
-                z=self._gyroscope_z.value,
-            )
-
-        # ##### ACCEL #####
-        if self._accelerometer.enforce_update or self._accelerometer.has_listeners or self._accelerometer_x.enforce_update or self._accelerometer_x.has_listeners:
-            accel_x: int = (in_report.accel_x_1 << 8) | in_report.accel_x_0
-            if accel_x > 0x7FFF:
-                accel_x -= 0x10000
-            self._accelerometer_x.value = accel_x
-        if self._accelerometer.enforce_update or self._accelerometer.has_listeners or self._accelerometer_y.enforce_update or self._accelerometer_y.has_listeners:
-            accel_y: int = (in_report.accel_y_1 << 8) | in_report.accel_y_0
-            if accel_y > 0x7FFF:
-                accel_y -= 0x10000
-            self._accelerometer_y.value = accel_y
-        if self._accelerometer.enforce_update or self._accelerometer.has_listeners or self._accelerometer_z.enforce_update or self._accelerometer_z.has_listeners:
-            accel_z: int = (in_report.accel_z_1 << 8) | in_report.accel_z_0
-            if accel_z > 0x7FFF:
-                accel_z -= 0x10000
-            self._accelerometer_z.value = accel_z
-
-        if self._accelerometer.enforce_update or self._accelerometer.has_listeners \
-                and (self._accelerometer_x.changed or self._accelerometer_y.changed or self._accelerometer_z.changed):
-            self._accelerometer.value = Accelerometer(
-                x=self._accelerometer_x.value,
-                y=self._accelerometer_y.value,
-                z=self._accelerometer_z.value,
-            )
-
-        # ##### ORIENTATION #####
-        if (
-                self._orientation.enforce_update or self._orientation.has_listeners and (
-                self._accelerometer.changed or self._gyroscope.changed)):
-            # o = calculate_orientation(
-            #     [self._gyroscope_x.value],
-            #     [self._gyroscope_y.value],
-            #     [self._gyroscope_z.value],
-            #     self._accelerometer_x.value,
-            #     self._accelerometer_y.value,
-            #     self._accelerometer_z.value,
-            # )
-            # orientation: Orientation = Orientation(
-            #     yaw=0,
-            #     pitch=0,
-            #     roll=0,
-            # )
-            # self._orientation.value = orientation
-            pass
-
-        # ##### TOUCH #####
-        touch_0_active: bool = False
-        if self._touch_0_active.enforce_update or self._touch_0_active.has_listeners:
-            touch_0_active = not (in_report.touch_0_0 & 0x80)
-            self._touch_0_active.value = touch_0_active
-        if (touch_0_active and self._touch_0_id.enforce_update or self._touch_0_id.has_listeners):
-            self._touch_0_id.value = (in_report.touch_0_0 & 0x7F)
-        if (touch_0_active and self._touch_0_x.enforce_update or self._touch_0_x.has_listeners):
-            self._touch_0_x.value = ((in_report.touch_0_2 & 0x0F) << 8) | in_report.touch_0_1
-        if (touch_0_active and self._touch_0_y.enforce_update or self._touch_0_y.has_listeners):
-            self._touch_0_y.value = (in_report.touch_0_3 << 4) | ((in_report.touch_0_2 & 0xF0) >> 4)
-
-        touch_1_active: bool = False
-        if self._touch_1_active.enforce_update or self._touch_1_active.has_listeners:
-            touch_1_active = not (in_report.touch_1_0 & 0x80)
-            self._touch_1_active.value = touch_1_active
-        if (touch_1_active and self._touch_1_id.enforce_update or self._touch_1_id.has_listeners):
-            self._touch_1_id.value = (in_report.touch_1_0 & 0x7F)
-        if (touch_1_active and self._touch_1_x.enforce_update or self._touch_1_x.has_listeners):
-            self._touch_1_x.value = ((in_report.touch_1_2 & 0x0F) << 8) | in_report.touch_1_1
-        if (touch_1_active and self._touch_1_y.enforce_update or self._touch_1_y.has_listeners):
-            self._touch_1_y.value = (in_report.touch_1_3 << 4) | ((in_report.touch_1_2 & 0xF0) >> 4)
-
-        # ##### TRIGGER FEEDBACK #####
-        if self._l2_feedback_active.enforce_update or self._l2_feedback_active.has_listeners:
-            self._l2_feedback_active.value = bool(in_report.l2_feedback & 0x10)
-        if self._l2_feedback_value.enforce_update or self._l2_feedback_value.has_listeners:
-            self._l2_feedback_value.value = in_report.l2_feedback & 0xff
-        if self._r2_feedback_active.enforce_update or self._r2_feedback_active.has_listeners:
-            self._r2_feedback_active.value = bool(in_report.r2_feedback & 0x10)
-        if self._r2_feedback_value.enforce_update or self._r2_feedback_value.has_listeners:
-            self._r2_feedback_value.value = in_report.r2_feedback & 0xff
-
-        # ##### BATTERY #####
-        if self._battery_level_percent.enforce_update or self._battery_level_percent.has_listeners:
-            batt_level_raw: int = in_report.battery_0 & 0x0f
-            if batt_level_raw > 8:
-                batt_level_raw = 8
-            batt_level: float = batt_level_raw / 8
-            self._battery_level_percent.value = batt_level * 100
-        if self._battery_full.enforce_update or self._battery_full.has_listeners:
-            self._battery_full.value = not not (in_report.battery_0 & 0x20)
-        if self._battery_charging.enforce_update or self._battery_charging.has_listeners:
-            self._battery_charging.value = not not (in_report.battery_1 & 0x08)
 
     def remove_change_listener(
             self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None
@@ -531,6 +446,8 @@ class ReadStates(BaseStates[ReadStateName]):
     def remove_any_change_listener(self, callback: AnyStateChangeCallback) -> None:
         for state_name, state in self._states_dict.items():
             state.remove_change_listener(callback)
+
+    # #################### GETTERS #######################
 
     @property
     def left_stick_x(self) -> RestrictedStateAccess[int]:
