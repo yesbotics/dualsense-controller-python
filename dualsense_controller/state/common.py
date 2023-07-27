@@ -143,7 +143,7 @@ def compare(before: StateValueType | None, after: StateValueType) -> CompareResu
 def compare_joystick(before: JoyStick | None, after: JoyStick, deadzone: int = 0) -> CompareResult:
     if before is None:
         return True, after
-    if deadzone > 0 and (((after.x - 127) ** 2) + ((after.y - 127) ** 2)) <= deadzone ** 2:
+    if deadzone > 0 and (((after.x - 127) ** 2) + ((after.y - 127) ** 2)) <= (deadzone ** 2):
         after = JoyStick(127, 127)
     changed: bool = after.x != before.x or after.y != before.y
     return changed, after
