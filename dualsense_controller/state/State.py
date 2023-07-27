@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import inspect
 from typing import Callable, Final, Generic
 
@@ -10,7 +11,8 @@ from dualsense_controller.state import \
     CompareFn, ReadStateName, \
     StateChangeCallback, \
     StateValueType
-from dualsense_controller.state.common import StateValueMapping, compare
+from dualsense_controller.state.common import compare
+from dualsense_controller.util import set_immediate
 
 
 class RestrictedStateAccess(Generic[StateValueType]):
@@ -34,6 +36,14 @@ class RestrictedStateAccess(Generic[StateValueType]):
         return self._state.on_change
 
     @property
+    def enforce_update(self) -> bool:
+        return self._state.enforce_update
+
+    @enforce_update.setter
+    def enforce_update(self, enforce_update: bool) -> None:
+        self._state.enforce_update = enforce_update
+
+    @property
     def remove_change_listener(self) -> Callable[[AnyStateChangeCallback | StateChangeCallback | None], None]:
         return self._state.remove_change_listener
 
@@ -50,13 +60,17 @@ class State(Generic[StateValueType]):
             value: StateValueType = None,
             compare_fn: CompareFn = None,
             ignore_initial_none: bool = True,
+            trigger_change_async: bool = False,
+            enforce_update: bool = False,
     ):
         super().__init__()
-        self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self.name: Final[ReadStateName] = name
+        self._trigger_change_async: bool = trigger_change_async
+        self._enforce_update: bool = enforce_update
+        self._value: StateValueType | None = value
+        self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self._event_name_2_args: Final[str] = f'{name}_2'
         self._event_name_3_args: Final[str] = f'{name}_3'
-        self._value: StateValueType | None = value
         self._last_value: StateValueType | None = None
         self._changed_since_last_update: bool = False
         self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
@@ -92,11 +106,19 @@ class State(Generic[StateValueType]):
         if changed:
             self._change_value(old_value=old_value, new_value=new_value)
             return
-        self.do_not_change_value()
+        self._do_not_change_value()
 
     @property
     def last_value(self) -> StateValueType:
         return self._last_value
+
+    @property
+    def enforce_update(self) -> bool:
+        return self._enforce_update
+
+    @enforce_update.setter
+    def enforce_update(self, enforce_update: bool) -> None:
+        self._enforce_update = enforce_update
 
     @property
     def changed(self) -> bool:
@@ -125,6 +147,9 @@ class State(Generic[StateValueType]):
     def remove_all_change_listeners(self) -> None:
         self._event_emitter.remove_all_listeners()
 
+    def _do_not_change_value(self) -> None:
+        self._changed_since_last_update = False
+
     def _change_value(
             self,
             old_value: StateValueType,
@@ -136,8 +161,15 @@ class State(Generic[StateValueType]):
         self._value = new_value
         self._changed_since_last_update = changed
         if trigger_change:
-            self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
-            self._event_emitter.emit(self._event_name_3_args, self.name, old_value, new_value)
+            if not self._trigger_change_async:
+                self._emit_change(old_value, new_value)
+            else:
+                set_immediate(self._emit_change_lazy, old_value, new_value)
+                asyncio.run(asyncio.sleep(0))
 
-    def do_not_change_value(self) -> None:
-        self._changed_since_last_update = False
+    async def _emit_change_lazy(self, old_value: StateValueType, new_value: StateValueType):
+        self._emit_change(old_value, new_value)
+
+    def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
+        self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
+        self._event_emitter.emit(self._event_name_3_args, self.name, old_value, new_value)

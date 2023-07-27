@@ -24,6 +24,8 @@ class BaseStates(Generic[StateNameEnumType]):
             value: StateValueType = None,
             ignore_initial_none: bool = True,
             compare_fn: CompareFn[StateValueType] = None,
+            trigger_change_async: bool = False,
+            enforce_update: bool = False,
             **kwargs
     ) -> State[StateValueType]:
 
@@ -33,7 +35,9 @@ class BaseStates(Generic[StateNameEnumType]):
             name,
             value=value,
             compare_fn=compare_fn,
+            enforce_update=enforce_update,
             ignore_initial_none=ignore_initial_none,
+            trigger_change_async=trigger_change_async,
         )
         self._states_dict[name] = state
         return state

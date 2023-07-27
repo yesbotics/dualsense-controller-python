@@ -5,7 +5,7 @@ from dualsense_controller import (
     DualSenseController,
     ReadStateName,
     ConnectionType,
-    WriteStateName
+    WriteStateName, StateValueMapping
 )
 
 from dualsense_controller.report import (
@@ -27,11 +27,15 @@ class Example:
 
         self._dualsense_controller: DualSenseController = DualSenseController(
             device_index=0,
-            joystick_deadzone=50,
-            shoulder_key_deadzone=50,
+
+            joystick_deadzone=2,
+            shoulder_key_deadzone=2,
             gyroscope_threshold=100,
             accelerometer_threshold=100,
             orientation_threshold=100,
+            state_value_mapping=StateValueMapping.FOR_NOOBS,
+            enforce_update=True,
+            trigger_change_async=False,
         )
 
         self._dualsense_controller.on_exception(self._on_exception)

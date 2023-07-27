@@ -1,7 +1,15 @@
+import asyncio
 import traceback
 
 import numpy as np
 from pyquaternion import Quaternion
+
+
+def set_immediate(func, *args, **kwargs):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(func(*args, **kwargs))
+    loop.close()
 
 
 def flag(bit: int) -> int:
