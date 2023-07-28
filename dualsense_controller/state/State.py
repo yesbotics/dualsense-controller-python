@@ -23,7 +23,7 @@ class RestrictedStateAccess(Generic[StateValueType]):
 
     @property
     def changed(self) -> bool:
-        return self._state.changed
+        return self._state.has_changed
 
     @property
     def last_value(self) -> StateValueType | None:
@@ -53,6 +53,7 @@ class State(Generic[StateValueType]):
             name: ReadStateName,
             # opts
             value: StateValueType = None,
+            default_value: StateValueType = None,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn = None,
@@ -67,7 +68,8 @@ class State(Generic[StateValueType]):
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self._event_name_2_args: Final[str] = f'{name}_2'
         self._event_name_3_args: Final[str] = f'{name}_3'
-        self._value: StateValueType | None = value
+        self._value: StateValueType | None = value if value is not None else default_value
+        self._default_value: StateValueType | None = default_value
         self._last_value: StateValueType | None = None
         # opts
         self._is_based_on: list[State[StateValueType]] = is_based_on if is_based_on is not None else []
@@ -91,6 +93,10 @@ class State(Generic[StateValueType]):
     ) -> None:
         old_value: StateValueType = self._value
         new_value: StateValueType = value
+        if old_value is None and self._default_value is not None:
+            old_value = self._default_value
+        if new_value is None and self._default_value is not None:
+            new_value = self._default_value
         if (old_value is None or new_value is None) and self._ignore_none:
             self._change_value(old_value=new_value, new_value=new_value, changed=False, trigger_change=False)
             return
@@ -129,7 +135,7 @@ class State(Generic[StateValueType]):
     # ################# PUBLIC ###############
 
     def trigger_change_if_changed(self) -> None:
-        if self.changed:
+        if self.has_changed:
             self._trigger_change()
 
     def set_as_base_for(self, state: State[Any]):
@@ -194,20 +200,41 @@ class State(Generic[StateValueType]):
     def is_updatable(self) -> bool:
         return (
                 self.enforce_update
-                or (len(self._is_based_on) == 0 and self.has_listeners)
-                or (self.has_listeners and any(state.changed for state in self._is_based_on))
+                or self.has_listeners
+                or self.has_changed_deps
         )
+
+    @property
+    def has_changed(self) -> bool:
+        return (
+                any(state.has_changed_self_only for state in self._is_base_for)
+                or any(state.has_changed for state in self._is_based_on)
+        )
+
+    @property
+    def has_changed_self_only(self) -> bool:
+        return self._changed_since_last_update
+
+    @property
+    def has_changed_deps(self) -> bool:
+        return self._changed_since_last_update
 
     @property
     def has_listeners_self_only(self) -> bool:
         return len(self._event_emitter.event_names()) > 0
 
     @property
+    def has_listeners_deps(self) -> bool:
+        return (
+                any(state.has_listeners_self_only for state in self._is_base_for)
+                or any(state.has_listeners for state in self._is_based_on)
+        )
+
+    @property
     def has_listeners(self) -> bool:
         return (
                 self.has_listeners_self_only
-                or any(state.has_listeners_self_only for state in self._is_base_for)
-                or any(state.has_listeners for state in self._is_based_on)
+                or self.has_listeners_deps
         )
 
     @property
@@ -215,13 +242,15 @@ class State(Generic[StateValueType]):
         return self._enforce_update
 
     @property
-    def enforce_update(self) -> bool:
+    def enforce_update_deps(self) -> bool:
         return (
-                self.enforce_update_self_only
-                or any(state.enforce_update_self_only for state in self._is_base_for)
+                any(state.enforce_update_self_only for state in self._is_base_for)
                 or any(state.enforce_update for state in self._is_based_on)
         )
 
     @property
-    def changed(self) -> bool:
-        return self._changed_since_last_update
+    def enforce_update(self) -> bool:
+        return (
+                self.enforce_update_self_only
+                or self.enforce_update_deps
+        )

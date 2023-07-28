@@ -23,7 +23,7 @@ class DualSenseController:
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
-            state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS,
+            state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
             enforce_update: bool = True,
             trigger_change_after_all_values_set: bool = True,
     ):

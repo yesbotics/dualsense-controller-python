@@ -22,6 +22,7 @@ class BaseStates(Generic[StateNameEnumType]):
             self,
             name: StateNameEnumType,
             value: StateValueType = None,
+            default_value: StateValueType = None,
             ignore_none: bool = True,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
@@ -37,6 +38,7 @@ class BaseStates(Generic[StateNameEnumType]):
         state: State[StateValueType] = State[StateValueType](
             name,
             value=value,
+            default_value=default_value,
             mapped_to_raw_fn=mapped_to_raw_fn,
             raw_to_mapped_fn=raw_to_mapped_fn,
             compare_fn=compare_fn,

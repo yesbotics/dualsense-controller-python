@@ -5,9 +5,11 @@ from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     Accelerometer, AnyStateChangeCallback, BaseStates, Gyroscope, JoyStick,
     Orientation, ReadStateName, RestrictedStateAccess, State, StateChangeCallback,
-    StateValueMapper, calc_orientation, calc_sensor_axis, calc_touch_id, calc_touch_x, calc_touch_y
+    StateValueMapper, calc_accelerometer, calc_gyroscope, calc_orientation, calc_touch_id,
+    calc_touch_x, calc_touch_y
 )
-from .common import StateValueMapping, StateValueType, compare_accel, compare_gyroscope, compare_joystick, \
+from .common import StateValueMapping, StateValueType, compare_accelerometer, compare_gyroscope, \
+    compare_joystick, \
     compare_orientation, \
     compare_shoulder_key
 
@@ -21,7 +23,7 @@ class ReadStates(BaseStates[ReadStateName]):
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
-            state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS,
+            state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
             enforce_update: bool = True,
             trigger_change_after_all_values_set: bool = True,
     ):
@@ -35,40 +37,46 @@ class ReadStates(BaseStates[ReadStateName]):
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.left_stick_x_to_raw,
-            raw_to_mapped_fn=state_value_mapper.left_stick_x_from_raw,
+            mapped_to_raw_fn=state_value_mapper.left_stick_x_mapped_to_raw,
+            raw_to_mapped_fn=state_value_mapper.left_stick_x_raw_to_mapped,
         )
         self._left_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_Y,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.left_stick_y_to_raw,
-            raw_to_mapped_fn=state_value_mapper.left_stick_y_from_raw,
+            mapped_to_raw_fn=state_value_mapper.left_stick_y_mapped_to_raw,
+            raw_to_mapped_fn=state_value_mapper.left_stick_y_raw_to_mapped,
         )
         self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
+            default_value=JoyStick(),
             is_based_on=[self._left_stick_x, self._left_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             enforce_update=enforce_update,
+            mapped_to_raw_fn=state_value_mapper.left_stick_mapped_to_raw,
+            raw_to_mapped_fn=state_value_mapper.left_stick_raw_to_mapped,
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_X,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.right_stick_x_to_raw,
-            raw_to_mapped_fn=state_value_mapper.right_stick_x_from_raw,
+            mapped_to_raw_fn=state_value_mapper.right_stick_x_mapped_to_raw,
+            raw_to_mapped_fn=state_value_mapper.right_stick_x_raw_to_mapped,
         )
         self._right_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_Y,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.right_stick_y_to_raw,
-            raw_to_mapped_fn=state_value_mapper.right_stick_y_from_raw,
+            mapped_to_raw_fn=state_value_mapper.right_stick_y_mapped_to_raw,
+            raw_to_mapped_fn=state_value_mapper.right_stick_y_raw_to_mapped,
         )
         self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK,
+            default_value=JoyStick(),
             is_based_on=[self._right_stick_x, self._right_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             enforce_update=enforce_update,
+            mapped_to_raw_fn=state_value_mapper.right_stick_mapped_to_raw,
+            raw_to_mapped_fn=state_value_mapper.right_stick_raw_to_mapped,
         )
 
         # INIT GYRO, ACCEL, ORIENT
@@ -86,6 +94,7 @@ class ReadStates(BaseStates[ReadStateName]):
         )
         self._gyroscope: Final[State[Gyroscope]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE,
+            default_value=Gyroscope(),
             is_based_on=[self._gyroscope_x, self._gyroscope_y, self._gyroscope_z],
             compare_fn=compare_gyroscope,
             threshold=gyroscope_threshold,
@@ -105,13 +114,15 @@ class ReadStates(BaseStates[ReadStateName]):
         )
         self._accelerometer: Final[State[Accelerometer]] = self._create_and_register_state(
             ReadStateName.ACCELEROMETER,
+            default_value=Accelerometer(),
             is_based_on=[self._accelerometer_x, self._accelerometer_y, self._accelerometer_z],
-            compare_fn=compare_accel,
+            compare_fn=compare_accelerometer,
             threshold=accelerometer_threshold,
             enforce_update=enforce_update,
         )
         self._orientation: Final[State[Orientation]] = self._create_and_register_state(
             ReadStateName.ORIENTATION,
+            default_value=Orientation(),
             is_based_on=[self._gyroscope, self._accelerometer],
             compare_fn=compare_orientation,
             threshold=orientation_threshold,
@@ -156,7 +167,6 @@ class ReadStates(BaseStates[ReadStateName]):
         self._btn_cross: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_CROSS,
             enforce_update=enforce_update,
-            ignore_none=False,
         )
         self._btn_circle: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_CIRCLE,
@@ -287,7 +297,7 @@ class ReadStates(BaseStates[ReadStateName]):
             state: State[StateValueType],
             value_or_calc_fn: StateValueType | Callable[[...], StateValueType],
             *args,
-            determine_value: bool = False
+            determine_value: bool = False,
     ) -> StateValueType | None:
         if determine_value:
             return None
@@ -305,13 +315,17 @@ class ReadStates(BaseStates[ReadStateName]):
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
-        # ##### ANALOG STICKS #####
-        self._handle_state(self._left_stick_x, in_report.axes_0)
-        self._handle_state(self._left_stick_y, in_report.axes_1)
-        self._handle_state(self._left_stick, JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value))
-        self._handle_state(self._right_stick_x, in_report.axes_2)
-        self._handle_state(self._right_stick_y, in_report.axes_3)
-        self._handle_state(self._right_stick, JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value))
+        ##### ANALOG STICKS #####
+
+        self._handle_state(self._left_stick, JoyStick(x=in_report.axes_0, y=in_report.axes_1))
+        # use values from stick because deadzone calc is done there
+        self._handle_state(self._left_stick_x, self._left_stick.value.x)
+        self._handle_state(self._left_stick_y, self._left_stick.value.y)
+
+        self._handle_state(self._right_stick, JoyStick(x=in_report.axes_2, y=in_report.axes_3))
+        # use values from stick because deadzone calc is done there
+        self._handle_state(self._right_stick_x, self._right_stick.value.x)
+        self._handle_state(self._right_stick_y, self._right_stick.value.y)
 
         # ##### SHOULDER KEYS #####
         self._handle_state(self._l2, in_report.axes_4)
@@ -345,24 +359,26 @@ class ReadStates(BaseStates[ReadStateName]):
 
         # ##### GYRO #####
 
-        self._handle_state(self._gyroscope_x, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
-        self._handle_state(self._gyroscope_y, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
-        self._handle_state(self._gyroscope_z, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
-        self._handle_state(self._gyroscope, Gyroscope(
-            x=self._gyroscope_x.value,
-            y=self._gyroscope_y.value,
-            z=self._gyroscope_z.value,
-        ))
+        self._handle_state(
+            self._gyroscope, calc_gyroscope,
+            in_report.gyro_x_1, in_report.gyro_x_0,
+            in_report.gyro_y_1, in_report.gyro_y_0,
+            in_report.gyro_z_1, in_report.gyro_z_0
+        )
+        self._handle_state(self._gyroscope_x, self._gyroscope.value.x)
+        self._handle_state(self._gyroscope_y, self._gyroscope.value.y)
+        self._handle_state(self._gyroscope_z, self._gyroscope.value.z)
 
         # ##### ACCEL #####
-        self._handle_state(self._accelerometer_x, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
-        self._handle_state(self._accelerometer_y, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
-        self._handle_state(self._accelerometer_z, calc_sensor_axis, in_report.gyro_x_1, in_report.gyro_x_0)
-        self._handle_state(self._accelerometer, Accelerometer(
-            x=self._accelerometer_x.value,
-            y=self._accelerometer_y.value,
-            z=self._accelerometer_z.value,
-        ))
+        self._handle_state(
+            self._accelerometer, calc_accelerometer,
+            in_report.accel_x_1, in_report.accel_x_0,
+            in_report.accel_y_1, in_report.accel_y_0,
+            in_report.accel_z_1, in_report.accel_z_0
+        )
+        self._handle_state(self._accelerometer_x, self._accelerometer.value.x)
+        self._handle_state(self._accelerometer_y, self._accelerometer.value.y)
+        self._handle_state(self._accelerometer_z, self._accelerometer.value.z)
 
         # ##### ORIENTATION #####
         self._handle_state(self._orientation, calc_orientation, self._gyroscope, self._accelerometer)

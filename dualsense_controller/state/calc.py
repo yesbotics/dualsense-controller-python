@@ -4,9 +4,25 @@ from pyquaternion import Quaternion
 from dualsense_controller.state import Accelerometer, Gyroscope, Orientation
 
 
-def calc_sensor_axis(v1: int, v0: int) -> int:
+def _calc_sensor_axis(v1: int, v0: int) -> int:
     sub: int = ((v1 << 8) | v0)
     return sub if sub > 0x7FFF else sub - 0x10000
+
+
+def calc_gyroscope(x1: int, x0: int, y1: int, y0: int, z1: int, z0: int) -> Gyroscope:
+    return Gyroscope(
+        x=_calc_sensor_axis(x1, x0),
+        y=_calc_sensor_axis(y1, y0),
+        z=_calc_sensor_axis(z1, z0),
+    )
+
+
+def calc_accelerometer(x1: int, x0: int, y1: int, y0: int, z1: int, z0: int) -> Accelerometer:
+    return Accelerometer(
+        x=_calc_sensor_axis(x1, x0),
+        y=_calc_sensor_axis(y1, y0),
+        z=_calc_sensor_axis(z1, z0),
+    )
 
 
 def calc_touch_id(t_0: int) -> int:

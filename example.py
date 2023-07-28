@@ -16,25 +16,31 @@ class Example:
         self._stay_alive: bool = False
 
         self._dualsense_controller: DualSenseController = DualSenseController(
-            # opts base
+            # ##### BASE  #####
             device_index=0,
-            # opts for feeling
-            joystick_deadzone=10,  # 0-255
+            # ##### FEELING  #####
+            joystick_deadzone=10,  # 0-255  # TODO: Deadzone calc based on Mapping
             shoulder_key_deadzone=10,  # 0-255
             gyroscope_threshold=100,
             accelerometer_threshold=100,
             orientation_threshold=100,
-            # core opts
-            state_value_mapping=StateValueMapping.FOR_NOOBS,
-            # every loop update all values
-            enforce_update=True,
-            # trigger changes of a state after all subscribed states are updated
-            trigger_change_after_all_values_set=True,
-
+            # state_value_mapping=StateValueMapping.RAW,  #  y-axis:0 ... 255 , 0 ... 255
+            # state_value_mapping=StateValueMapping.RAW_INVERTED,  # y-axis: 255 ... 0 , 255 ... 0
+            state_value_mapping=StateValueMapping.DEFAULT,  # y-axis: 127 ... -128, 0 ... 255
+            # state_value_mapping=StateValueMapping.DEFAULT_INVERTED,  # y-axis: -128 ... 127, 0 ... 255
+            # state_value_mapping=StateValueMapping.NORMALIZED,  # y-axis: 1.0 ... -1.0, 0.0 ... 1.0
+            # state_value_mapping=StateValueMapping.NORMALIZED_INVERTED,  # y-axis: -1.0 ... 1.0, 0.0 ... 1.0
+            # ##### CORE #####
+            enforce_update=True,  # every loop update all values
+            trigger_change_after_all_values_set=True,  # trigger change of state after all other states has been updated
         )
-
         self._dualsense_controller.on_exception(self._on_exception)
         self._dualsense_controller.on_connection_change(self._on_connection_change)
+
+        # sticks
+        self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
+        # self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
+        # self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
 
         self._dualsense_controller.states.btn_ps.on_change(self._on_btn_ps)
         self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
@@ -80,11 +86,16 @@ class Example:
         self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
         self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
 
-        # complex values
+        # sticks
         self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
-        self._dualsense_controller.states.right_stick_y.on_change(self._on_right_stick_y)
+        self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
         self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
+
+        self._dualsense_controller.states.right_stick_x.on_change(self._on_right_stick_x)
+        self._dualsense_controller.states.right_stick_y.on_change(self._on_right_stick_y)
         self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
+
+        # other complex
         self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
         self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
         self._dualsense_controller.states.orientation.on_change(self._on_orientation)
@@ -274,17 +285,17 @@ class Example:
     def _on_battery_low(self, percentage: float) -> None:
         print(f'Battery is low: {percentage}')
 
+    #
+    # STICKS
+    #
     def _on_left_stick_x(self, _: int, state: int) -> None:
         print(f'Left JoyStick x: {state}')
         pass
 
-    def _on_right_stick_y(self, _: int, state: int) -> None:
-        print(f'Right JoyStick y: {state}')
+    def _on_left_stick_y(self, _: int, state: int) -> None:
+        print(f'Left JoyStick y: {state}')
         pass
 
-    #
-    # COMPLEX
-    #
     def _on_left_stick(self, _: JoyStick, state: JoyStick) -> None:
         print(f'Left JoyStick: {state}')
         pass
@@ -293,6 +304,17 @@ class Example:
         print(f'Right JoyStick: {state}')
         pass
 
+    def _on_right_stick_x(self, _: int, state: int) -> None:
+        print(f'Right JoyStick x: {state}')
+        pass
+
+    def _on_right_stick_y(self, _: int, state: int) -> None:
+        print(f'Right JoyStick y: {state}')
+        pass
+
+    #
+    # COMPLEX OTHER
+    #
     def _on_gyroscope(self, _: Gyroscope, state: Gyroscope) -> None:
         # print(f'Gyroscope: {state}')
         pass

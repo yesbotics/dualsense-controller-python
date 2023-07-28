@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Final, TypeVar
 
 
 class ReadStateName(str, Enum):
@@ -108,34 +108,36 @@ CompareResult = tuple[bool, StateValueType]
 CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
 Number = int | float
 FromToTuple = tuple[Number, Number, Number, Number]
-MapFn = Callable[[Number], Number]
+MapFn = Callable[[Any], Any]
+
+_DEFAULT_NUMBER: Final[Number] = -99999
 
 
 @dataclass(frozen=True, slots=True)
 class JoyStick:
-    x: int
-    y: int
+    x: int = _DEFAULT_NUMBER
+    y: int = _DEFAULT_NUMBER
 
 
 @dataclass(frozen=True, slots=True)
 class Gyroscope:
-    x: int
-    y: int
-    z: int
+    x: int = _DEFAULT_NUMBER
+    y: int = _DEFAULT_NUMBER
+    z: int = _DEFAULT_NUMBER
 
 
 @dataclass(frozen=True, slots=True)
 class Accelerometer:
-    x: int
-    y: int
-    z: int
+    x: int = _DEFAULT_NUMBER
+    y: int = _DEFAULT_NUMBER
+    z: int = _DEFAULT_NUMBER
 
 
 @dataclass(frozen=True, slots=True)
 class Orientation:
-    yaw: int
-    pitch: int
-    roll: int
+    yaw: int = _DEFAULT_NUMBER
+    pitch: int = _DEFAULT_NUMBER
+    roll: int = _DEFAULT_NUMBER
 
 
 def compare(before: StateValueType | None, after: StateValueType) -> CompareResult:
@@ -160,6 +162,7 @@ def compare_shoulder_key(before: int | None, after: int, deadzone: int = 0) -> C
     return changed, after
 
 
+# TODO: refact that compare fcts
 def compare_gyroscope(before: Gyroscope, after: Gyroscope, threshold: int = 0) -> CompareResult:
     if before is None:
         return True, after
@@ -172,7 +175,7 @@ def compare_gyroscope(before: Gyroscope, after: Gyroscope, threshold: int = 0) -
     return changed, after
 
 
-def compare_accel(before: Accelerometer, after: Accelerometer, threshold: int = 0) -> CompareResult:
+def compare_accelerometer(before: Accelerometer, after: Accelerometer, threshold: int = 0) -> CompareResult:
     if before is None:
         return True, after
     if threshold > 0:
@@ -208,7 +211,15 @@ class StateValueMappingData:
 
 class StateValueMapping(Enum):
     RAW = None
-    KAPPA_J = StateValueMappingData(
+    RAW_INVERTED = StateValueMappingData(
+        left_stick_x=(0, 255, 0, 255),
+        left_stick_y=(0, 255, 255, 0),
+        right_stick_x=(0, 255, 0, 255),
+        right_stick_y=(0, 255, 255, 0),
+        left_shoulder_key=(0, 255, 0, 255),
+        right_shoulder_key=(0, 255, 0, 255),
+    ),
+    DEFAULT = StateValueMappingData(
         left_stick_x=(0, 255, -128, 127),
         left_stick_y=(0, 255, 127, -128),
         right_stick_x=(0, 255, -128, 127),
@@ -216,7 +227,7 @@ class StateValueMapping(Enum):
         left_shoulder_key=(0, 255, 0, 255),
         right_shoulder_key=(0, 255, 0, 255),
     ),
-    EINSPUNKTNULL = StateValueMappingData(
+    DEFAULT_INVERTED = StateValueMappingData(
         left_stick_x=(0, 255, -128, 127),
         left_stick_y=(0, 255, -128, 127),
         right_stick_x=(0, 255, -128, 127),
@@ -224,7 +235,7 @@ class StateValueMapping(Enum):
         left_shoulder_key=(0, 255, 0, 255),
         right_shoulder_key=(0, 255, 0, 255),
     ),
-    FOR_NOOBS = StateValueMappingData(
+    NORMALIZED = StateValueMappingData(
         left_stick_x=(0, 255, -1.0, 1.0),
         left_stick_y=(0, 255, 1.0, -1.0),
         right_stick_x=(0, 255, -1.0, 1.0),
@@ -232,11 +243,11 @@ class StateValueMapping(Enum):
         left_shoulder_key=(0, 255, 0, 1.0),
         right_shoulder_key=(0, 255, 0, 1.0),
     ),
-    FOR_BOONS = StateValueMappingData(
+    NORMALIZED_INVERTED = StateValueMappingData(
         left_stick_x=(0, 255, -1.0, 1.0),
-        left_stick_y=(0, 255, 1.0, -1.0),
-        right_stick_x=(0, 255, 1.0, -1.0),
-        right_stick_y=(0, 255, 1.0, -1.0),
+        left_stick_y=(0, 255, -1.0, 1.0),
+        right_stick_x=(0, 255, -1.0, 1.0),
+        right_stick_y=(0, 255, -1.0, 1.0),
         left_shoulder_key=(0, 255, 0, 1.0),
         right_shoulder_key=(0, 255, 0, 1.0),
     ),
