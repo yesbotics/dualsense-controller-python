@@ -22,7 +22,7 @@ class BaseStates(Generic[StateNameEnumType]):
             self,
             name: StateNameEnumType,
             value: StateValueType = None,
-            ignore_initial_none: bool = True,
+            ignore_none: bool = True,
             compare_fn: CompareFn[StateValueType] = None,
             enforce_update: bool = False,
             is_based_on: list[State[Any]] = None,
@@ -37,7 +37,7 @@ class BaseStates(Generic[StateNameEnumType]):
             value=value,
             compare_fn=compare_fn,
             enforce_update=enforce_update,
-            ignore_initial_none=ignore_initial_none,
+            ignore_none=ignore_none,
             is_based_on=is_based_on,
             is_base_for=is_base_for,
         )

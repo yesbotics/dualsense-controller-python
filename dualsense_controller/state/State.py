@@ -54,7 +54,7 @@ class State(Generic[StateValueType]):
             # opts
             value: StateValueType = None,
             compare_fn: CompareFn = None,
-            ignore_initial_none: bool = True,
+            ignore_none: bool = True,
             enforce_update: bool = False,
             is_based_on: list[State[Any]] = None,
             is_base_for: list[State[Any]] = None,
@@ -73,27 +73,46 @@ class State(Generic[StateValueType]):
         self._enforce_update: bool = enforce_update
         self._changed_since_last_update: bool = False
         self._compare_fn: CompareFn = compare_fn if compare_fn is not None else compare
-        self._ignore_initial_none: bool = ignore_initial_none
+        self._ignore_none: bool = ignore_none
 
         for based_on_state in self._is_based_on:
             based_on_state.set_as_base_for(self)
 
     # ################# PRIVATE ###############
-    def _do_not_change_value(self) -> None:
-        self._changed_since_last_update = False
+
+    def _set_value(
+            self,
+            value: StateValueType | None,
+            trigger_change_on_changed: bool = True,
+    ) -> None:
+        old_value: StateValueType = self._value
+        new_value: StateValueType = value
+        if (old_value is None or new_value is None) and self._ignore_none:
+            self._change_value(old_value=new_value, new_value=new_value, changed=False, trigger_change=False)
+            return
+        changed, new_value = self._compare_fn(old_value, value)
+        self._change_value(
+            old_value=old_value,
+            new_value=new_value,
+            changed=changed,
+            trigger_change=(changed if trigger_change_on_changed else False)
+        )
 
     def _change_value(
             self,
             old_value: StateValueType,
             new_value: StateValueType,
-            trigger_change: bool = True,
-            changed: bool = True,
+            changed: bool,
+            trigger_change: bool,
     ) -> None:
         self._last_value = old_value
         self._value = new_value
         self._changed_since_last_update = changed
         if trigger_change:
-            self._emit_change(old_value, new_value)
+            self._trigger_change()
+
+    def _trigger_change(self):
+        self._emit_change(self._last_value, self._value)
 
     def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
         self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
@@ -104,11 +123,15 @@ class State(Generic[StateValueType]):
 
     # ################# PUBLIC ###############
 
+    def trigger_change_if_changed(self) -> None:
+        if self.changed:
+            self._trigger_change()
+
     def set_as_base_for(self, state: State[Any]):
         self._is_base_for.append(state)
 
     def set_value_without_triggering_change(self, new_value: StateValueType | None):
-        self._change_value(old_value=self._value, new_value=new_value, changed=True, trigger_change=False)
+        self._set_value(new_value, trigger_change_on_changed=False)
 
     def on_change(self, callback: AnyStateChangeCallback | StateChangeCallback) -> None:
         num_params: int = len(inspect.signature(callback).parameters)
@@ -138,16 +161,7 @@ class State(Generic[StateValueType]):
 
     @value.setter
     def value(self, value: StateValueType | None) -> None:
-        old_value: StateValueType = self._value
-        if old_value is None and self._ignore_initial_none:
-            if self._ignore_initial_none:
-                self._change_value(old_value=value, new_value=value, changed=False, trigger_change=False)
-                return
-        changed, new_value = self._compare_fn(old_value, value)
-        if changed:
-            self._change_value(old_value=old_value, new_value=new_value)
-            return
-        self._do_not_change_value()
+        self._set_value(value)
 
     @property
     def restricted_access(self) -> RestrictedStateAccess[StateValueType]:
@@ -160,7 +174,7 @@ class State(Generic[StateValueType]):
         return self._last_value
 
     @property
-    def needs_update(self) -> bool:
+    def is_updatable(self) -> bool:
         return (
                 self.enforce_update
                 or (len(self._is_based_on) == 0 and self.has_listeners)
@@ -193,6 +207,4 @@ class State(Generic[StateValueType]):
 
     @property
     def changed(self) -> bool:
-        return (
-            self._changed_since_last_update
-        )
+        return self._changed_since_last_update

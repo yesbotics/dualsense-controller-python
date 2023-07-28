@@ -23,11 +23,11 @@ class ReadStates(BaseStates[ReadStateName]):
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.FOR_NOOBS,
             enforce_update: bool = True,
-            trigger_change_lazy: bool = True,
+            trigger_change_after_all_values_set: bool = True,
     ):
         super().__init__()
 
-        self._trigger_change_after_all_values_set: Final[bool] = trigger_change_lazy
+        self._trigger_change_after_all_values_set: Final[bool] = trigger_change_after_all_values_set
         self._states_to_trigger_after_all_states_set: Final[list[State]] = []
         self._state_value_mapping: Final[StateValueMapping] = state_value_mapping
 
@@ -45,7 +45,6 @@ class ReadStates(BaseStates[ReadStateName]):
             is_based_on=[self._left_stick_x, self._left_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
-            ignore_initial_none=False,
             enforce_update=enforce_update,
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
@@ -61,7 +60,6 @@ class ReadStates(BaseStates[ReadStateName]):
             is_based_on=[self._right_stick_x, self._right_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
-            ignore_initial_none=False,
             enforce_update=enforce_update,
         )
 
@@ -150,7 +148,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._btn_cross: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_CROSS,
             enforce_update=enforce_update,
-            ignore_initial_none=False,
+            ignore_none=False,
         )
         self._btn_circle: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_CIRCLE,
@@ -167,7 +165,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._btn_r1: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_R1,
             enforce_update=enforce_update,
-            ignore_initial_none=False,
+            ignore_none=False,
         )
         self._btn_l2: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_L2,
@@ -261,17 +259,17 @@ class ReadStates(BaseStates[ReadStateName]):
         # INIT BATT
         self._battery_level_percent: Final[State[float]] = self._create_and_register_state(
             ReadStateName.BATTERY_LEVEL_PERCENT,
-            ignore_initial_none=False,
+            ignore_none=False,
             enforce_update=enforce_update,
         )
         self._battery_full: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BATTERY_FULL,
-            ignore_initial_none=False,
+            ignore_none=False,
             enforce_update=enforce_update,
         )
         self._battery_charging: Final[State[int]] = self._create_and_register_state(
             ReadStateName.BATTERY_CHARGING,
-            ignore_initial_none=False,
+            ignore_none=False,
             enforce_update=enforce_update,
         )
 
@@ -285,33 +283,32 @@ class ReadStates(BaseStates[ReadStateName]):
             determine_value: bool = False
     ) -> StateValueType | None:
         if determine_value:
-            return
-        if state.needs_update:
+            return None
+        if state.is_updatable:
             value_: StateValueType = value_or_calc_fn(*args) if callable(value_or_calc_fn) else value_or_calc_fn
-            state.value = value_
-            # if self._trigger_change_after_all_values_set:
-            #     state.set_value_without_triggering_change(value)
-            #     self._states_to_trigger_after_all_states_set.append(self._btn_cross)
-            # else:
-            #     state.value = value
+            if self._trigger_change_after_all_values_set:
+                state.set_value_without_triggering_change(value_)
+                self._states_to_trigger_after_all_states_set.append(state)
+            else:
+                state.value = value_
             return value_
-        return
+        return None
 
     # #################### PUBLIC #######################
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
-        # ##### ANALOG STICKS #####
-        self._handle_state(self._left_stick_x, in_report.axes_0)
-        self._handle_state(self._left_stick_y, in_report.axes_1)
-        self._handle_state(self._left_stick, JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value))
-        self._handle_state(self._right_stick_x, in_report.axes_2)
-        self._handle_state(self._right_stick_y, in_report.axes_3)
-        self._handle_state(self._right_stick, JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value))
-
-        # ##### SHOULDER KEYS #####
-        self._handle_state(self._l2, in_report.axes_4)
-        self._handle_state(self._r2, in_report.axes_5)
+        # # ##### ANALOG STICKS #####
+        # self._handle_state(self._left_stick_x, in_report.axes_0)
+        # self._handle_state(self._left_stick_y, in_report.axes_1)
+        # self._handle_state(self._left_stick, JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value))
+        # self._handle_state(self._right_stick_x, in_report.axes_2)
+        # self._handle_state(self._right_stick_y, in_report.axes_3)
+        # self._handle_state(self._right_stick, JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value))
+        #
+        # # ##### SHOULDER KEYS #####
+        # self._handle_state(self._l2, in_report.axes_4)
+        # self._handle_state(self._r2, in_report.axes_5)
 
         # ##### BUTTONS #####
         dpad: int = in_report.buttons_0 & 0x0f
@@ -418,6 +415,10 @@ class ReadStates(BaseStates[ReadStateName]):
         self._handle_state(self._battery_level_percent, in_report.battery_0)
         self._handle_state(self._battery_full, not not (in_report.battery_0 & 0x20))
         self._handle_state(self._battery_charging, not not (in_report.battery_1 & 0x08))
+
+        for state in self._states_to_trigger_after_all_states_set:
+            state.trigger_change_if_changed()
+        self._states_to_trigger_after_all_states_set.clear()
 
     def on_change(self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
         if callback is None:

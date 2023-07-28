@@ -16,16 +16,20 @@ class Example:
         self._stay_alive: bool = False
 
         self._dualsense_controller: DualSenseController = DualSenseController(
+            # opts base
             device_index=0,
-
+            # opts for feeling
             joystick_deadzone=10,
             shoulder_key_deadzone=2,
             gyroscope_threshold=100,
             accelerometer_threshold=100,
             orientation_threshold=100,
+            # core opts
             state_value_mapping=StateValueMapping.FOR_NOOBS,
+            # every loop update all values
             enforce_update=True,
-            trigger_change_lazy=False,
+            # trigger changes of a state after all subscribed states are updated
+            trigger_change_after_all_values_set=True,
 
         )
 
