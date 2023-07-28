@@ -106,7 +106,9 @@ AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
 
 CompareResult = tuple[bool, StateValueType]
 CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
-MapFn = Callable[[StateValueType], MappedStateValueType]
+Number = int | float
+FromToTuple = tuple[Number, Number, Number, Number]
+MapFn = Callable[[Number], Number]
 
 
 @dataclass(frozen=True, slots=True)
@@ -194,10 +196,6 @@ def compare_orientation(before: Orientation, after: Orientation, threshold: int 
     return changed, after
 
 
-Number = int | float
-FromToTuple = tuple[Number, Number, Number, Number]
-
-
 @dataclass(frozen=True, slots=True)
 class StateValueMappingData:
     left_stick_x: FromToTuple = None
@@ -209,7 +207,7 @@ class StateValueMappingData:
 
 
 class StateValueMapping(Enum):
-    RAW = StateValueMappingData()
+    RAW = None
     KAPPA_J = StateValueMappingData(
         left_stick_x=(0, 255, -128, 127),
         left_stick_y=(0, 255, 127, -128),

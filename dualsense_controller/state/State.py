@@ -10,7 +10,7 @@ from dualsense_controller.state import \
     CompareFn, ReadStateName, \
     StateChangeCallback, \
     StateValueType
-from dualsense_controller.state.common import compare
+from dualsense_controller.state.common import MapFn, compare
 
 
 class RestrictedStateAccess(Generic[StateValueType]):
@@ -19,7 +19,7 @@ class RestrictedStateAccess(Generic[StateValueType]):
 
     @property
     def value(self) -> StateValueType | None:
-        return self._state.value
+        return self._state.value_mapped
 
     @property
     def changed(self) -> bool:
@@ -27,7 +27,7 @@ class RestrictedStateAccess(Generic[StateValueType]):
 
     @property
     def last_value(self) -> StateValueType | None:
-        return self._state.last_value
+        return self._state.last_value_mapped
 
     @property
     def on_change(self) -> Callable[[StateChangeCallback], None]:
@@ -53,6 +53,8 @@ class State(Generic[StateValueType]):
             name: ReadStateName,
             # opts
             value: StateValueType = None,
+            mapped_to_raw_fn: MapFn = None,
+            raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn = None,
             ignore_none: bool = True,
             enforce_update: bool = False,
@@ -73,6 +75,8 @@ class State(Generic[StateValueType]):
         self._enforce_update: bool = enforce_update
         self._changed_since_last_update: bool = False
         self._compare_fn: CompareFn = compare_fn if compare_fn is not None else compare
+        self._mapped_to_raw_fn: MapFn = mapped_to_raw_fn
+        self._raw_to_mapped_fn: MapFn = raw_to_mapped_fn
         self._ignore_none: bool = ignore_none
 
         for based_on_state in self._is_based_on:
@@ -112,7 +116,8 @@ class State(Generic[StateValueType]):
             self._trigger_change()
 
     def _trigger_change(self):
-        self._emit_change(self._last_value, self._value)
+        # self._emit_change(self.last_value, self._value)
+        self._emit_change(self.last_value_mapped, self.value_mapped)
 
     def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
         self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
@@ -164,14 +169,26 @@ class State(Generic[StateValueType]):
         self._set_value(value)
 
     @property
+    def last_value(self) -> StateValueType:
+        return self._last_value
+
+    @property
+    def value_mapped(self) -> StateValueType:
+        return self.value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(self._value)
+
+    @value_mapped.setter
+    def value_mapped(self, value: StateValueType | None) -> None:
+        self.value = value if self._mapped_to_raw_fn is None else self._mapped_to_raw_fn(value)
+
+    @property
+    def last_value_mapped(self) -> StateValueType:
+        return self._last_value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(self._last_value)
+
+    @property
     def restricted_access(self) -> RestrictedStateAccess[StateValueType]:
         if self._restricted_access is None:
             self._restricted_access = RestrictedStateAccess(self)
         return self._restricted_access
-
-    @property
-    def last_value(self) -> StateValueType:
-        return self._last_value
 
     @property
     def is_updatable(self) -> bool:

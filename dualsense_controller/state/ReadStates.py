@@ -5,7 +5,7 @@ from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     Accelerometer, AnyStateChangeCallback, BaseStates, Gyroscope, JoyStick,
     Orientation, ReadStateName, RestrictedStateAccess, State, StateChangeCallback,
-    calc_orientation, calc_sensor_axis, calc_touch_id, calc_touch_x, calc_touch_y
+    StateValueMapper, calc_orientation, calc_sensor_axis, calc_touch_id, calc_touch_x, calc_touch_y
 )
 from .common import StateValueMapping, StateValueType, compare_accel, compare_gyroscope, compare_joystick, \
     compare_orientation, \
@@ -29,16 +29,20 @@ class ReadStates(BaseStates[ReadStateName]):
 
         self._trigger_change_after_all_values_set: Final[bool] = trigger_change_after_all_values_set
         self._states_to_trigger_after_all_states_set: Final[list[State]] = []
-        self._state_value_mapping: Final[StateValueMapping] = state_value_mapping
+        state_value_mapper: StateValueMapper = StateValueMapper(state_value_mapping)
 
         # INIT STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X,
             enforce_update=enforce_update,
+            mapped_to_raw_fn=state_value_mapper.left_stick_x_to_raw,
+            raw_to_mapped_fn=state_value_mapper.left_stick_x_from_raw,
         )
         self._left_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_Y,
             enforce_update=enforce_update,
+            mapped_to_raw_fn=state_value_mapper.left_stick_y_to_raw,
+            raw_to_mapped_fn=state_value_mapper.left_stick_y_from_raw,
         )
         self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
@@ -50,10 +54,14 @@ class ReadStates(BaseStates[ReadStateName]):
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_X,
             enforce_update=enforce_update,
+            mapped_to_raw_fn=state_value_mapper.right_stick_x_to_raw,
+            raw_to_mapped_fn=state_value_mapper.right_stick_x_from_raw,
         )
         self._right_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_Y,
             enforce_update=enforce_update,
+            mapped_to_raw_fn=state_value_mapper.right_stick_y_to_raw,
+            raw_to_mapped_fn=state_value_mapper.right_stick_y_from_raw,
         )
         self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK,
@@ -165,7 +173,6 @@ class ReadStates(BaseStates[ReadStateName]):
         self._btn_r1: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_R1,
             enforce_update=enforce_update,
-            ignore_none=False,
         )
         self._btn_l2: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_L2,
@@ -298,17 +305,17 @@ class ReadStates(BaseStates[ReadStateName]):
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
-        # # ##### ANALOG STICKS #####
-        # self._handle_state(self._left_stick_x, in_report.axes_0)
-        # self._handle_state(self._left_stick_y, in_report.axes_1)
-        # self._handle_state(self._left_stick, JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value))
-        # self._handle_state(self._right_stick_x, in_report.axes_2)
-        # self._handle_state(self._right_stick_y, in_report.axes_3)
-        # self._handle_state(self._right_stick, JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value))
-        #
-        # # ##### SHOULDER KEYS #####
-        # self._handle_state(self._l2, in_report.axes_4)
-        # self._handle_state(self._r2, in_report.axes_5)
+        # ##### ANALOG STICKS #####
+        self._handle_state(self._left_stick_x, in_report.axes_0)
+        self._handle_state(self._left_stick_y, in_report.axes_1)
+        self._handle_state(self._left_stick, JoyStick(x=self._left_stick_x.value, y=self._left_stick_y.value))
+        self._handle_state(self._right_stick_x, in_report.axes_2)
+        self._handle_state(self._right_stick_y, in_report.axes_3)
+        self._handle_state(self._right_stick, JoyStick(x=self._right_stick_x.value, y=self._right_stick_y.value))
+
+        # ##### SHOULDER KEYS #####
+        self._handle_state(self._l2, in_report.axes_4)
+        self._handle_state(self._r2, in_report.axes_5)
 
         # ##### BUTTONS #####
         dpad: int = in_report.buttons_0 & 0x0f
