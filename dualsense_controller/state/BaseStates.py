@@ -15,6 +15,14 @@ class BaseStates(Generic[StateNameEnumType]):
         else:
             state.value = value
 
+    def set_value_mapped(self, name: StateNameEnumType, value: StateValueType, trigger_change: bool = True) -> None:
+        print('mappy', name, value, trigger_change)
+        state: State[StateValueType] = self._get_state_by_name(name)
+        if not trigger_change:
+            state.set_value_mapped_without_triggering_change(value)
+        else:
+            state.value_mapped = value
+
     def _get_state_by_name(self, name: StateNameEnumType) -> State:
         return self._states_dict[name]
 

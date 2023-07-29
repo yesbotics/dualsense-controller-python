@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Final, TypeVar
@@ -107,7 +109,6 @@ AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
 CompareResult = tuple[bool, StateValueType]
 CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
 Number = int | float
-FromToTuple = tuple[Number, Number, Number, Number]
 MapFn = Callable[[Any], Any]
 
 _DEFAULT_NUMBER: Final[Number] = -99999
@@ -199,55 +200,126 @@ def compare_orientation(before: Orientation, after: Orientation, threshold: int 
     return changed, after
 
 
+FromToTuple = tuple[Number, Number, Number, Number]
+
+
+@dataclass(frozen=True, slots=True)
+class Integer:
+    value_type: type[Number] = int
+
+
+@dataclass(frozen=True, slots=True)
+class Float:
+    value_type: type[Number] = float
+    round_digits: int = 2
+
+
+NumberType = Integer | Float
+
+
+@dataclass(frozen=True, slots=True)
+class FromTo:
+    from_min: int
+    from_max: int
+    to_min: Number
+    to_max: Number
+    from_type: NumberType = Integer()
+    to_type: NumberType = Integer()
+
+    @property
+    def reversed(self) -> FromTo:
+        return FromTo(self.to_min, self.to_max, self.from_min, self.from_max, self.to_type, self.from_type)
+
+    @property
+    def as_tuple(self) -> FromToTuple:
+        return self.from_min, self.from_max, self.to_min, self.to_max
+
+
 @dataclass(frozen=True, slots=True)
 class StateValueMappingData:
-    left_stick_x: FromToTuple = None
-    left_stick_y: FromToTuple = None
-    right_stick_x: FromToTuple = None
-    right_stick_y: FromToTuple = None
-    left_shoulder_key: FromToTuple = None
-    right_shoulder_key: FromToTuple = None
+    left_stick_x: FromTo = None
+    left_stick_y: FromTo = None
+    right_stick_x: FromTo = None
+    right_stick_y: FromTo = None
+    left_shoulder_key: FromTo = None
+    right_shoulder_key: FromTo = None
+    set_motor_left: FromTo = None
+    set_motor_right: FromTo = None
 
+
+#
+# omitted maps will be handled as raw values
+#
 
 class StateValueMapping(Enum):
+    # # no need to fill StateValueMapping.RAW, only for illustration
+    # # stick y-axis: 0 ... 255, shoulder key: 0 ... 255
+    # RAW = StateValueMappingData(
+    #     left_stick_x=FromTo(0, 255, 0, 255),
+    #     left_stick_y=FromTo(0, 255, 0, 255),
+    #     right_stick_x=FromTo(0, 255, 0, 255),
+    #     right_stick_y=FromTo(0, 255, 0, 255),
+    #     left_shoulder_key=FromTo(0, 255, 0, 255),
+    #     right_shoulder_key=FromTo(0, 255, 0, 255),
+    #     set_motor_left=FromTo(0, 255, 0, 255),
+    #     set_motor_right=FromTo(0, 255, 0, 255),
+    # ),
+    # thats why
     RAW = None
+
+    # stick y-axis: -100 ... 100, shoulder key: 0 ... 100
+    HUNDRED = StateValueMappingData(
+        left_stick_x=FromTo(0, 255, -100, 100),
+        left_stick_y=FromTo(0, 255, 100, -100),
+        right_stick_x=FromTo(0, 255, -100, 100),
+        right_stick_y=FromTo(0, 255, 100, -100),
+        left_shoulder_key=FromTo(0, 255, 0, 100),
+        right_shoulder_key=FromTo(0, 255, 0, 100),
+        set_motor_left=FromTo(0, 255, 0, 100),
+        set_motor_right=FromTo(0, 255, 0, 100),
+    )
+
+    # stick y-axis: 255 ... 0, shoulder key: 0 ... 255
     RAW_INVERTED = StateValueMappingData(
-        left_stick_x=(0, 255, 0, 255),
-        left_stick_y=(0, 255, 255, 0),
-        right_stick_x=(0, 255, 0, 255),
-        right_stick_y=(0, 255, 255, 0),
-        left_shoulder_key=(0, 255, 0, 255),
-        right_shoulder_key=(0, 255, 0, 255),
-    ),
+        left_stick_y=FromTo(0, 255, 255, 0),
+        right_stick_y=FromTo(0, 255, 255, 0),
+        # undefined maps handled like StateValueMapping.RAW
+    )
+
     DEFAULT = StateValueMappingData(
-        left_stick_x=(0, 255, -128, 127),
-        left_stick_y=(0, 255, 127, -128),
-        right_stick_x=(0, 255, -128, 127),
-        right_stick_y=(0, 255, 127, -128),
-        left_shoulder_key=(0, 255, 0, 255),
-        right_shoulder_key=(0, 255, 0, 255),
-    ),
+        left_stick_x=FromTo(0, 255, -128, 127),
+        left_stick_y=FromTo(0, 255, 127, -128),
+        right_stick_x=FromTo(0, 255, -128, 127),
+        right_stick_y=FromTo(0, 255, 127, -128),
+        # undefined maps handled like StateValueMapping.RAW
+    )
+
     DEFAULT_INVERTED = StateValueMappingData(
-        left_stick_x=(0, 255, -128, 127),
-        left_stick_y=(0, 255, -128, 127),
-        right_stick_x=(0, 255, -128, 127),
-        right_stick_y=(0, 255, -128, 127),
-        left_shoulder_key=(0, 255, 0, 255),
-        right_shoulder_key=(0, 255, 0, 255),
-    ),
+        left_stick_x=FromTo(0, 255, -128, 127),
+        left_stick_y=FromTo(0, 255, -128, 127),
+        right_stick_x=FromTo(0, 255, -128, 127),
+        right_stick_y=FromTo(0, 255, -128, 127),
+        # undefined maps handled like StateValueMapping.RAW
+    )
+
     NORMALIZED = StateValueMappingData(
-        left_stick_x=(0, 255, -1.0, 1.0),
-        left_stick_y=(0, 255, 1.0, -1.0),
-        right_stick_x=(0, 255, -1.0, 1.0),
-        right_stick_y=(0, 255, 1.0, -1.0),
-        left_shoulder_key=(0, 255, 0, 1.0),
-        right_shoulder_key=(0, 255, 0, 1.0),
-    ),
+        left_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        left_stick_y=FromTo(0, 255, 1.0, -1.0, to_type=Float()),
+        right_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        right_stick_y=FromTo(0, 255, 1.0, -1.0, to_type=Float()),
+        left_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        right_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        set_motor_left=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        set_motor_right=FromTo(0, 255, 0, 1.0, to_type=Float()),
+    )
+
     NORMALIZED_INVERTED = StateValueMappingData(
-        left_stick_x=(0, 255, -1.0, 1.0),
-        left_stick_y=(0, 255, -1.0, 1.0),
-        right_stick_x=(0, 255, -1.0, 1.0),
-        right_stick_y=(0, 255, -1.0, 1.0),
-        left_shoulder_key=(0, 255, 0, 1.0),
-        right_shoulder_key=(0, 255, 0, 1.0),
-    ),
+        left_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        left_stick_y=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        right_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        right_stick_y=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        left_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        right_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        set_motor_left=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        set_motor_right=FromTo(0, 255, 0, 1.0, to_type=Float()),
+    )

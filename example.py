@@ -24,12 +24,13 @@ class Example:
             gyroscope_threshold=100,
             accelerometer_threshold=100,
             orientation_threshold=100,
-            # state_value_mapping=StateValueMapping.RAW,  #  y-axis:0 ... 255 , 0 ... 255
-            # state_value_mapping=StateValueMapping.RAW_INVERTED,  # y-axis: 255 ... 0 , 255 ... 0
-            # state_value_mapping=StateValueMapping.DEFAULT,  # y-axis: 127 ... -128, 0 ... 255
-            # state_value_mapping=StateValueMapping.DEFAULT_INVERTED,  # y-axis: -128 ... 127, 0 ... 255
-            state_value_mapping=StateValueMapping.NORMALIZED,  # y-axis: 1.0 ... -1.0, 0.0 ... 1.0
-            # state_value_mapping=StateValueMapping.NORMALIZED_INVERTED,  # y-axis: -1.0 ... 1.0, 0.0 ... 1.0
+            # state_value_mapping=StateValueMapping.RAW,  # stick y-axis: 0 ... 255, shoulder key: 0 ... 255
+            state_value_mapping=StateValueMapping.HUNDRED,  # stick y-axis: -100 ... 100, shoulder key: 0 ... 100
+            # state_value_mapping=StateValueMapping.RAW_INVERTED,  # stick y-axis: 255 ... 0, shoulder key: 255 ... 0
+            # state_value_mapping=StateValueMapping.DEFAULT,  # stick y-axis: 127 ... -128, shoulder key: 0 ... 255
+            # state_value_mapping=StateValueMapping.DEFAULT_INVERTED,  # stick y-axis: -128 ... 127, shoulder key: 0 ... 255
+            # state_value_mapping=StateValueMapping.NORMALIZED,  # stick y-axis: 1.0 ... -1.0, shoulder key: 0.0 ... 1.0
+            # state_value_mapping=StateValueMapping.NORMALIZED_INVERTED,  # stick y-axis: -1.0 ... 1.0, shoulder key: 0.0 ... 1.0
             # ##### CORE #####
             enforce_update=True,  # every loop update all values
             trigger_change_after_all_values_set=True,  # trigger change of state after all other states has been updated
@@ -139,12 +140,12 @@ class Example:
     # L2 / R2 -> rumble
     #
     def _on_l2(self, _: int, value: int) -> None:
-        print(value)
+        print(f'L2 Analog Button: {value}')
         self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value)
 
     def _on_r2(self, _: int, value: int) -> None:
+        print(f'R2 Analog Button: {value}')
         self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, value)
-        print(value)
 
     #
     # Left Controls -> lightbar color

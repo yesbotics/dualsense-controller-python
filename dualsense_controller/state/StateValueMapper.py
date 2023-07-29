@@ -1,6 +1,13 @@
 from functools import partial
 
-from dualsense_controller.state import FromToTuple, JoyStick, MapFn, Number, StateValueMapping, StateValueMappingData
+from dualsense_controller.state import (
+    Float, FromTo, FromToTuple,
+    Integer, JoyStick,
+    MapFn,
+    Number,
+    NumberType, StateValueMapping,
+    StateValueMappingData
+)
 
 
 class StateValueMapper:
@@ -12,26 +19,27 @@ class StateValueMapper:
         return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     @classmethod
-    def _number_raw_to_mapped(cls, from_to_tuple: FromToTuple, value: Number) -> Number:
-        return StateValueMapper._number_map(value, *from_to_tuple)
+    def _number_raw_to_mapped(cls, from_to: FromTo, value: Number) -> Number:
+        to_type: NumberType = from_to.to_type
+        value_type: Number = to_type.value_type
+        mapped_value: Number = value_type(cls._number_map(value, *from_to.as_tuple))
+        if isinstance(mapped_value, float):
+            mapped_value = round(mapped_value, to_type.round_digits)
+        return mapped_value
 
     @classmethod
-    def _number_mapped_to_raw(cls, from_to_tuple: FromToTuple, value: Number) -> Number:
-        return int(StateValueMapper._number_map(value, *from_to_tuple.__reversed__()))
+    def _number_mapped_to_raw(cls, from_to: FromTo, value: Number) -> Number:
+        return from_to.from_type(cls._number_map(value, *from_to.reversed.as_tuple))
 
     @classmethod
-    def _joystick_mapped_to_raw(cls, from_to_tuple: FromToTuple, value: JoyStick) -> JoyStick:
+    def _joystick_mapped_to_raw(cls, from_to: FromTo, value: JoyStick) -> JoyStick:
+        return JoyStick(x=cls._number_mapped_to_raw(from_to, value.x), y=cls._number_mapped_to_raw(from_to, value.y))
+
+    @classmethod
+    def _joystick_raw_to_mapped(cls, from_to_x: FromTo, from_to_y: FromTo, value: JoyStick) -> JoyStick:
         return JoyStick(
-            x=cls._number_mapped_to_raw(from_to_tuple, value.x),
-            y=cls._number_mapped_to_raw(from_to_tuple, value.y),
-        )
-
-    @classmethod
-    def _joystick_raw_to_mapped(cls, from_to_tuple_x: FromToTuple, from_to_tuple_y: FromToTuple,
-                                value: JoyStick) -> JoyStick:
-        return JoyStick(
-            x=cls._number_raw_to_mapped(from_to_tuple_x, value.x),
-            y=cls._number_raw_to_mapped(from_to_tuple_y, value.y),
+            x=cls._number_raw_to_mapped(from_to_x, value.x),
+            y=cls._number_raw_to_mapped(from_to_y, value.y),
         )
 
     def __init__(self, mapping: StateValueMapping):

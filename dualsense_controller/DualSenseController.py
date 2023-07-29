@@ -7,7 +7,7 @@ from .typedef import BatteryLowCallback, ConnectionChangeCallback, ExceptionCall
 from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
-    AnyStateChangeCallback, ReadStateName, ReadStates, StateChangeCallback,
+    AnyStateChangeCallback, Number, ReadStateName, ReadStates, StateChangeCallback,
     StateValueMapping, WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
@@ -73,11 +73,14 @@ class DualSenseController:
     def on_any_state_change(self, callback: AnyStateChangeCallback):
         self._read_states.on_any_change(callback)
 
-    def set_state(self, state_name: WriteStateName, value):
-        self._write_states.set_value(state_name, value)
+    # def set_state(self, state_name: WriteStateName, value: int):
+    #     self._write_states.set_value(state_name, value)
 
-    def set_motor_left(self, amount: int):
-        self._write_states.set_value(WriteStateName.MOTOR_LEFT, amount)
+    def set_state(self, state_name: WriteStateName, value: Number):
+        self._write_states.set_value_mapped(state_name, int(value))
+
+    def set_motor_left(self, value: Number):
+        self.set_state(WriteStateName.MOTOR_LEFT, value)
 
     def init(self) -> None:
         assert not self._hid_controller_device.opened, 'already opened'

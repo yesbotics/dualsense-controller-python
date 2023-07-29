@@ -144,6 +144,9 @@ class State(Generic[StateValueType]):
     def set_value_without_triggering_change(self, new_value: StateValueType | None):
         self._set_value(new_value, trigger_change_on_changed=False)
 
+    def set_value_mapped_without_triggering_change(self, new_value: StateValueType | None):
+        self._set_value(new_value, trigger_change_on_changed=False)
+
     def on_change(self, callback: AnyStateChangeCallback | StateChangeCallback) -> None:
         num_params: int = len(inspect.signature(callback).parameters)
         self._event_emitter.on(
@@ -188,7 +191,7 @@ class State(Generic[StateValueType]):
 
     @property
     def last_value_mapped(self) -> StateValueType:
-        return self._last_value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(self._last_value)
+        return self._last_value if self._raw_to_mapped_fn is None else self._raw_to_mapped_fn(self._last_value)
 
     @property
     def restricted_access(self) -> RestrictedStateAccess[StateValueType]:
