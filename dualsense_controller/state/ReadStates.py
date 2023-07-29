@@ -4,12 +4,13 @@ from typing import Callable, Final
 from dualsense_controller import ConnectionType
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
-    Accelerometer, AnyStateChangeCallback, BaseStates, Gyroscope, JoyStick,
-    Orientation, ReadStateName, RestrictedStateAccess, State, StateChangeCallback,
+    Accelerometer, BaseStates, Gyroscope, JoyStick,
+    Orientation, ReadStateName, RestrictedStateAccess, State,
     calc_accelerometer, calc_gyroscope, calc_orientation, calc_touch_id,
     calc_touch_x, calc_touch_y
 )
-from .common import StateDeterminationLevel, StateValueMapping, StateValueType, compare_accelerometer, \
+from .common import StateChangeCb, StateDeterminationLevel, StateValueMapping, StateValueType, \
+    compare_accelerometer, \
     compare_gyroscope, \
     compare_joystick, \
     compare_orientation, \
@@ -408,18 +409,20 @@ class ReadStates(BaseStates[ReadStateName]):
             state.trigger_change_if_changed()
         self._states_to_trigger_after_all_states_set.clear()
 
-    def on_change(self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
+    def on_change(
+            self, name_or_callback: ReadStateName | StateChangeCb, callback: StateChangeCb | None = None
+    ):
         if callback is None:
             self.on_any_change(name_or_callback)
         else:
             self._get_state_by_name(name_or_callback).on_change(callback)
 
-    def on_any_change(self, callback: AnyStateChangeCallback):
+    def on_any_change(self, callback: StateChangeCb):
         for state_name, state in self._states_dict.items():
             state.on_change(callback)
 
     def remove_change_listener(
-            self, name_or_callback: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None
+            self, name_or_callback: ReadStateName | StateChangeCb, callback: StateChangeCb | None = None
     ) -> None:
         if isinstance(name_or_callback, ReadStateName):
             self._get_state_by_name(name_or_callback).remove_change_listener(callback)
@@ -432,7 +435,7 @@ class ReadStates(BaseStates[ReadStateName]):
         for state_name, state in self._states_dict.items():
             state.remove_all_change_listeners()
 
-    def remove_any_change_listener(self, callback: AnyStateChangeCallback) -> None:
+    def remove_any_change_listener(self, callback: StateChangeCb) -> None:
         for state_name, state in self._states_dict.items():
             state.remove_change_listener(callback)
 

@@ -103,8 +103,12 @@ class WriteStateName(str, Enum):
 StateValueType = TypeVar('StateValueType')
 MappedStateValueType = TypeVar('MappedStateValueType')
 StateNameEnumType = TypeVar('StateNameEnumType')
-StateChangeCallback = Callable[[Any, Any], None]
-AnyStateChangeCallback = Callable[[ReadStateName, Any, Any], None]
+_StChCb0 = Callable[[], None]
+_StChCb1 = Callable[[Any], None]
+_StChCb2 = Callable[[Any, int | None], None]
+_StChCb3 = Callable[[Any, Any, int | None], None]
+_StChCb4 = Callable[[ReadStateName, Any, Any, int | None], None]
+StateChangeCb = _StChCb0 | _StChCb1 | _StChCb2 | _StChCb3 | _StChCb4
 
 CompareResult = tuple[bool, StateValueType]
 CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]

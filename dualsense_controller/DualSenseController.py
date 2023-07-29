@@ -2,15 +2,15 @@ from typing import Final
 
 import pyee as pyee
 
-from .enums import EventType
-from .typedef import BatteryLowCallback, ConnectionChangeCallback, ExceptionCallback
 from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
-    AnyStateChangeCallback, Number, ReadStateName, ReadStates, StateChangeCallback,
-    StateDeterminationLevel, StateValueMapping, WriteStateName, WriteStates
+    Number, ReadStateName, ReadStates,
+    StateChangeCb, StateDeterminationLevel, StateValueMapping, WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
+from .enums import EventType
+from .typedef import BatteryLowCallback, ConnectionChangeCallback, ExceptionCallback
 
 
 class DualSenseController:
@@ -72,10 +72,10 @@ class DualSenseController:
     def on_exception(self, callback: ExceptionCallback):
         self._hid_controller_device.on_exception(callback)
 
-    def on_state_change(self, state_name: ReadStateName | AnyStateChangeCallback, callback: StateChangeCallback = None):
+    def on_state_change(self, state_name: ReadStateName | StateChangeCb, callback: StateChangeCb = None):
         self._read_states.on_change(state_name, callback)
 
-    def on_any_state_change(self, callback: AnyStateChangeCallback):
+    def on_any_state_change(self, callback: StateChangeCb):
         self._read_states.on_any_change(callback)
 
     def set_state(self, state_name: WriteStateName, value: Number):

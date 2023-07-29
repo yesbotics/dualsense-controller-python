@@ -1,13 +1,7 @@
-from dualsense_controller.report import (
-    OutLedOptions,
-    OutPulseOptions,
-    OutBrightness,
-    OutFlagsLights,
-    OutFlagsPhysics,
-)
+from dualsense_controller.report import (OutBrightness, OutFlagsLights, OutFlagsPhysics, OutLedOptions, OutPulseOptions)
 from dualsense_controller.report.out_report import OutReport
-from dualsense_controller.state import BaseStates, MapFn, StateValueType, StateChangeCallback, WriteStateName, \
-    StateValueMapping
+from dualsense_controller.state import BaseStates, MapFn, StateChangeCb, StateValueMapping, StateValueType, \
+    WriteStateName
 
 
 class WriteStates(BaseStates[WriteStateName]):
@@ -109,7 +103,7 @@ class WriteStates(BaseStates[WriteStateName]):
             self,
             name: WriteStateName,
             value: StateValueType = None,
-            callback: StateChangeCallback = None,
+            callback: StateChangeCb = None,
             mapped_to_raw_fn: MapFn = None,
     ) -> None:
         if callback is None:
@@ -123,7 +117,7 @@ class WriteStates(BaseStates[WriteStateName]):
     def _on_change(self, _, __):
         self._changed = True
 
-    def _on_change_mute_led(self, _, __):
+    def _on_change_mute_led(self):
         # Remove mic control flag to allow setting brightness
         self.set_value(WriteStateName.FLAGS_LIGHTS, OutFlagsLights.ALL, False)
         self._changed = True

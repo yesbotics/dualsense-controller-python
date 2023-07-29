@@ -42,67 +42,67 @@ class Example:
         self._dualsense_controller.on_connection_change(self._on_connection_change)
 
         # sticks
-        # self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
-        # self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
-        # self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
+        self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
+        self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
+        self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
 
-        # self._dualsense_controller.states.btn_ps.on_change(self._on_btn_ps)
-        # self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
-        # self._dualsense_controller.states.btn_create.on_change(self._on_btn_create)
-        # self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute)
-        #
-        # self._dualsense_controller.states.btn_l1.on_change(self._on_btn_l1)
-        # self._dualsense_controller.states.btn_r1.on_change(self._on_btn_r1)
-        # self._dualsense_controller.states.l2.on_change(self._on_l2)
-        # self._dualsense_controller.states.r2.on_change(self._on_r2)
-        #
+        self._dualsense_controller.states.btn_ps.on_change(self._on_btn_ps)
+        self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
+        self._dualsense_controller.states.btn_create.on_change(self._on_btn_create)
+        self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute)
+
+        self._dualsense_controller.states.btn_l1.on_change(self._on_btn_l1)
+        self._dualsense_controller.states.btn_r1.on_change(self._on_btn_r1)
+        self._dualsense_controller.states.l2.on_change(self._on_l2)
+        self._dualsense_controller.states.r2.on_change(self._on_r2)
+
         self._dualsense_controller.states.btn_cross.on_change(self._on_btn_cross)
-        # self._dualsense_controller.states.btn_square.on_change(self._on_btn_square)
-        # self._dualsense_controller.states.btn_triangle.on_change(self._on_btn_triangle)
-        # self._dualsense_controller.states.btn_circle.on_change(self._on_btn_circle)
-        #
-        # self._dualsense_controller.states.btn_left.on_change(self._on_btn_left)
-        # self._dualsense_controller.states.btn_up.on_change(self._on_btn_up)
-        # self._dualsense_controller.states.btn_right.on_change(self._on_btn_right)
-        # self._dualsense_controller.states.btn_down.on_change(self._on_btn_down)
-        #
-        # self._dualsense_controller.states.btn_r3.on_change(self._on_btn_r3)
-        # self._dualsense_controller.states.btn_l3.on_change(self._on_btn_l3)
-        #
-        # # 4 methods to get all state changes
-        # self._dualsense_controller.on_any_state_change(self._on_any_state)
-        # self._dualsense_controller.states.on_any_change(self._on_any_state_3)
-        # self._dualsense_controller.on_state_change(self._on_any_state_2)
-        # self._dualsense_controller.states.on_change(self._on_any_state_4)
-        #
-        # # 3 methods to get state changes of specific property
-        # self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
-        # self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
-        # self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
-        #
-        # # batt
-        # self._dualsense_controller.on_battery_low(75, self._on_battery_low)
-        #
-        # # blubb
-        # self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
-        #
-        # # touch
-        # self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
-        # self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
-        #
-        # # sticks
-        # self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
-        # self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
-        # self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
-        #
-        # self._dualsense_controller.states.right_stick_x.on_change(self._on_right_stick_x)
-        # self._dualsense_controller.states.right_stick_y.on_change(self._on_right_stick_y)
-        # self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
-        #
-        # # other complex
-        # self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
-        # self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
-        # self._dualsense_controller.states.orientation.on_change(self._on_orientation)
+        self._dualsense_controller.states.btn_square.on_change(self._on_btn_square)
+        self._dualsense_controller.states.btn_triangle.on_change(self._on_btn_triangle)
+        self._dualsense_controller.states.btn_circle.on_change(self._on_btn_circle)
+
+        self._dualsense_controller.states.btn_left.on_change(self._on_btn_left)
+        self._dualsense_controller.states.btn_up.on_change(self._on_btn_up)
+        self._dualsense_controller.states.btn_right.on_change(self._on_btn_right)
+        self._dualsense_controller.states.btn_down.on_change(self._on_btn_down)
+
+        self._dualsense_controller.states.btn_r3.on_change(self._on_btn_r3)
+        self._dualsense_controller.states.btn_l3.on_change(self._on_btn_l3)
+
+        # 4 methods to get all state changes
+        self._dualsense_controller.on_any_state_change(self._on_any_state)
+        self._dualsense_controller.states.on_any_change(self._on_any_state_3)
+        self._dualsense_controller.on_state_change(self._on_any_state_2)
+        self._dualsense_controller.states.on_change(self._on_any_state_4)
+
+        # 3 methods to get state changes of specific property
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
+        self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
+        self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
+
+        # batt
+        self._dualsense_controller.on_battery_low(75, self._on_battery_low)
+
+        # blubb
+        self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
+
+        # touch
+        self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
+        self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
+
+        # sticks
+        self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
+        self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
+        self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
+
+        self._dualsense_controller.states.right_stick_x.on_change(self._on_right_stick_x)
+        self._dualsense_controller.states.right_stick_y.on_change(self._on_right_stick_y)
+        self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
+
+        # other complex
+        self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
+        self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
+        self._dualsense_controller.states.orientation.on_change(self._on_orientation)
 
     def run(self) -> None:
         self._stay_alive = True
@@ -121,7 +121,7 @@ class Example:
     def _on_connection_change(self, connected: bool, connection_type: ConnectionType) -> None:
         print(f'Connection state changed. connected: {connected}, type: {connection_type}')
 
-    def _on_btn_ps(self, _: bool, state: bool) -> None:
+    def _on_btn_ps(self, state: bool) -> None:
         print(f'PS Button pressed: {state}')
         if state is False:  # if stop holding ps key
             self._stop()
@@ -129,12 +129,12 @@ class Example:
     #
     # L1 / R1 -> brightness
     #
-    def _on_btn_l1(self, _: bool, state: bool) -> None:
+    def _on_btn_l1(self, state: bool) -> None:
         print(f'L1 Button pressed: {state} -> brightness ')
         self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
                                              OutBrightness.LOW if state else OutBrightness.HIGH)
 
-    def _on_btn_r1(self, _: bool, state: bool) -> None:
+    def _on_btn_r1(self, state: bool) -> None:
         print(f'R1 Button pressed: {state}')
         self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
                                              OutBrightness.MEDIUM if state else OutBrightness.HIGH)
@@ -142,11 +142,11 @@ class Example:
     #
     # L2 / R2 -> rumble
     #
-    def _on_l2(self, _: int, value: int) -> None:
+    def _on_l2(self, value: int) -> None:
         print(f'L2 Analog Button: {value}')
         self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value)
 
-    def _on_r2(self, _: int, value: int) -> None:
+    def _on_r2(self, value: int) -> None:
         print(f'R2 Analog Button: {value}')
         self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, value)
 
@@ -154,27 +154,27 @@ class Example:
     # Left Controls -> lightbar color
     # Btn Create -> Lightbar off + Micro Mute
     #
-    def _on_btn_left(self, _: bool, state: bool) -> None:
+    def _on_btn_left(self) -> None:
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
 
-    def _on_btn_up(self, _: bool, state: bool) -> None:
+    def _on_btn_up(self) -> None:
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
 
-    def _on_btn_right(self, _: bool, state: bool) -> None:
+    def _on_btn_right(self) -> None:
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
 
-    def _on_btn_down(self, _: bool, state: bool) -> None:
+    def _on_btn_down(self) -> None:
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
 
-    def _on_btn_create(self, _: bool, state: bool) -> None:
+    def _on_btn_create(self, state: bool) -> None:
         print(f"lightbar false")
         self._dualsense_controller.set_state(WriteStateName.LIGHTBAR, state)
         self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
@@ -183,25 +183,25 @@ class Example:
     # Right Controls -> Player LED
     # Btn Options -> Player LED off + Micro LED
     #
-    def _on_btn_square(self, _: bool, state: bool) -> None:
+    def _on_btn_square(self) -> None:
         print(f"player led center + outer")
         self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.CENTER | OutPlayerLed.OUTER)
 
-    def _on_btn_triangle(self, _: bool, state: bool) -> None:
+    def _on_btn_triangle(self) -> None:
         print(f"player led inner")
         self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.INNER)
 
-    def _on_btn_circle(self, _: bool, state: bool) -> None:
+    def _on_btn_circle(self) -> None:
         print(f"player led outer")
         self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OUTER)
 
-    def _on_btn_cross(self, _: bool, state: bool) -> None:
-        print(f"player led all")
+    def _on_btn_cross(self, state: bool) -> None:
+        print(f"player led all", state)
         self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.ALL)
         if state:
             print(f"square: {self._dualsense_controller.states.btn_square.value}")
 
-    def _on_btn_options(self, _: bool, state: bool) -> None:
+    def _on_btn_options(self, state: bool) -> None:
         print(f"player led off")
         self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OFF)
         self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
@@ -209,7 +209,7 @@ class Example:
     #
     # Microphone
     #
-    def _on_btn_mute(self, _: bool, state: bool) -> None:
+    def _on_btn_mute(self) -> None:
         print(f"mute")
         # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
         # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
@@ -217,12 +217,12 @@ class Example:
     #
     # L3 / R3 -> led pulse modes
     #
-    def _on_btn_r3(self, _: bool, state: bool) -> None:
+    def _on_btn_r3(self, state: bool) -> None:
         if state is False:
             print(f"R3 -> pulse FADE_OUT")
             self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT)
 
-    def _on_btn_l3(self, _: bool, state: bool) -> None:
+    def _on_btn_l3(self, state: bool) -> None:
         if state is False:
             print(f"L3 -> pulse FADE_BLUE")
             self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
@@ -230,7 +230,7 @@ class Example:
     #
     # Touch0 x-value -> rgb-color
     #
-    def _on_touch_0(self, _: bool, state: bool) -> None:
+    def _on_touch_0(self) -> None:
         x_max = 1920
         y_max = 1080
         x = self._dualsense_controller.states.touch_0_x.value
@@ -252,26 +252,26 @@ class Example:
     #
     # all
     #
-    def _on_any_state(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State {name}: {state}')
+    def _on_any_state(self, name: ReadStateName, _: Any, state: Any, timestamp: int) -> None:
+        # print(f'Any State {name}: {state} {timestamp}')
         pass
 
-    def _on_any_state_2(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State 2 {name}: {state}')
+    def _on_any_state_2(self, name: ReadStateName, _: Any, state: Any, timestamp: int) -> None:
+        # print(f'Any State 2 {name}: {state} {timestamp}')
         pass
 
-    def _on_any_state_3(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State 3 {name}: {state}')
+    def _on_any_state_3(self, name: ReadStateName, _: Any, state: Any, timestamp: int) -> None:
+        # print(f'Any State 3 {name}: {state} {timestamp}')
         pass
 
-    def _on_any_state_4(self, name: ReadStateName, _: Any, state: Any) -> None:
-        # print(f'Any State 4 {name}: {state}')
+    def _on_any_state_4(self, name: ReadStateName, _: Any, state: Any, timestamp: int) -> None:
+        # print(f'Any State 4 {name}: {state} {timestamp}')
         pass
 
     #
     # misc
     #
-    def _on_btn_mute_1(self, _: bool, state: bool) -> None:
+    def _on_btn_mute_1(self, state: bool) -> None:
         print(f'Mute Button pressed: {state}')
         if state:
             print(self._dualsense_controller.states.btn_mute.value)
@@ -284,10 +284,10 @@ class Example:
             print("batt is full:", self._dualsense_controller.states.battery_full.value)
             print("batt is charging", self._dualsense_controller.states.battery_charging.value)
 
-    def _on_btn_mute_2(self, _: bool, state: bool) -> None:
+    def _on_btn_mute_2(self, state: bool) -> None:
         print(f'Mute Button pressed 2: {state}')
 
-    def _on_btn_mute_3(self, _: bool, state: bool) -> None:
+    def _on_btn_mute_3(self, state: bool) -> None:
         print(f'Mute Button pressed 3: {state}')
 
     def _on_battery_low(self, percentage: float) -> None:
@@ -296,42 +296,42 @@ class Example:
     #
     # STICKS
     #
-    def _on_left_stick_x(self, _: int, state: int) -> None:
+    def _on_left_stick_x(self, state: int) -> None:
         print(f'Left JoyStick x: {state}')
         pass
 
-    def _on_left_stick_y(self, _: int, state: int) -> None:
+    def _on_left_stick_y(self, state: int) -> None:
         print(f'Left JoyStick y: {state}')
         pass
 
-    def _on_left_stick(self, _: JoyStick, state: JoyStick) -> None:
+    def _on_left_stick(self, state: JoyStick) -> None:
         print(f'Left JoyStick: {state}')
         pass
 
-    def _on_right_stick(self, _: JoyStick, state: JoyStick) -> None:
+    def _on_right_stick(self, state: JoyStick) -> None:
         print(f'Right JoyStick: {state}')
         pass
 
-    def _on_right_stick_x(self, _: int, state: int) -> None:
+    def _on_right_stick_x(self, state: int) -> None:
         print(f'Right JoyStick x: {state}')
         pass
 
-    def _on_right_stick_y(self, _: int, state: int) -> None:
+    def _on_right_stick_y(self, state: int) -> None:
         print(f'Right JoyStick y: {state}')
         pass
 
     #
     # COMPLEX OTHER
     #
-    def _on_gyroscope(self, _: Gyroscope, state: Gyroscope) -> None:
+    def _on_gyroscope(self, state: Gyroscope) -> None:
         # print(f'Gyroscope: {state}')
         pass
 
-    def _on_accelerometer(self, _: Accelerometer, state: Accelerometer) -> None:
+    def _on_accelerometer(self, state: Accelerometer) -> None:
         # print(f'Accelerometer: {state}')
         pass
 
-    def _on_orientation(self, _: Orientation, state: Orientation) -> None:
+    def _on_orientation(self, state: Orientation) -> None:
         # print(f'Orientation: {state}')
         pass
 

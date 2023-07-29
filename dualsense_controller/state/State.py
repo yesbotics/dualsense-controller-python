@@ -5,12 +5,8 @@ from typing import Any, Callable, Final, Generic
 
 import pyee
 
-from dualsense_controller.state import \
-    AnyStateChangeCallback, \
-    CompareFn, ReadStateName, \
-    StateChangeCallback, \
-    StateValueType
-from dualsense_controller.state.common import MapFn, compare
+from dualsense_controller.state import CompareFn, ReadStateName, StateValueType
+from dualsense_controller.state.common import MapFn, StateChangeCb, compare
 
 
 class RestrictedStateAccess(Generic[StateValueType]):
@@ -30,11 +26,11 @@ class RestrictedStateAccess(Generic[StateValueType]):
         return self._state.last_value_mapped
 
     @property
-    def on_change(self) -> Callable[[StateChangeCallback], None]:
+    def on_change(self) -> Callable[[StateChangeCb], None]:
         return self._state.on_change
 
     @property
-    def remove_change_listener(self) -> Callable[[AnyStateChangeCallback | StateChangeCallback | None], None]:
+    def remove_change_listener(self) -> Callable[[StateChangeCb | None], None]:
         return self._state.remove_change_listener
 
     @property
@@ -62,8 +58,11 @@ class State(Generic[StateValueType]):
         self.name: Final[ReadStateName] = name
         self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
+        self._event_name_0_args: Final[str] = f'{name}_0'
+        self._event_name_1_args: Final[str] = f'{name}_1'
         self._event_name_2_args: Final[str] = f'{name}_2'
         self._event_name_3_args: Final[str] = f'{name}_3'
+        self._event_name_4_args: Final[str] = f'{name}_4'
         self._default_value: Final[StateValueType | None] = default_value
         self._is_based_on: Final[list[State[StateValueType]]] = is_based_on if is_based_on is not None else []
         self._is_base_for: Final[list[State[StateValueType]]] = is_base_for if is_base_for is not None else []
@@ -144,8 +143,11 @@ class State(Generic[StateValueType]):
         self._emit_change(self.last_value_mapped, self.value_mapped)
 
     def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
-        self._event_emitter.emit(self._event_name_2_args, old_value, new_value)
-        self._event_emitter.emit(self._event_name_3_args, self.name, old_value, new_value)
+        self._event_emitter.emit(self._event_name_0_args)
+        self._event_emitter.emit(self._event_name_1_args, new_value)
+        self._event_emitter.emit(self._event_name_2_args, new_value, self._timestamp)
+        self._event_emitter.emit(self._event_name_3_args, old_value, new_value, self._timestamp)
+        self._event_emitter.emit(self._event_name_4_args, self.name, old_value, new_value, self._timestamp)
 
     def __repr__(self) -> str:
         return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
@@ -168,22 +170,35 @@ class State(Generic[StateValueType]):
     def set_value_mapped_without_triggering_change(self, new_value: StateValueType | None, timestamp: int = None):
         self.set_value_mapped(new_value, timestamp=timestamp, trigger_change_on_changed=False)
 
-    def on_change(self, callback: AnyStateChangeCallback | StateChangeCallback) -> None:
-        num_params: int = len(inspect.signature(callback).parameters)
+    def on_change(self, callback: StateChangeCb) -> None:
         self._event_emitter.on(
-            self._event_name_2_args if num_params == 2 else self._event_name_3_args,
+            self._get_event_name_by_callable(callback),
             callback
         )
 
-    def remove_change_listener(self, callback: AnyStateChangeCallback | StateChangeCallback | None = None) -> None:
+    def remove_change_listener(self, callback: StateChangeCb | None = None) -> None:
         if callback is None:
             self.remove_all_change_listeners()
         else:
-            num_params: int = len(inspect.signature(callback).parameters)
             self._event_emitter.remove_listener(
-                self._event_name_2_args if num_params == 2 else self._event_name_3_args,
+                self._get_event_name_by_callable(callback),
                 callback
             )
+
+    def _get_event_name_by_callable(self, callable_: Callable) -> str:
+        num_params: int = len(inspect.signature(callable_).parameters)
+        match num_params:
+            case 0:
+                return self._event_name_0_args
+            case 1:
+                return self._event_name_1_args
+            case 2:
+                return self._event_name_2_args
+            case 3:
+                return self._event_name_3_args
+            case 4:
+                return self._event_name_4_args
+        raise Exception(f'invalid arg count {callable_}')
 
     def remove_all_change_listeners(self) -> None:
         self._event_emitter.remove_all_listeners()
