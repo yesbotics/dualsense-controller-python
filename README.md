@@ -9,6 +9,8 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python (3.1
 - [Installation](#installation)
     - [Prerequisites for Windows](#prerequisites-for-windows)
     - [Prerequisites for Linux](#prerequisites-for-linux)
+      - [HIDAPI](#hidapi)
+      - [udev-rulesx](#udev-rules)
     - [Install the library](#install-the-library)
 - [Usage](#usage)
 - [Development](#development)
@@ -39,6 +41,18 @@ Some preparations have to be done before depending on your operating system:
 
 ### Prerequisites for Linux
 
+#### HIDAPI on Linux
+
+You need [HIDAPI library](https://github.com/libusb/hidapi) installed on your system.
+
+For example on Ubuntu install it via:
+
+```bash
+sudo apt install libhidapi-dev
+```
+
+#### udev rules
+
 For use the controller in Python without root privileges add the udev rule.
 
 ```bash
@@ -63,14 +77,14 @@ sudo udevadm trigger
 
 ### Prerequisites for Windows
 
-Just download the latest release of [hidapi](https://github.com/libusb/hidapi/releases).
+Just download the [latest release of HIDAPI](https://github.com/libusb/hidapi/releases).
 Unzip the release zip file und then place the according `hidapi.dll` in your Workspace folder.
 (from `x64` folder for 64-bit Windows or from `x86` folder for 32-bit Windows)
 
 ### Install the library
 
 You can now go ahead and use the library within your projects.
-Add either via [Pip](https://pypi.org/project/pip/)
+Add either via [pip](https://pypi.org/project/pip/)
 
 ```shell
 pip install --upgrade dualsense-controller
