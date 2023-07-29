@@ -1,7 +1,7 @@
 from typing import Any, Final, Generic
 
 from dualsense_controller.state import CompareFn, MapFn, State, StateNameEnumType, StateValueMapper, StateValueType, \
-    StateValueMapping
+    StateValueMapping, StateDeterminationLevel
 
 
 class BaseStates(Generic[StateNameEnumType]):
@@ -36,7 +36,6 @@ class BaseStates(Generic[StateNameEnumType]):
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn[StateValueType] = None,
-            enforce_update: bool = False,
             is_based_on: list[State[Any]] = None,
             is_base_for: list[State[Any]] = None,
             **kwargs
@@ -51,7 +50,6 @@ class BaseStates(Generic[StateNameEnumType]):
             mapped_to_raw_fn=mapped_to_raw_fn,
             raw_to_mapped_fn=raw_to_mapped_fn,
             compare_fn=compare_fn,
-            enforce_update=enforce_update,
             ignore_none=ignore_none,
             is_based_on=is_based_on,
             is_base_for=is_base_for,

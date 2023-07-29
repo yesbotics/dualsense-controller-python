@@ -8,7 +8,7 @@ from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     AnyStateChangeCallback, Number, ReadStateName, ReadStates, StateChangeCallback,
-    StateValueMapping, WriteStateName, WriteStates
+    StateDeterminationLevel, StateValueMapping, WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
 
@@ -17,14 +17,17 @@ class DualSenseController:
 
     def __init__(
             self,
+            # ##### BASE  #####
             device_index: int = 0,
+            # ##### FEELING  #####
             joystick_deadzone: int = 0,
             shoulder_key_deadzone: int = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
-            enforce_update: bool = True,
+            # ##### CORE #####
+            state_determination: StateDeterminationLevel = StateDeterminationLevel.LISTENER,
             trigger_change_after_all_values_set: bool = True,
     ):
         # Emitability
@@ -39,7 +42,7 @@ class DualSenseController:
             orientation_threshold=orientation_threshold,
             state_value_mapping=state_value_mapping,
             trigger_change_after_all_values_set=trigger_change_after_all_values_set,
-            enforce_update=enforce_update,
+            state_determination=state_determination,
         )
         self._write_states: Final[WriteStates] = WriteStates(
             state_value_mapping=state_value_mapping,

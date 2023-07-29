@@ -201,6 +201,15 @@ def compare_orientation(before: Orientation, after: Orientation, threshold: int 
     return changed, after
 
 
+# ######### MAPPING #######
+class StateDeterminationLevel(int, Enum):
+    LISTENER = 0  # only if has listener(s)
+    DEMAND = 1  # has listeners or if demanded
+    ALWAYS = 2  # every loo state is determined
+
+
+# ######### MAPPING #######
+
 FromToTuple = tuple[Number, Number, Number, Number]
 
 

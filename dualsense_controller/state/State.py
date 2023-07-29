@@ -34,10 +34,6 @@ class RestrictedStateAccess(Generic[StateValueType]):
         return self._state.on_change
 
     @property
-    def enforce_update(self) -> bool:
-        return self._state.enforce_update
-
-    @property
     def remove_change_listener(self) -> Callable[[AnyStateChangeCallback | StateChangeCallback | None], None]:
         return self._state.remove_change_listener
 
@@ -58,28 +54,28 @@ class State(Generic[StateValueType]):
             raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn = None,
             ignore_none: bool = True,
-            enforce_update: bool = False,
             is_based_on: list[State[Any]] = None,
             is_base_for: list[State[Any]] = None,
     ):
         super().__init__()
+        # CONST
         self.name: Final[ReadStateName] = name
         self._restricted_access: RestrictedStateAccess[StateValueType] | None = None
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self._event_name_2_args: Final[str] = f'{name}_2'
         self._event_name_3_args: Final[str] = f'{name}_3'
+        self._default_value: Final[StateValueType | None] = default_value
+        self._is_based_on: Final[list[State[StateValueType]]] = is_based_on if is_based_on is not None else []
+        self._is_base_for: Final[list[State[StateValueType]]] = is_base_for if is_base_for is not None else []
+        self._compare_fn: Final[CompareFn] = compare_fn if compare_fn is not None else compare
+        self._mapped_to_raw_fn: Final[MapFn] = mapped_to_raw_fn
+        self._raw_to_mapped_fn: Final[MapFn] = raw_to_mapped_fn
+        self._ignore_none: Final[bool] = ignore_none
+        # VAR
         self._value: StateValueType | None = value if value is not None else default_value
-        self._default_value: StateValueType | None = default_value
+        self._timestamp: int = 0
         self._last_value: StateValueType | None = None
-        # opts
-        self._is_based_on: list[State[StateValueType]] = is_based_on if is_based_on is not None else []
-        self._is_base_for: list[State[StateValueType]] = is_base_for if is_base_for is not None else []
-        self._enforce_update: bool = enforce_update
         self._changed_since_last_update: bool = False
-        self._compare_fn: CompareFn = compare_fn if compare_fn is not None else compare
-        self._mapped_to_raw_fn: MapFn = mapped_to_raw_fn
-        self._raw_to_mapped_fn: MapFn = raw_to_mapped_fn
-        self._ignore_none: bool = ignore_none
 
         for based_on_state in self._is_based_on:
             based_on_state.set_as_base_for(self)
@@ -89,6 +85,7 @@ class State(Generic[StateValueType]):
     def _set_value(
             self,
             value: StateValueType | None,
+            timestamp: int,
             trigger_change_on_changed: bool = True,
     ) -> None:
         old_value: StateValueType = self._value
@@ -114,7 +111,7 @@ class State(Generic[StateValueType]):
             trigger_change_on_changed: bool = True,
     ) -> None:
         raw_val: StateValueType | None = vmapped if self._mapped_to_raw_fn is None else self._mapped_to_raw_fn(vmapped)
-        print(f'{self.name}: {vmapped} -> {raw_val}')
+        # print(f'{self.name}: {vmapped} -> {raw_val}')
         self._set_value(raw_val, trigger_change_on_changed=trigger_change_on_changed)
 
     def _change_value(
@@ -131,7 +128,6 @@ class State(Generic[StateValueType]):
             self._trigger_change()
 
     def _trigger_change(self):
-        # self._emit_change(self.last_value, self._value)
         self._emit_change(self.last_value_mapped, self.value_mapped)
 
     def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
@@ -150,7 +146,7 @@ class State(Generic[StateValueType]):
     def set_as_base_for(self, state: State[Any]):
         self._is_base_for.append(state)
 
-    def set_value_without_triggering_change(self, new_value: StateValueType | None):
+    def set_value_without_triggering_change(self, new_value: StateValueType | None, timestamp: int):
         self._set_value(new_value, trigger_change_on_changed=False)
 
     def set_value_mapped_without_triggering_change(self, new_value: StateValueType | None):
@@ -209,14 +205,6 @@ class State(Generic[StateValueType]):
         return self._restricted_access
 
     @property
-    def is_updatable(self) -> bool:
-        return (
-                self.enforce_update
-                or self.has_listeners
-                or self.has_changed_deps
-        )
-
-    @property
     def has_changed(self) -> bool:
         return (
                 self.has_changed_self_only
@@ -248,22 +236,4 @@ class State(Generic[StateValueType]):
         return (
                 self.has_listeners_self_only
                 or self.has_listeners_deps
-        )
-
-    @property
-    def enforce_update_self_only(self) -> bool:
-        return self._enforce_update
-
-    @property
-    def enforce_update_deps(self) -> bool:
-        return (
-                any(state.enforce_update_self_only for state in self._is_base_for)
-                or any(state.enforce_update for state in self._is_based_on)
-        )
-
-    @property
-    def enforce_update(self) -> bool:
-        return (
-                self.enforce_update_self_only
-                or self.enforce_update_deps
         )
