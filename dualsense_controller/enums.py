@@ -8,7 +8,10 @@ class EventType(str, Enum):
 
 
 class ConnectionType(Enum):
-    UNDEFINED = 'UNDEFINED',
-    USB_01 = 'USB',
-    BT_31 = 'BT',
-    BT_01 = 'BT'
+    UNDEFINED = r"¯\_(ツ)_/¯",
+    USB_01 = "USB",
+    BT_31 = "Bluetooth",
+    BT_01 = "Bluetooth (minimum features)"
+
+    def __str__(self) -> str:
+        return str(self.value[0]) if isinstance(self.value, tuple) else self.value

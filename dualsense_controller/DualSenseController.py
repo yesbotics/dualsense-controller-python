@@ -1,16 +1,14 @@
 from typing import Final
 
-import pyee as pyee
-
 from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
-    Number, ReadStateName, ReadStates,
-    StateChangeCb, StateDeterminationLevel, StateValueMapping, WriteStateName, WriteStates
+    Connection, Number, ReadStateName, ReadStates,
+    State, StateChangeCb, StateDeterminationLevel, StateValueMapping, WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
 from .enums import EventType
-from .typedef import BatteryLowCallback, ConnectionChangeCallback, ExceptionCallback
+from .typedef import BatteryLowCallback, ExceptionCallback
 
 
 class DualSenseController:
@@ -30,10 +28,9 @@ class DualSenseController:
             state_determination: StateDeterminationLevel = StateDeterminationLevel.LISTENER,
             trigger_change_after_all_values_set: bool = True,
     ):
-        # Emitability
-        self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
 
-        # State
+        self._connection_state: Final[State[Connection]] = State(name=EventType.CONNECTION_CHANGE, ignore_none=False)
+
         self._read_states: Final[ReadStates] = ReadStates(
             joystick_deadzone=joystick_deadzone,
             shoulder_key_deadzone=shoulder_key_deadzone,
@@ -66,8 +63,8 @@ class DualSenseController:
 
         self.states.battery_level_percent.on_change(check)
 
-    def on_connection_change(self, callback: ConnectionChangeCallback):
-        self._event_emitter.on(EventType.CONNECTION_CHANGE, callback)
+    def on_connection_change(self, callback: StateChangeCb):
+        self._connection_state.on_change(callback)
 
     def on_exception(self, callback: ExceptionCallback):
         self._hid_controller_device.on_exception(callback)
@@ -87,13 +84,12 @@ class DualSenseController:
     def init(self) -> None:
         assert not self._hid_controller_device.opened, 'already opened'
         self._hid_controller_device.open()
-        self._event_emitter.emit(EventType.CONNECTION_CHANGE, True, self._hid_controller_device.connection_type)
+        self._connection_state.set_value(Connection(True, self._hid_controller_device.connection_type))
 
     def deinit(self) -> None:
         assert self._hid_controller_device.opened, 'not opened yet'
-        connection_type = self._hid_controller_device.connection_type
         self._hid_controller_device.close()
-        self._event_emitter.emit(EventType.CONNECTION_CHANGE, False, connection_type)
+        self._connection_state.set_value(Connection(False, self._hid_controller_device.connection_type))
 
     def _on_in_report(self, in_report: InReport) -> None:
         self._read_states.update(in_report, self._hid_controller_device.connection_type)

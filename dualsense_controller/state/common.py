@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Final, TypeVar
 
+from dualsense_controller import ConnectionType
+
 
 class ReadStateName(str, Enum):
     BTN_UP = 'BTN_UP'
@@ -117,6 +119,12 @@ MapFn = Callable[[Any], Any]
 
 _DEFAULT_NUMBER: Final[Number] = -99999
 _HALF_255: Final[Number] = 127
+
+
+@dataclass(frozen=True, slots=True)
+class Connection:
+    connected: bool = False
+    connection_type: ConnectionType = None
 
 
 @dataclass(frozen=True, slots=True)

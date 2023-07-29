@@ -42,7 +42,7 @@ class State(Generic[StateValueType]):
 
     def __init__(
             self,
-            name: ReadStateName,
+            name: ReadStateName | str,
             # opts
             value: StateValueType = None,
             default_value: StateValueType = None,

@@ -1,7 +1,7 @@
 from time import sleep
 from typing import Any
 
-from dualsense_controller import (ConnectionType, DualSenseController, ReadStateName,
+from dualsense_controller import (Connection, ConnectionType, DualSenseController, ReadStateName,
                                   StateValueMapping, WriteStateName)
 from dualsense_controller.report import (OutBrightness, OutPlayerLed, OutPulseOptions)
 from dualsense_controller.state import (
@@ -118,8 +118,8 @@ class Example:
         print(f'Oops! An exception occured: {exception} exit')
         self._stop()
 
-    def _on_connection_change(self, connected: bool, connection_type: ConnectionType) -> None:
-        print(f'Connection state changed. connected: {connected}, type: {connection_type}')
+    def _on_connection_change(self, state: Connection) -> None:
+        print(f'Connection state changed. connected: {state.connected}, type: {state.connection_type}')
 
     def _on_btn_ps(self, state: bool) -> None:
         print(f'PS Button pressed: {state}')
