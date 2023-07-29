@@ -50,7 +50,7 @@ class StateValueMapper:
         self.right_stick_mapped_to_raw: MapFn | None = None
         self.left_shoulder_key_raw_to_mapped: MapFn | None = None
         self.left_shoulder_key_mapped_to_raw: MapFn | None = None
-        self.right_shoulder_raw_to_mapped: MapFn | None = None
+        self.right_shoulder_key_raw_to_mapped: MapFn | None = None
         self.right_shoulder_key_mapped_to_raw: MapFn | None = None
 
         self._mapping_data: StateValueMappingData = mapping.value
@@ -125,7 +125,7 @@ class StateValueMapper:
             self._mapping_data.left_shoulder_key
         )
 
-        self.right_shoulder_raw_to_mapped: MapFn = partial(
+        self.right_shoulder_key_raw_to_mapped: MapFn = partial(
             self._number_raw_to_mapped,
             self._mapping_data.right_shoulder_key
         )

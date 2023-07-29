@@ -155,8 +155,8 @@ class State(Generic[StateValueType]):
         if callback is None:
             self.remove_all_change_listeners()
         else:
-            self._event_emitter.remove_listener(
             num_params: int = len(inspect.signature(callback).parameters)
+            self._event_emitter.remove_listener(
                 self._event_name_2_args if num_params == 2 else self._event_name_3_args,
                 callback
             )

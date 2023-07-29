@@ -24,11 +24,11 @@ class Example:
             gyroscope_threshold=100,
             accelerometer_threshold=100,
             orientation_threshold=100,
-            state_value_mapping=StateValueMapping.RAW,  #  y-axis:0 ... 255 , 0 ... 255
+            # state_value_mapping=StateValueMapping.RAW,  #  y-axis:0 ... 255 , 0 ... 255
             # state_value_mapping=StateValueMapping.RAW_INVERTED,  # y-axis: 255 ... 0 , 255 ... 0
             # state_value_mapping=StateValueMapping.DEFAULT,  # y-axis: 127 ... -128, 0 ... 255
             # state_value_mapping=StateValueMapping.DEFAULT_INVERTED,  # y-axis: -128 ... 127, 0 ... 255
-            # state_value_mapping=StateValueMapping.NORMALIZED,  # y-axis: 1.0 ... -1.0, 0.0 ... 1.0
+            state_value_mapping=StateValueMapping.NORMALIZED,  # y-axis: 1.0 ... -1.0, 0.0 ... 1.0
             # state_value_mapping=StateValueMapping.NORMALIZED_INVERTED,  # y-axis: -1.0 ... 1.0, 0.0 ... 1.0
             # ##### CORE #####
             enforce_update=True,  # every loop update all values

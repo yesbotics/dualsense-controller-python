@@ -37,14 +37,14 @@ class ReadStates(BaseStates[ReadStateName]):
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.left_stick_x_mapped_to_raw,
             raw_to_mapped_fn=state_value_mapper.left_stick_x_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.left_stick_x_mapped_to_raw,
         )
         self._left_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_Y,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.left_stick_y_mapped_to_raw,
             raw_to_mapped_fn=state_value_mapper.left_stick_y_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.left_stick_y_mapped_to_raw,
         )
         self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
@@ -53,20 +53,20 @@ class ReadStates(BaseStates[ReadStateName]):
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.left_stick_mapped_to_raw,
             raw_to_mapped_fn=state_value_mapper.left_stick_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.left_stick_mapped_to_raw,
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_X,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.right_stick_x_mapped_to_raw,
             raw_to_mapped_fn=state_value_mapper.right_stick_x_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.right_stick_x_mapped_to_raw,
         )
         self._right_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_Y,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.right_stick_y_mapped_to_raw,
             raw_to_mapped_fn=state_value_mapper.right_stick_y_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.right_stick_y_mapped_to_raw,
         )
         self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK,
@@ -75,8 +75,8 @@ class ReadStates(BaseStates[ReadStateName]):
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             enforce_update=enforce_update,
-            mapped_to_raw_fn=state_value_mapper.right_stick_mapped_to_raw,
             raw_to_mapped_fn=state_value_mapper.right_stick_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.right_stick_mapped_to_raw,
         )
 
         # INIT GYRO, ACCEL, ORIENT
@@ -135,12 +135,16 @@ class ReadStates(BaseStates[ReadStateName]):
             compare_fn=compare_shoulder_key,
             deadzone=shoulder_key_deadzone,
             enforce_update=enforce_update,
+            raw_to_mapped_fn=state_value_mapper.left_shoulder_key_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.left_shoulder_key_mapped_to_raw,
         )
         self._r2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2,
             compare_fn=compare_shoulder_key,
             deadzone=shoulder_key_deadzone,
             enforce_update=enforce_update,
+            raw_to_mapped_fn=state_value_mapper.right_shoulder_key_raw_to_mapped,
+            mapped_to_raw_fn=state_value_mapper.right_shoulder_key_mapped_to_raw,
         )
 
         # INIT DIG BTN
@@ -315,7 +319,7 @@ class ReadStates(BaseStates[ReadStateName]):
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
-        ##### ANALOG STICKS #####
+        # #### ANALOG STICKS #####
 
         self._handle_state(self._left_stick, JoyStick(x=in_report.axes_0, y=in_report.axes_1))
         # use values from stick because deadzone calc is done there
@@ -406,7 +410,7 @@ class ReadStates(BaseStates[ReadStateName]):
             determine_value=touch_0_active
         )
 
-        touch_1_active: bool = self._handle_state(self._touch_1_active, not (in_report.touch_1_0 & 0x80), )
+        touch_1_active: bool = self._handle_state(self._touch_1_active, not (in_report.touch_1_0 & 0x80))
         self._handle_state(
             self._touch_1_id,
             calc_touch_id,
