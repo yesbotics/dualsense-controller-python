@@ -37,7 +37,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._trigger_change_after_all_values_set: Final[bool] = trigger_change_after_all_values_set
         self._states_to_trigger_after_all_states_set: Final[list[State]] = []
         # VAR
-        self._update_timestamp: int | None = None
+        self._timestamp: int | None = None
 
         # INIT STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
@@ -267,10 +267,10 @@ class ReadStates(BaseStates[ReadStateName]):
         ):
             value_: StateValueType = value_or_calc_fn(*args) if callable(value_or_calc_fn) else value_or_calc_fn
             if self._trigger_change_after_all_values_set:
-                state.set_value_without_triggering_change(value_,self._update_timestamp)
-                self._states_to_trigger_after_all_states_set.append(state,self._update_timestamp)
+                state.set_value_without_triggering_change(value_, self._timestamp)
+                self._states_to_trigger_after_all_states_set.append(state)
             else:
-                state.value = value_
+                state.set_value(value_, timestamp=self._timestamp)
             return value_
         return None
 
@@ -278,7 +278,7 @@ class ReadStates(BaseStates[ReadStateName]):
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
-        self._update_timestamp = int(time.time())
+        self._timestamp = int(time.time())
 
         # #### ANALOG STICKS #####
 

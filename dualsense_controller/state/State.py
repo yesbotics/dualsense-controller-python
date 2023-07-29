@@ -78,14 +78,17 @@ class State(Generic[StateValueType]):
         self._changed_since_last_update: bool = False
 
         for based_on_state in self._is_based_on:
-            based_on_state.set_as_base_for(self)
+            based_on_state.add_as_base_for(self)
+
+        for base_for_state in self._is_base_for:
+            base_for_state.add_is_based_on(self)
 
     # ################# PRIVATE ###############
 
-    def _set_value(
+    def set_value(
             self,
             value: StateValueType | None,
-            timestamp: int,
+            timestamp: int = None,
             trigger_change_on_changed: bool = True,
     ) -> None:
         old_value: StateValueType = self._value
@@ -95,24 +98,32 @@ class State(Generic[StateValueType]):
         if new_value is None and self._default_value is not None:
             new_value = self._default_value
         if (old_value is None or new_value is None) and self._ignore_none:
-            self._change_value(old_value=new_value, new_value=new_value, changed=False, trigger_change=False)
+            self._change_value(
+                old_value=new_value,
+                new_value=new_value,
+                changed=False,
+                trigger_change=False,
+                timestamp=timestamp,
+            )
             return
         changed, new_value = self._compare_fn(old_value, value)
         self._change_value(
             old_value=old_value,
             new_value=new_value,
             changed=changed,
-            trigger_change=(changed if trigger_change_on_changed else False)
+            trigger_change=(changed if trigger_change_on_changed else False),
+            timestamp=timestamp,
         )
 
-    def _set_value_mapped(
+    def set_value_mapped(
             self,
             vmapped: StateValueType | None,
+            timestamp: int = None,
             trigger_change_on_changed: bool = True,
     ) -> None:
         raw_val: StateValueType | None = vmapped if self._mapped_to_raw_fn is None else self._mapped_to_raw_fn(vmapped)
         # print(f'{self.name}: {vmapped} -> {raw_val}')
-        self._set_value(raw_val, trigger_change_on_changed=trigger_change_on_changed)
+        self.set_value(raw_val, timestamp=timestamp, trigger_change_on_changed=trigger_change_on_changed)
 
     def _change_value(
             self,
@@ -120,10 +131,12 @@ class State(Generic[StateValueType]):
             new_value: StateValueType,
             changed: bool,
             trigger_change: bool,
+            timestamp: int,
     ) -> None:
         self._last_value = old_value
         self._value = new_value
         self._changed_since_last_update = changed
+        self._timestamp = timestamp
         if trigger_change:
             self._trigger_change()
 
@@ -143,14 +156,17 @@ class State(Generic[StateValueType]):
         if self.has_changed:
             self._trigger_change()
 
-    def set_as_base_for(self, state: State[Any]):
+    def add_as_base_for(self, state: State[Any]):
         self._is_base_for.append(state)
 
-    def set_value_without_triggering_change(self, new_value: StateValueType | None, timestamp: int):
-        self._set_value(new_value, trigger_change_on_changed=False)
+    def add_is_based_on(self, state: State[Any]):
+        self._is_based_on.append(state)
 
-    def set_value_mapped_without_triggering_change(self, new_value: StateValueType | None):
-        self._set_value_mapped(new_value, trigger_change_on_changed=False)
+    def set_value_without_triggering_change(self, new_value: StateValueType | None, timestamp: int = None):
+        self.set_value(new_value, timestamp=timestamp, trigger_change_on_changed=False)
+
+    def set_value_mapped_without_triggering_change(self, new_value: StateValueType | None, timestamp: int = None):
+        self.set_value_mapped(new_value, timestamp=timestamp, trigger_change_on_changed=False)
 
     def on_change(self, callback: AnyStateChangeCallback | StateChangeCallback) -> None:
         num_params: int = len(inspect.signature(callback).parameters)
@@ -180,7 +196,7 @@ class State(Generic[StateValueType]):
 
     @value.setter
     def value(self, value: StateValueType | None) -> None:
-        self._set_value(value)
+        self.set_value(value)
 
     @property
     def last_value(self) -> StateValueType:
@@ -192,7 +208,7 @@ class State(Generic[StateValueType]):
 
     @value_mapped.setter
     def value_mapped(self, value_mapped: StateValueType | None) -> None:
-        self._set_value_mapped(value_mapped)
+        self.set_value_mapped(value_mapped)
 
     @property
     def last_value_mapped(self) -> StateValueType:
