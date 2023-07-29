@@ -155,8 +155,8 @@ class State(Generic[StateValueType]):
         if callback is None:
             self.remove_all_change_listeners()
         else:
-            num_params: int = len(inspect.signature(callback).parameters)
             self._event_emitter.remove_listener(
+            num_params: int = len(inspect.signature(callback).parameters)
                 self._event_name_2_args if num_params == 2 else self._event_name_3_args,
                 callback
             )
@@ -207,7 +207,8 @@ class State(Generic[StateValueType]):
     @property
     def has_changed(self) -> bool:
         return (
-                any(state.has_changed_self_only for state in self._is_base_for)
+                self.has_changed_self_only
+                or any(state.has_changed_self_only for state in self._is_base_for)
                 or any(state.has_changed for state in self._is_based_on)
         )
 
