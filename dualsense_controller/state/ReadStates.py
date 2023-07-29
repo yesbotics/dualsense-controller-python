@@ -27,24 +27,25 @@ class ReadStates(BaseStates[ReadStateName]):
             enforce_update: bool = True,
             trigger_change_after_all_values_set: bool = True,
     ):
-        super().__init__()
+        super().__init__(
+            state_value_mapping=state_value_mapping
+        )
 
         self._trigger_change_after_all_values_set: Final[bool] = trigger_change_after_all_values_set
         self._states_to_trigger_after_all_states_set: Final[list[State]] = []
-        state_value_mapper: StateValueMapper = StateValueMapper(state_value_mapping)
 
         # INIT STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_X,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.left_stick_x_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.left_stick_x_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.left_stick_x_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.left_stick_x_mapped_to_raw,
         )
         self._left_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK_Y,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.left_stick_y_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.left_stick_y_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.left_stick_y_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.left_stick_y_mapped_to_raw,
         )
         self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
@@ -53,20 +54,20 @@ class ReadStates(BaseStates[ReadStateName]):
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.left_stick_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.left_stick_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.left_stick_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.left_stick_mapped_to_raw,
         )
         self._right_stick_x: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_X,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.right_stick_x_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.right_stick_x_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.right_stick_x_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.right_stick_x_mapped_to_raw,
         )
         self._right_stick_y: Final[State[int]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK_Y,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.right_stick_y_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.right_stick_y_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.right_stick_y_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.right_stick_y_mapped_to_raw,
         )
         self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK,
@@ -75,8 +76,8 @@ class ReadStates(BaseStates[ReadStateName]):
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.right_stick_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.right_stick_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.right_stick_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.right_stick_mapped_to_raw,
         )
 
         # INIT GYRO, ACCEL, ORIENT
@@ -135,16 +136,16 @@ class ReadStates(BaseStates[ReadStateName]):
             compare_fn=compare_shoulder_key,
             deadzone=shoulder_key_deadzone,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.left_shoulder_key_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.left_shoulder_key_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.left_shoulder_key_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.left_shoulder_key_mapped_to_raw,
         )
         self._r2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2,
             compare_fn=compare_shoulder_key,
             deadzone=shoulder_key_deadzone,
             enforce_update=enforce_update,
-            raw_to_mapped_fn=state_value_mapper.right_shoulder_key_raw_to_mapped,
-            mapped_to_raw_fn=state_value_mapper.right_shoulder_key_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.right_shoulder_key_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.right_shoulder_key_mapped_to_raw,
         )
 
         # INIT DIG BTN

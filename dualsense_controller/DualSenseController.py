@@ -41,7 +41,9 @@ class DualSenseController:
             trigger_change_after_all_values_set=trigger_change_after_all_values_set,
             enforce_update=enforce_update,
         )
-        self._write_states: Final[WriteStates] = WriteStates()
+        self._write_states: Final[WriteStates] = WriteStates(
+            state_value_mapping=state_value_mapping,
+        )
 
         # Hardware
         self._hid_controller_device: HidControllerDevice = HidControllerDevice(device_index)
@@ -73,11 +75,8 @@ class DualSenseController:
     def on_any_state_change(self, callback: AnyStateChangeCallback):
         self._read_states.on_any_change(callback)
 
-    # def set_state(self, state_name: WriteStateName, value: int):
-    #     self._write_states.set_value(state_name, value)
-
     def set_state(self, state_name: WriteStateName, value: Number):
-        self._write_states.set_value_mapped(state_name, int(value))
+        self._write_states.set_value_mapped(state_name, value)
 
     def set_motor_left(self, value: Number):
         self.set_state(WriteStateName.MOTOR_LEFT, value)

@@ -6,50 +6,60 @@ from dualsense_controller.report import (
     OutFlagsPhysics,
 )
 from dualsense_controller.report.out_report import OutReport
-from dualsense_controller.state import BaseStates, StateValueType, StateChangeCallback, WriteStateName
+from dualsense_controller.state import BaseStates, MapFn, StateValueType, StateChangeCallback, WriteStateName, \
+    StateValueMapping
 
 
 class WriteStates(BaseStates[WriteStateName]):
 
     def __init__(
             self,
+            state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
     ):
-        super().__init__()
+        super().__init__(state_value_mapping)
 
         self._changed = False
 
-        self._create_state(WriteStateName.FLAGS_PHYSICS, OutFlagsPhysics.ALL)
-        self._create_state(WriteStateName.FLAGS_LIGHTS, OutFlagsLights.ALL_BUT_MUTE_LED)
+        self._create_state(WriteStateName.FLAGS_PHYSICS, value=OutFlagsPhysics.ALL)
+        self._create_state(WriteStateName.FLAGS_LIGHTS, value=OutFlagsLights.ALL_BUT_MUTE_LED)
 
-        self._create_state(WriteStateName.LIGHTBAR_RED, 0xff)
-        self._create_state(WriteStateName.LIGHTBAR_GREEN, 0xff)
-        self._create_state(WriteStateName.LIGHTBAR_BLUE, 0xff)
-        self._create_state(WriteStateName.MOTOR_LEFT, 0x00)
-        self._create_state(WriteStateName.MOTOR_RIGHT, 0x00)
-        self._create_state(WriteStateName.L2_EFFECT_MODE, 0x26)
-        self._create_state(WriteStateName.L2_EFFECT_PARAM1, 0x90)
-        self._create_state(WriteStateName.L2_EFFECT_PARAM2, 0xA0)
-        self._create_state(WriteStateName.L2_EFFECT_PARAM3, 0xFF)
-        self._create_state(WriteStateName.L2_EFFECT_PARAM4, 0x00)
-        self._create_state(WriteStateName.L2_EFFECT_PARAM5, 0x00)
-        self._create_state(WriteStateName.L2_EFFECT_PARAM6, 0x00)
-        self._create_state(WriteStateName.L2_EFFECT_PARAM7, 0x00)
-        self._create_state(WriteStateName.R2_EFFECT_MODE, 0x26)
-        self._create_state(WriteStateName.R2_EFFECT_PARAM1, 0x90)
-        self._create_state(WriteStateName.R2_EFFECT_PARAM2, 0xA0)
-        self._create_state(WriteStateName.R2_EFFECT_PARAM3, 0xFF)
-        self._create_state(WriteStateName.R2_EFFECT_PARAM4, 0x00)
-        self._create_state(WriteStateName.R2_EFFECT_PARAM5, 0x00)
-        self._create_state(WriteStateName.R2_EFFECT_PARAM6, 0x00)
-        self._create_state(WriteStateName.R2_EFFECT_PARAM7, 0x00)
+        self._create_state(WriteStateName.LIGHTBAR_RED, value=0xff)
+        self._create_state(WriteStateName.LIGHTBAR_GREEN, value=0xff)
+        self._create_state(WriteStateName.LIGHTBAR_BLUE, value=0xff)
+        self._create_state(
+            WriteStateName.MOTOR_LEFT,
+            value=0x00,
+            mapped_to_raw_fn=self._state_value_mapper.set_left_motor_mapped_to_raw
+        )
+        self._create_state(
+            WriteStateName.MOTOR_RIGHT,
+            value=0x00,
+            mapped_to_raw_fn=self._state_value_mapper.set_right_motor_mapped_to_raw
+        )
+        self._create_state(WriteStateName.L2_EFFECT_MODE, value=0x26)
+        self._create_state(WriteStateName.L2_EFFECT_PARAM1, value=0x90)
+        self._create_state(WriteStateName.L2_EFFECT_PARAM2, value=0xA0)
+        self._create_state(WriteStateName.L2_EFFECT_PARAM3, value=0xFF)
+        self._create_state(WriteStateName.L2_EFFECT_PARAM4, value=0x00)
+        self._create_state(WriteStateName.L2_EFFECT_PARAM5, value=0x00)
+        self._create_state(WriteStateName.L2_EFFECT_PARAM6, value=0x00)
+        self._create_state(WriteStateName.L2_EFFECT_PARAM7, value=0x00)
+        self._create_state(WriteStateName.R2_EFFECT_MODE, value=0x26)
+        self._create_state(WriteStateName.R2_EFFECT_PARAM1, value=0x90)
+        self._create_state(WriteStateName.R2_EFFECT_PARAM2, value=0xA0)
+        self._create_state(WriteStateName.R2_EFFECT_PARAM3, value=0xFF)
+        self._create_state(WriteStateName.R2_EFFECT_PARAM4, value=0x00)
+        self._create_state(WriteStateName.R2_EFFECT_PARAM5, value=0x00)
+        self._create_state(WriteStateName.R2_EFFECT_PARAM6, value=0x00)
+        self._create_state(WriteStateName.R2_EFFECT_PARAM7, value=0x00)
 
-        self._create_state(WriteStateName.LIGHTBAR, True)
-        self._create_state(WriteStateName.MICROPHONE_LED, False, self._on_change_mute_led)
-        self._create_state(WriteStateName.MICROPHONE_MUTE, True)
-        self._create_state(WriteStateName.LED_OPTIONS, OutLedOptions.ALL)
-        self._create_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT)
-        self._create_state(WriteStateName.BRIGHTNESS, OutBrightness.HIGH)
-        self._create_state(WriteStateName.PLAYER_LED, 0x00)
+        self._create_state(WriteStateName.LIGHTBAR, value=True)
+        self._create_state(WriteStateName.MICROPHONE_LED, value=False, callback=self._on_change_mute_led)
+        self._create_state(WriteStateName.MICROPHONE_MUTE, value=True)
+        self._create_state(WriteStateName.LED_OPTIONS, value=OutLedOptions.ALL)
+        self._create_state(WriteStateName.PULSE_OPTIONS, value=OutPulseOptions.FADE_OUT)
+        self._create_state(WriteStateName.BRIGHTNESS, value=OutBrightness.HIGH)
+        self._create_state(WriteStateName.PLAYER_LED, value=0x00)
 
     @property
     def changed(self) -> bool:
@@ -99,11 +109,16 @@ class WriteStates(BaseStates[WriteStateName]):
             self,
             name: WriteStateName,
             value: StateValueType = None,
-            callback: StateChangeCallback = None
+            callback: StateChangeCallback = None,
+            mapped_to_raw_fn: MapFn = None,
     ) -> None:
         if callback is None:
             callback = self._on_change
-        self._create_and_register_state(name, value).on_change(callback)
+        self._create_and_register_state(
+            name=name,
+            value=value,
+            mapped_to_raw_fn=mapped_to_raw_fn
+        ).on_change(callback)
 
     def _on_change(self, _, __):
         self._changed = True

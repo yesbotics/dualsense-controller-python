@@ -19,7 +19,9 @@ class StateValueMapper:
         return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     @classmethod
-    def _number_raw_to_mapped(cls, from_to: FromTo, value: Number) -> Number:
+    def _number_raw_to_mapped(cls, from_to: FromTo | None, value: Number) -> Number:
+        if from_to is None:
+            return value
         to_type: NumberType = from_to.to_type
         value_type: Number = to_type.value_type
         mapped_value: Number = value_type(cls._number_map(value, *from_to.as_tuple))
@@ -29,7 +31,14 @@ class StateValueMapper:
 
     @classmethod
     def _number_mapped_to_raw(cls, from_to: FromTo, value: Number) -> Number:
-        return from_to.from_type(cls._number_map(value, *from_to.reversed.as_tuple))
+        if from_to is None:
+            return value
+        from_type: NumberType = from_to.from_type
+        value_type: Number = from_type.value_type
+        raw_value: Number = value_type(cls._number_map(value, *from_to.swapped.as_tuple))
+        if isinstance(raw_value, float):
+            raw_value = round(raw_value, from_type.round_digits)
+        return raw_value
 
     @classmethod
     def _joystick_mapped_to_raw(cls, from_to: FromTo, value: JoyStick) -> JoyStick:
@@ -50,16 +59,22 @@ class StateValueMapper:
         self.left_stick_y_mapped_to_raw: MapFn | None = None
         self.left_stick_raw_to_mapped: MapFn | None = None
         self.left_stick_mapped_to_raw: MapFn | None = None
+
         self.right_stick_x_raw_to_mapped: MapFn | None = None
         self.right_stick_x_mapped_to_raw: MapFn | None = None
         self.right_stick_y_raw_to_mapped: MapFn | None = None
         self.right_stick_y_mapped_to_raw: MapFn | None = None
         self.right_stick_raw_to_mapped: MapFn | None = None
         self.right_stick_mapped_to_raw: MapFn | None = None
+
         self.left_shoulder_key_raw_to_mapped: MapFn | None = None
         self.left_shoulder_key_mapped_to_raw: MapFn | None = None
+
         self.right_shoulder_key_raw_to_mapped: MapFn | None = None
         self.right_shoulder_key_mapped_to_raw: MapFn | None = None
+
+        self.set_left_motor_mapped_to_raw: MapFn | None = None
+        self.set_right_motor_mapped_to_raw: MapFn | None = None
 
         self._mapping_data: StateValueMappingData = mapping.value
         if isinstance(self._mapping_data, tuple):
@@ -124,6 +139,7 @@ class StateValueMapper:
             self._mapping_data.right_stick_y,
         )
 
+        ######## LEFT SHOULDER KEY ##########
         self.left_shoulder_key_raw_to_mapped: MapFn = partial(
             self._number_raw_to_mapped,
             self._mapping_data.left_shoulder_key
@@ -133,6 +149,7 @@ class StateValueMapper:
             self._mapping_data.left_shoulder_key
         )
 
+        ######## RIGHT SHOULDER KEY ##########
         self.right_shoulder_key_raw_to_mapped: MapFn = partial(
             self._number_raw_to_mapped,
             self._mapping_data.right_shoulder_key
@@ -140,4 +157,15 @@ class StateValueMapper:
         self.right_shoulder_key_mapped_to_raw: MapFn = partial(
             self._number_mapped_to_raw,
             self._mapping_data.right_shoulder_key
+        )
+
+        ######## MOTORS - ONLY NEED TO SET ##########
+        self.set_left_motor_mapped_to_raw: MapFn = partial(
+            self._number_mapped_to_raw,
+            self._mapping_data.set_motor_left
+        )
+
+        self.set_right_motor_mapped_to_raw: MapFn = partial(
+            self._number_mapped_to_raw,
+            self._mapping_data.set_motor_right
         )

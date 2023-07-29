@@ -1,12 +1,14 @@
 from typing import Any, Final, Generic
 
-from dualsense_controller.state import CompareFn, MapFn, State, StateNameEnumType, StateValueType
+from dualsense_controller.state import CompareFn, MapFn, State, StateNameEnumType, StateValueMapper, StateValueType, \
+    StateValueMapping
 
 
 class BaseStates(Generic[StateNameEnumType]):
 
-    def __init__(self):
+    def __init__(self, state_value_mapping: StateValueMapping):
         self._states_dict: Final[dict[StateNameEnumType, State]] = {}
+        self._state_value_mapper: Final[StateValueMapper] = StateValueMapper(state_value_mapping)
 
     def set_value(self, name: StateNameEnumType, value: StateValueType, trigger_change: bool = True) -> None:
         state: State[StateValueType] = self._get_state_by_name(name)
@@ -16,7 +18,6 @@ class BaseStates(Generic[StateNameEnumType]):
             state.value = value
 
     def set_value_mapped(self, name: StateNameEnumType, value: StateValueType, trigger_change: bool = True) -> None:
-        print('mappy', name, value, trigger_change)
         state: State[StateValueType] = self._get_state_by_name(name)
         if not trigger_change:
             state.set_value_mapped_without_triggering_change(value)

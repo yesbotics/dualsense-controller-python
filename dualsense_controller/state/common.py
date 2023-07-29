@@ -112,6 +112,7 @@ Number = int | float
 MapFn = Callable[[Any], Any]
 
 _DEFAULT_NUMBER: Final[Number] = -99999
+_HALF_255: Final[Number] = 127
 
 
 @dataclass(frozen=True, slots=True)
@@ -148,8 +149,8 @@ def compare(before: StateValueType | None, after: StateValueType) -> CompareResu
 def compare_joystick(before: JoyStick | None, after: JoyStick, deadzone: int = 0) -> CompareResult:
     if before is None:
         return True, after
-    if deadzone > 0 and (((after.x - 127) ** 2) + ((after.y - 127) ** 2)) <= (deadzone ** 2):
-        after = JoyStick(127, 127)
+    if deadzone > 0 and (((after.x - _HALF_255) ** 2) + ((after.y - _HALF_255) ** 2)) <= (deadzone ** 2):
+        after = JoyStick(_HALF_255, _HALF_255)
     changed: bool = after.x != before.x or after.y != before.y
     return changed, after
 
@@ -227,7 +228,7 @@ class FromTo:
     to_type: NumberType = Integer()
 
     @property
-    def reversed(self) -> FromTo:
+    def swapped(self) -> FromTo:
         return FromTo(self.to_min, self.to_max, self.from_min, self.from_max, self.to_type, self.from_type)
 
     @property

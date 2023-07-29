@@ -108,6 +108,15 @@ class State(Generic[StateValueType]):
             trigger_change=(changed if trigger_change_on_changed else False)
         )
 
+    def _set_value_mapped(
+            self,
+            vmapped: StateValueType | None,
+            trigger_change_on_changed: bool = True,
+    ) -> None:
+        raw_val: StateValueType | None = vmapped if self._mapped_to_raw_fn is None else self._mapped_to_raw_fn(vmapped)
+        print(f'{self.name}: {vmapped} -> {raw_val}')
+        self._set_value(raw_val, trigger_change_on_changed=trigger_change_on_changed)
+
     def _change_value(
             self,
             old_value: StateValueType,
@@ -145,7 +154,7 @@ class State(Generic[StateValueType]):
         self._set_value(new_value, trigger_change_on_changed=False)
 
     def set_value_mapped_without_triggering_change(self, new_value: StateValueType | None):
-        self._set_value(new_value, trigger_change_on_changed=False)
+        self._set_value_mapped(new_value, trigger_change_on_changed=False)
 
     def on_change(self, callback: AnyStateChangeCallback | StateChangeCallback) -> None:
         num_params: int = len(inspect.signature(callback).parameters)
@@ -186,8 +195,8 @@ class State(Generic[StateValueType]):
         return self.value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(self._value)
 
     @value_mapped.setter
-    def value_mapped(self, value: StateValueType | None) -> None:
-        self.value = value if self._mapped_to_raw_fn is None else self._mapped_to_raw_fn(value)
+    def value_mapped(self, value_mapped: StateValueType | None) -> None:
+        self._set_value_mapped(value_mapped)
 
     @property
     def last_value_mapped(self) -> StateValueType:
