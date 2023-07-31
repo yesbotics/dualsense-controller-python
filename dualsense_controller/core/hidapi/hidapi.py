@@ -1,3 +1,14 @@
+"""
+This file uses code taken from the hidapi-cffi repo of the GitHub user Flok (https://github.com/flok/hidapi-cffi)
+
+It is a modified version of hidapi-cffi from Johannes Baiter (https://github.com/jbaiter/hidapi-cffi)
+
+License: See LICENSE.txt in this directory.
+
+"""
+
+
+
 from cffi import FFI
 from sys import platform
 ffi = FFI()

@@ -1,7 +1,7 @@
 from typing import Any, Final, Generic
 
-from dualsense_controller.state import CompareFn, MapFn, State, StateNameEnumType, StateValueMapper, StateValueType, \
-    StateValueMapping, StateDeterminationLevel
+from dualsense_controller.state import CompareFn, MapFn, State, StateNameEnumType, \
+    StateValueMapper, StateValueMapping, StateValueType
 
 
 class BaseStates(Generic[StateNameEnumType]):
@@ -33,14 +33,13 @@ class BaseStates(Generic[StateNameEnumType]):
             value: StateValueType = None,
             default_value: StateValueType = None,
             ignore_none: bool = True,
+            compare_fn: CompareFn[StateValueType] = None,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
-            compare_fn: CompareFn[StateValueType] = None,
-            is_based_on: list[State[Any]] = None,
-            is_base_for: list[State[Any]] = None,
+            depends_on: list[State[Any]] = None,
+            is_dependency_of: list[State[Any]] = None,
             **kwargs
     ) -> State[StateValueType]:
-
         if compare_fn is not None:
             compare_fn = BaseStates._wrap_compare_fn(compare_fn, **kwargs)
         state: State[StateValueType] = State[StateValueType](
@@ -51,8 +50,8 @@ class BaseStates(Generic[StateNameEnumType]):
             raw_to_mapped_fn=raw_to_mapped_fn,
             compare_fn=compare_fn,
             ignore_none=ignore_none,
-            is_based_on=is_based_on,
-            is_base_for=is_base_for,
+            depends_on=depends_on,
+            is_dependency_of=is_dependency_of,
         )
         self._states_dict[name] = state
         return state

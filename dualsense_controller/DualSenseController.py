@@ -4,19 +4,24 @@ from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     Connection, Number, ReadStateName, ReadStates,
-    State, StateChangeCb, StateDeterminationLevel, StateValueMapping, WriteStateName, WriteStates
+    State, StateChangeCb, StateValueMapping, WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
+from .core import hidapi
 from .enums import EventType
 from .typedef import BatteryLowCallback, ExceptionCallback
 
 
 class DualSenseController:
 
+    @staticmethod
+    def enumerate_devices() -> list[hidapi.DeviceInfo]:
+        return HidControllerDevice.enumerate_devices()
+
     def __init__(
             self,
             # ##### BASE  #####
-            device_index: int = 0,
+            device_index_or_device_info: int | hidapi.DeviceInfo = 0,
             # ##### FEELING  #####
             joystick_deadzone: int = 0,
             shoulder_key_deadzone: int = 0,
@@ -25,7 +30,7 @@ class DualSenseController:
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
             # ##### CORE #####
-            state_determination: StateDeterminationLevel = StateDeterminationLevel.LISTENER,
+            enforce_update: bool = True,
             trigger_change_after_all_values_set: bool = True,
     ):
 
@@ -38,15 +43,15 @@ class DualSenseController:
             accelerometer_threshold=accelerometer_threshold,
             orientation_threshold=orientation_threshold,
             state_value_mapping=state_value_mapping,
+            enforce_update=enforce_update,
             trigger_change_after_all_values_set=trigger_change_after_all_values_set,
-            state_determination=state_determination,
         )
         self._write_states: Final[WriteStates] = WriteStates(
             state_value_mapping=state_value_mapping,
         )
 
         # Hardware
-        self._hid_controller_device: HidControllerDevice = HidControllerDevice(device_index)
+        self._hid_controller_device: HidControllerDevice = HidControllerDevice(device_index_or_device_info)
         self._hid_controller_device.on_exception(self._on_thread_exception)
         self._hid_controller_device.on_in_report(self._on_in_report)
 

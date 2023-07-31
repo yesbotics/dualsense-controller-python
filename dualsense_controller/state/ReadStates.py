@@ -1,15 +1,13 @@
 import time
-from typing import Callable, Final
+from typing import Final
 
 from dualsense_controller import ConnectionType
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     Accelerometer, BaseStates, Gyroscope, JoyStick,
-    Orientation, ReadStateName, RestrictedStateAccess, State,
-    calc_accelerometer, calc_gyroscope, calc_orientation, calc_touch_id,
-    calc_touch_x, calc_touch_y
+    Orientation, ReadStateName, RestrictedStateAccess, State, StateValueCalc
 )
-from .common import StateChangeCb, StateDeterminationLevel, StateValueMapping, StateValueType, \
+from .common import StateChangeCb, StateValueMapping, StateValueType, \
     compare_accelerometer, \
     compare_gyroscope, \
     compare_joystick, \
@@ -27,18 +25,19 @@ class ReadStates(BaseStates[ReadStateName]):
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
-            state_determination: StateDeterminationLevel = StateDeterminationLevel.LISTENER,
+            enforce_update: bool = True,
             trigger_change_after_all_values_set: bool = True,
     ):
         super().__init__(
             state_value_mapping=state_value_mapping
         )
         # CONST
-        self._state_determination_level: Final[StateDeterminationLevel] = state_determination
+        self._enforce_update: Final[bool] = enforce_update
         self._trigger_change_after_all_values_set: Final[bool] = trigger_change_after_all_values_set
         self._states_to_trigger_after_all_states_set: Final[list[State]] = []
         # VAR
         self._timestamp: int | None = None
+        self._in_report: InReport | None = None
 
         # INIT STICKS
         self._left_stick_x: Final[State[int]] = self._create_and_register_state(
@@ -54,7 +53,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._left_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
             default_value=JoyStick(),
-            is_based_on=[self._left_stick_x, self._left_stick_y],
+            depends_on=[self._left_stick_x, self._left_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             raw_to_mapped_fn=self._state_value_mapper.left_stick_raw_to_mapped,
@@ -73,7 +72,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._right_stick: Final[State[JoyStick]] = self._create_and_register_state(
             ReadStateName.RIGHT_STICK,
             default_value=JoyStick(),
-            is_based_on=[self._right_stick_x, self._right_stick_y],
+            depends_on=[self._right_stick_x, self._right_stick_y],
             compare_fn=compare_joystick,
             deadzone=joystick_deadzone,
             raw_to_mapped_fn=self._state_value_mapper.right_stick_raw_to_mapped,
@@ -93,7 +92,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._gyroscope: Final[State[Gyroscope]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE,
             default_value=Gyroscope(),
-            is_based_on=[self._gyroscope_x, self._gyroscope_y, self._gyroscope_z],
+            depends_on=[self._gyroscope_x, self._gyroscope_y, self._gyroscope_z],
             compare_fn=compare_gyroscope,
             threshold=gyroscope_threshold,
         )
@@ -109,14 +108,14 @@ class ReadStates(BaseStates[ReadStateName]):
         self._accelerometer: Final[State[Accelerometer]] = self._create_and_register_state(
             ReadStateName.ACCELEROMETER,
             default_value=Accelerometer(),
-            is_based_on=[self._accelerometer_x, self._accelerometer_y, self._accelerometer_z],
+            depends_on=[self._accelerometer_x, self._accelerometer_y, self._accelerometer_z],
             compare_fn=compare_accelerometer,
             threshold=accelerometer_threshold,
         )
         self._orientation: Final[State[Orientation]] = self._create_and_register_state(
             ReadStateName.ORIENTATION,
             default_value=Orientation(),
-            is_based_on=[self._gyroscope, self._accelerometer],
+            depends_on=[self._gyroscope, self._accelerometer],
             compare_fn=compare_orientation,
             threshold=orientation_threshold,
         )
@@ -138,18 +137,27 @@ class ReadStates(BaseStates[ReadStateName]):
         )
 
         # INIT DIG BTN
+
+        self._dpad: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.DPAD,
+        )
         self._btn_up: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_UP,
+            depends_on=[self._dpad],
         )
         self._btn_left: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_LEFT,
+            depends_on=[self._dpad],
         )
         self._btn_down: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_DOWN,
+            depends_on=[self._dpad],
         )
         self._btn_right: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_RIGHT,
+            depends_on=[self._dpad],
         )
+
         self._btn_square: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BTN_SQUARE,
         )
@@ -255,31 +263,32 @@ class ReadStates(BaseStates[ReadStateName]):
     def _handle_state(
             self,
             state: State[StateValueType],
-            value_or_calc_fn: StateValueType | Callable[[...], StateValueType],
-            *args,
+            value: StateValueType,
             skip: bool = False,
     ) -> StateValueType | None:
         if skip:
             return None
+
         if (
-                self._state_determination_level == StateDeterminationLevel.ALWAYS
+                self._enforce_update
                 or state.has_listeners
-                or state.has_changed_deps
+                or state.has_listened_dependents
+                or state.has_changed_dependencies
         ):
-            value_: StateValueType = value_or_calc_fn(*args) if callable(value_or_calc_fn) else value_or_calc_fn
             if self._trigger_change_after_all_values_set:
-                state.set_value_without_triggering_change(value_, self._timestamp)
+                state.set_value_without_triggering_change(value, self._timestamp)
                 self._states_to_trigger_after_all_states_set.append(state)
             else:
-                state.set_value(value_, timestamp=self._timestamp)
-            return value_
+                state.set_value(value, timestamp=self._timestamp)
+            return value
         return None
 
     # #################### PUBLIC #######################
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
-        self._timestamp = int(time.time())
+        self._timestamp = time.perf_counter_ns()
+        self._in_report = in_report
 
         # #### ANALOG STICKS #####
 
@@ -298,13 +307,14 @@ class ReadStates(BaseStates[ReadStateName]):
         self._handle_state(self._r2, in_report.axes_5)
 
         # ##### BUTTONS #####
-        dpad: int = in_report.buttons_0 & 0x0f
+        self._handle_state(self._dpad, in_report.buttons_0 & 0x0f)
+        self._handle_state(self._btn_up, self._dpad.value == 0 or self._dpad.value == 1 or self._dpad.value == 7)
+        self._handle_state(self._btn_down, self._dpad.value == 3 or self._dpad.value == 4 or self._dpad.value == 5)
+        self._handle_state(self._btn_left, self._dpad.value == 5 or self._dpad.value == 6 or self._dpad.value == 7)
+        self._handle_state(self._btn_right, self._dpad.value == 1 or self._dpad.value == 2 or self._dpad.value == 3)
+
         self._handle_state(self._btn_cross, bool(in_report.buttons_0 & 0x20))
         self._handle_state(self._btn_r1, bool(in_report.buttons_1 & 0x02))
-        self._handle_state(self._btn_up, dpad == 0 or dpad == 1 or dpad == 7)
-        self._handle_state(self._btn_down, dpad == 3 or dpad == 4 or dpad == 5)
-        self._handle_state(self._btn_left, dpad == 5 or dpad == 6 or dpad == 7)
-        self._handle_state(self._btn_right, dpad == 1 or dpad == 2 or dpad == 3)
         self._handle_state(self._btn_square, bool(in_report.buttons_0 & 0x10))
         self._handle_state(self._btn_circle, bool(in_report.buttons_0 & 0x40))
         self._handle_state(self._btn_triangle, bool(in_report.buttons_0 & 0x80))
@@ -325,73 +335,58 @@ class ReadStates(BaseStates[ReadStateName]):
 
         # ##### GYRO #####
 
-        self._handle_state(
-            self._gyroscope, calc_gyroscope,
-            in_report.gyro_x_1, in_report.gyro_x_0,
-            in_report.gyro_y_1, in_report.gyro_y_0,
-            in_report.gyro_z_1, in_report.gyro_z_0
-        )
+        self._handle_state(self._gyroscope, Gyroscope(
+            x=StateValueCalc.sensor_axis(in_report.gyro_x_1, in_report.gyro_x_0),
+            y=StateValueCalc.sensor_axis(in_report.gyro_y_1, in_report.gyro_y_0),
+            z=StateValueCalc.sensor_axis(in_report.gyro_z_1, in_report.gyro_z_0),
+        ))
         self._handle_state(self._gyroscope_x, self._gyroscope.value.x)
         self._handle_state(self._gyroscope_y, self._gyroscope.value.y)
         self._handle_state(self._gyroscope_z, self._gyroscope.value.z)
 
         # ##### ACCEL #####
-        self._handle_state(
-            self._accelerometer, calc_accelerometer,
-            in_report.accel_x_1, in_report.accel_x_0,
-            in_report.accel_y_1, in_report.accel_y_0,
-            in_report.accel_z_1, in_report.accel_z_0
-        )
+        self._handle_state(self._accelerometer, Accelerometer(
+            x=StateValueCalc.sensor_axis(in_report.accel_x_1, in_report.accel_x_0),
+            y=StateValueCalc.sensor_axis(in_report.accel_y_1, in_report.accel_y_0),
+            z=StateValueCalc.sensor_axis(in_report.accel_z_1, in_report.accel_z_0),
+        ))
         self._handle_state(self._accelerometer_x, self._accelerometer.value.x)
         self._handle_state(self._accelerometer_y, self._accelerometer.value.y)
         self._handle_state(self._accelerometer_z, self._accelerometer.value.z)
 
         # ##### ORIENTATION #####
-        self._handle_state(self._orientation, calc_orientation, self._gyroscope, self._accelerometer)
+        self._handle_state(self._orientation, Orientation())  # TODO: calc it
 
-        # ##### TOUCH #####
-        touch_0_active: bool = self._handle_state(self._touch_0_active, not (in_report.touch_0_0 & 0x80))
-        self._handle_state(
-            self._touch_0_id,
-            calc_touch_id,
-            in_report.touch_0_0,
-            skip=not touch_0_active,
+        # ##### TOUCH 0 #####
+        touch_0_active: bool = self._handle_state(
+            self._touch_0_active, StateValueCalc.touch_active(in_report.touch_0_0)
         )
+        self._handle_state(self._touch_0_id, StateValueCalc.touch_id(in_report.touch_0_0), skip=not touch_0_active)
         self._handle_state(
             self._touch_0_x,
-            calc_touch_x,
-            in_report.touch_0_2,
-            in_report.touch_0_1,
-            skip=not touch_0_active,
+            StateValueCalc.touch_x(in_report.touch_0_2, in_report.touch_0_1),
+            skip=not touch_0_active
         )
         self._handle_state(
             self._touch_0_y,
-            calc_touch_y,
-            in_report.touch_0_3,
-            in_report.touch_0_2,
-            skip=not touch_0_active,
+            StateValueCalc.touch_x(in_report.touch_0_3, in_report.touch_0_2),
+            skip=not touch_0_active
         )
 
-        touch_1_active: bool = self._handle_state(self._touch_1_active, not (in_report.touch_1_0 & 0x80))
-        self._handle_state(
-            self._touch_1_id,
-            calc_touch_id,
-            in_report.touch_1_0,
-            skip=not touch_0_active,
+        # ##### TOUCH 1 #####
+        touch_1_active: bool = self._handle_state(
+            self._touch_1_active, StateValueCalc.touch_active(in_report.touch_1_0)
         )
+        self._handle_state(self._touch_1_id, StateValueCalc.touch_id(in_report.touch_1_0), skip=not touch_1_active)
         self._handle_state(
             self._touch_1_x,
-            calc_touch_x,
-            in_report.touch_1_2,
-            in_report.touch_1_1,
-            skip=not touch_0_active,
+            StateValueCalc.touch_x(in_report.touch_1_2, in_report.touch_1_1),
+            skip=not touch_1_active
         )
         self._handle_state(
             self._touch_1_y,
-            calc_touch_x,
-            in_report.touch_1_3,
-            in_report.touch_1_2,
-            skip=not touch_0_active,
+            StateValueCalc.touch_x(in_report.touch_1_3, in_report.touch_1_2),
+            skip=not touch_1_active
         )
 
         # ##### TRIGGER FEEDBACK #####
@@ -401,7 +396,7 @@ class ReadStates(BaseStates[ReadStateName]):
         self._handle_state(self._r2_feedback_value, in_report.r2_feedback & 0xff)
 
         # ##### BATTERY #####
-        self._handle_state(self._battery_level_percent, in_report.battery_0)
+        self._handle_state(self._battery_level_percent, StateValueCalc.batt_level_percentage(in_report.battery_0))
         self._handle_state(self._battery_full, not not (in_report.battery_0 & 0x20))
         self._handle_state(self._battery_charging, not not (in_report.battery_1 & 0x08))
 

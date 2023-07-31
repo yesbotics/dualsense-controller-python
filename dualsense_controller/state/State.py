@@ -50,8 +50,8 @@ class State(Generic[StateValueType]):
             raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn = None,
             ignore_none: bool = True,
-            is_based_on: list[State[Any]] = None,
-            is_base_for: list[State[Any]] = None,
+            depends_on: list[State[Any]] = None,
+            is_dependency_of: list[State[Any]] = None,
     ):
         super().__init__()
         # CONST
@@ -64,8 +64,9 @@ class State(Generic[StateValueType]):
         self._event_name_3_args: Final[str] = f'{name}_3'
         self._event_name_4_args: Final[str] = f'{name}_4'
         self._default_value: Final[StateValueType | None] = default_value
-        self._is_based_on: Final[list[State[StateValueType]]] = is_based_on if is_based_on is not None else []
-        self._is_base_for: Final[list[State[StateValueType]]] = is_base_for if is_base_for is not None else []
+        self._depends_on: Final[list[State[StateValueType]]] = depends_on if depends_on is not None else []
+        self._is_dependency_of: Final[
+            list[State[StateValueType]]] = is_dependency_of if is_dependency_of is not None else []
         self._compare_fn: Final[CompareFn] = compare_fn if compare_fn is not None else compare
         self._mapped_to_raw_fn: Final[MapFn] = mapped_to_raw_fn
         self._raw_to_mapped_fn: Final[MapFn] = raw_to_mapped_fn
@@ -76,11 +77,11 @@ class State(Generic[StateValueType]):
         self._last_value: StateValueType | None = None
         self._changed_since_last_update: bool = False
 
-        for based_on_state in self._is_based_on:
-            based_on_state.add_as_base_for(self)
+        for depends_on_state in self._depends_on:
+            depends_on_state.add_as_dependecy_of(self)
 
-        for base_for_state in self._is_base_for:
-            base_for_state.add_is_based_on(self)
+        for is_dependency_of_state in self._is_dependency_of:
+            is_dependency_of_state.add_depends_on(self)
 
     # ################# PRIVATE ###############
 
@@ -158,11 +159,11 @@ class State(Generic[StateValueType]):
         if self.has_changed:
             self._trigger_change()
 
-    def add_as_base_for(self, state: State[Any]):
-        self._is_base_for.append(state)
+    def add_as_dependecy_of(self, state: State[Any]):
+        self._is_dependency_of.append(state)
 
-    def add_is_based_on(self, state: State[Any]):
-        self._is_based_on.append(state)
+    def add_depends_on(self, state: State[Any]):
+        self._depends_on.append(state)
 
     def set_value_without_triggering_change(self, new_value: StateValueType | None, timestamp: int = None):
         self.set_value(new_value, timestamp=timestamp, trigger_change_on_changed=False)
@@ -219,7 +220,7 @@ class State(Generic[StateValueType]):
 
     @property
     def value_mapped(self) -> StateValueType:
-        return self.value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(self._value)
+        return self.value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(self.value)
 
     @value_mapped.setter
     def value_mapped(self, value_mapped: StateValueType | None) -> None:
@@ -237,34 +238,38 @@ class State(Generic[StateValueType]):
 
     @property
     def has_changed(self) -> bool:
-        return (
-                self.has_changed_self_only
-                or any(state.has_changed_self_only for state in self._is_base_for)
-                or any(state.has_changed for state in self._is_based_on)
-        )
-
-    @property
-    def has_changed_self_only(self) -> bool:
         return self._changed_since_last_update
 
     @property
-    def has_changed_deps(self) -> bool:
-        return self._changed_since_last_update
+    def has_changed_dependencies(self) -> bool:
+        return any(state.has_changed for state in self._depends_on)
 
     @property
-    def has_listeners_self_only(self) -> bool:
-        return len(self._event_emitter.event_names()) > 0
+    def has_changed_dependents(self) -> bool:
+        return any(state.has_changed for state in self._is_dependency_of)
 
     @property
-    def has_listeners_deps(self) -> bool:
+    def has_changed_dependencies_or_dependents(self) -> bool:
         return (
-                any(state.has_listeners_self_only for state in self._is_base_for)
-                or any(state.has_listeners for state in self._is_based_on)
+                any(state.has_changed for state in self._is_dependency_of)
+                or any(state.has_changed for state in self._depends_on)
         )
 
     @property
     def has_listeners(self) -> bool:
+        return len(self._event_emitter.event_names()) > 0
+
+    @property
+    def has_listened_dependencies_or_dependents(self) -> bool:
         return (
-                self.has_listeners_self_only
-                or self.has_listeners_deps
+                any(state.has_listeners for state in self._is_dependency_of)
+                or any(state.has_listeners for state in self._depends_on)
         )
+
+    @property
+    def has_listened_dependents(self) -> bool:
+        return any(state.has_listeners for state in self._is_dependency_of)
+
+    @property
+    def has_listened_dependencies(self) -> bool:
+        return any(state.has_listeners for state in self._depends_on)

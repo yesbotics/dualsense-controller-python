@@ -39,10 +39,6 @@ class HidControllerDevice:
         return self._connection_type
 
     @property
-    def device_index(self) -> int:
-        return self._device_index
-
-    @property
     def out_report(self) -> OutReport:
         return self._out_report
 
@@ -50,20 +46,24 @@ class HidControllerDevice:
     def opened(self) -> bool:
         return self._hid_device is not None
 
-    def __init__(self, device_index: int = 0):
-        self._device_index = device_index
+    def __init__(self, device_index_or_device_info: int | hidapi.DeviceInfo = 0):
         self._connection_type: ConnectionType = ConnectionType.UNDEFINED
         self._loop_thread: Thread | None = None
         self._stop_thread_event: threading.Event | None = None
         self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
 
-        hid_device_infos: list[hidapi.DeviceInfo] = HidControllerDevice.enumerate_devices()
-        num_hid_device_infos: int = len(hid_device_infos)
-        if num_hid_device_infos < 1:
-            raise NoDeviceDetectedException
-        if num_hid_device_infos < self._device_index + 1:
-            raise InvalidDeviceIndexException(self._device_index)
-        device_info: hidapi.DeviceInfo = hid_device_infos[self._device_index]
+        device_info: hidapi.DeviceInfo
+        if isinstance(device_index_or_device_info, int):
+            device_index: int = device_index_or_device_info
+            hid_device_infos: list[hidapi.DeviceInfo] = HidControllerDevice.enumerate_devices()
+            num_hid_device_infos: int = len(hid_device_infos)
+            if num_hid_device_infos < 1:
+                raise NoDeviceDetectedException
+            if num_hid_device_infos < device_index + 1:
+                raise InvalidDeviceIndexException(device_index)
+            device_info = hid_device_infos[device_index]
+        else:
+            device_info = device_index_or_device_info
         self._serial_number = device_info.serial_number
         self._hid_device: hidapi.Device | None = None
 

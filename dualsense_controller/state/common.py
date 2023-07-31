@@ -8,10 +8,12 @@ from dualsense_controller import ConnectionType
 
 
 class ReadStateName(str, Enum):
+    DPAD = 'DPAD'
     BTN_UP = 'BTN_UP'
     BTN_LEFT = 'BTN_LEFT'
     BTN_DOWN = 'BTN_DOWN'
     BTN_RIGHT = 'BTN_RIGHT'
+
     BTN_SQUARE = "BTN_SQUARE"
     BTN_CROSS = "BTN_CROSS"
     BTN_CIRCLE = "BTN_CIRCLE"
@@ -116,6 +118,7 @@ CompareResult = tuple[bool, StateValueType]
 CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
 Number = int | float
 MapFn = Callable[[Any], Any]
+DetermineStateValueFn = Callable[[StateValueType, int], StateValueType]
 
 _DEFAULT_NUMBER: Final[Number] = -99999
 _HALF_255: Final[Number] = 127
@@ -216,8 +219,7 @@ def compare_orientation(before: Orientation, after: Orientation, threshold: int 
 # ######### MAPPING #######
 class StateDeterminationLevel(int, Enum):
     LISTENER = 0  # only if has listener(s)
-    DEMAND = 1  # has listeners or if demanded
-    ALWAYS = 2  # every loo state is determined
+    ALWAYS = 1  # every loo state is determined
 
 
 # ######### MAPPING #######
