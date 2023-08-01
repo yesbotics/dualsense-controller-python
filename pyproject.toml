@@ -21,6 +21,7 @@ pytest = "^7.4.0"
 
 [tool.poetry.group.dev.dependencies]
 cffi = "^1.15.1"
+setuptools = "^68.0.0"
 
 [tool.poetry.scripts]
 dualsense-controller-example = 'example:main'
