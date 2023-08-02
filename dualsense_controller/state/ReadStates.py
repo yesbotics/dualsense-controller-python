@@ -7,9 +7,9 @@ from dualsense_controller.state import (
     Accelerometer, BaseStates, Gyroscope, JoyStick,
     Orientation, ReadStateName, RestrictedStateAccess, State, StateValueCalc, StateValueMapper
 )
-from .common import Number, StateChangeCb, StateValueMapping, StateValueType, \
+from .common import Battery, Feedback, Number, StateChangeCb, StateValueMapping, StateValueType, \
     TouchFinger, compare_accelerometer, \
-    compare_gyroscope, \
+    compare_battery, compare_feedback, compare_gyroscope, \
     compare_joystick, \
     compare_orientation, \
     compare_shoulder_key, compare_touch_finger
@@ -267,15 +267,26 @@ class ReadStates(BaseStates[ReadStateName]):
         self._l2_feedback_value: Final[State[int]] = self._create_and_register_state(
             ReadStateName.L2_FEEDBACK_VALUE,
         )
+        self._l2_feedback: Final[State[Feedback]] = self._create_and_register_state(
+            ReadStateName.L2_FEEDBACK,
+            depends_on=[self._l2_feedback_active, self._l2_feedback_value],
+            compare_fn=compare_feedback
+        )
+
         self._r2_feedback_active: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.R2_FEEDBACK_ACTIVE,
         )
         self._r2_feedback_value: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2_FEEDBACK_VALUE,
         )
+        self._r2_feedback: Final[State[Feedback]] = self._create_and_register_state(
+            ReadStateName.R2_FEEDBACK,
+            depends_on=[self._r2_feedback_active, self._r2_feedback_value],
+            compare_fn=compare_feedback
+        )
 
         # INIT BATT
-        self._battery_level_percent: Final[State[float]] = self._create_and_register_state(
+        self._battery_level_percentage: Final[State[float]] = self._create_and_register_state(
             ReadStateName.BATTERY_LEVEL_PERCENT,
             ignore_none=False,
         )
@@ -283,9 +294,15 @@ class ReadStates(BaseStates[ReadStateName]):
             ReadStateName.BATTERY_FULL,
             ignore_none=False,
         )
-        self._battery_charging: Final[State[int]] = self._create_and_register_state(
+        self._battery_charging: Final[State[bool]] = self._create_and_register_state(
             ReadStateName.BATTERY_CHARGING,
             ignore_none=False,
+        )
+        self._battery: Final[State[Battery]] = self._create_and_register_state(
+            ReadStateName.BATTERY,
+            ignore_none=False,
+            depends_on=[self._battery_level_percentage, self._battery_full, self._battery_charging],
+            compare_fn=compare_battery
         )
 
     # #################### PRIVATE #######################
@@ -410,13 +427,27 @@ class ReadStates(BaseStates[ReadStateName]):
         # ##### TRIGGER FEEDBACK #####
         self._handle_state(self._l2_feedback_active, bool(in_report.l2_feedback & 0x10))
         self._handle_state(self._l2_feedback_value, in_report.l2_feedback & 0xff)
+        self._handle_state(self._l2_feedback, Feedback(
+            active=self._l2_feedback_active.value,
+            value=self._l2_feedback_value.value
+        ))
+
         self._handle_state(self._r2_feedback_active, bool(in_report.r2_feedback & 0x10))
         self._handle_state(self._r2_feedback_value, in_report.r2_feedback & 0xff)
+        self._handle_state(self._r2_feedback, Feedback(
+            active=self._r2_feedback_active.value,
+            value=self._r2_feedback_value.value
+        ))
 
         # ##### BATTERY #####
-        self._handle_state(self._battery_level_percent, StateValueCalc.batt_level_percentage(in_report.battery_0))
+        self._handle_state(self._battery_level_percentage, StateValueCalc.batt_level_percentage(in_report.battery_0))
         self._handle_state(self._battery_full, not not (in_report.battery_0 & 0x20))
         self._handle_state(self._battery_charging, not not (in_report.battery_1 & 0x08))
+        self._handle_state(self._battery, Battery(
+            level_percentage=self._battery_level_percentage.value,
+            full=self._battery_full.value,
+            charging=self._battery_charging.value,
+        ))
 
         for state in self._states_to_trigger_after_all_states_set:
             state.trigger_change_if_changed()
@@ -619,6 +650,10 @@ class ReadStates(BaseStates[ReadStateName]):
         return self._l2_feedback_value.restricted_access
 
     @property
+    def l2_feedback(self) -> RestrictedStateAccess[Feedback]:
+        return self._l2_feedback.restricted_access
+
+    @property
     def r2_feedback_active(self) -> RestrictedStateAccess[bool]:
         return self._r2_feedback_active.restricted_access
 
@@ -627,8 +662,12 @@ class ReadStates(BaseStates[ReadStateName]):
         return self._r2_feedback_value.restricted_access
 
     @property
-    def battery_level_percent(self) -> RestrictedStateAccess[float]:
-        return self._battery_level_percent.restricted_access
+    def r2_feedback(self) -> RestrictedStateAccess[Feedback]:
+        return self._r2_feedback.restricted_access
+
+    @property
+    def battery_level_percentage(self) -> RestrictedStateAccess[float]:
+        return self._battery_level_percentage.restricted_access
 
     @property
     def battery_full(self) -> RestrictedStateAccess[bool]:
@@ -637,6 +676,10 @@ class ReadStates(BaseStates[ReadStateName]):
     @property
     def battery_charging(self) -> RestrictedStateAccess[int]:
         return self._battery_charging.restricted_access
+
+    @property
+    def battery(self) -> RestrictedStateAccess[Battery]:
+        return self._battery.restricted_access
 
     # ####### COMPLEX ########
     @property

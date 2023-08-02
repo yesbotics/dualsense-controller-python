@@ -43,6 +43,13 @@ class Example:
         self._dualsense_controller.on_exception(self._on_exception)
         self._dualsense_controller.on_connection_change(self._on_connection_change)
 
+        # batt
+        self._dualsense_controller.on_battery_low(75, self._on_battery_low)
+        self._dualsense_controller.states.battery.on_change(lambda batt: print(f'battery: {batt}'))
+
+        self._dualsense_controller.states.l2_feedback.on_change(lambda fb: print(f'L2 Feedback: {fb}'))
+        self._dualsense_controller.states.r2_feedback.on_change(lambda fb: print(f'R2 Feedback: {fb}'))
+
         # sticks
         self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
         self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
@@ -81,9 +88,6 @@ class Example:
         self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
         self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
         self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
-
-        # batt
-        self._dualsense_controller.on_battery_low(75, self._on_battery_low)
 
         # blubb
         self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
@@ -286,7 +290,7 @@ class Example:
                 self._dualsense_controller.states.btn_mute.value = False
             except AttributeError:
                 print('change the state from outside is not allowed.')
-            print("batt lvl:", self._dualsense_controller.states.battery_level_percent.value)
+            print("batt lvl:", self._dualsense_controller.states.battery_level_percentage.value)
             print("batt is full:", self._dualsense_controller.states.battery_full.value)
             print("batt is charging", self._dualsense_controller.states.battery_charging.value)
 

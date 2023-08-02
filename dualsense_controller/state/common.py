@@ -71,6 +71,9 @@ class ReadStateName(str, Enum):
     ORIENTATION = 'ORIENTATION'
     TOUCH_FINGER_1 = 'TOUCH_FINGER_1'
     TOUCH_FINGER_2 = 'TOUCH_FINGER_2'
+    L2_FEEDBACK = "L2_FEEDBACK"
+    R2_FEEDBACK = "R2_FEEDBACK"
+    BATTERY = "BATTERY"
 
 
 class WriteStateName(str, Enum):
@@ -162,6 +165,19 @@ class TouchFinger:
 
 
 @dataclass(frozen=True, slots=True)
+class Battery:
+    level_percentage: float = _DEFAULT_NUMBER
+    full: bool = False
+    charging: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class Feedback:
+    active: bool = False
+    value: int = _DEFAULT_NUMBER
+
+
+@dataclass(frozen=True, slots=True)
 class Orientation:
     yaw: int = _DEFAULT_NUMBER
     pitch: int = _DEFAULT_NUMBER
@@ -239,6 +255,30 @@ def compare_touch_finger(
     if before is None:
         return True, after
     changed: bool = after.active != before.active or after.x != before.x or after.y != before.y or after.id != before.id
+    return changed, after
+
+
+def compare_battery(
+        before: Battery,
+        after: Battery
+) -> CompareResult:
+    if before is None:
+        return True, after
+    changed: bool = (
+            after.level_percentage != before.level_percentage
+            or after.full != before.full
+            or after.charging != before.charging
+    )
+    return changed, after
+
+
+def compare_feedback(
+        before: Feedback,
+        after: Feedback
+) -> CompareResult:
+    if before is None:
+        return True, after
+    changed: bool = after.active != before.active or after.value != before.value
     return changed, after
 
 

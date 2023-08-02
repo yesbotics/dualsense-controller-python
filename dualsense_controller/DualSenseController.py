@@ -3,7 +3,7 @@ from typing import Final
 from dualsense_controller import HidControllerDevice
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
-    Connection, Number, ReadStateName, ReadStates,
+    Battery, Connection, Number, ReadStateName, ReadStates,
     State, StateChangeCb, StateValueMapping, WriteStateName, WriteStates
 )
 from dualsense_controller.util import format_exception
@@ -66,11 +66,11 @@ class DualSenseController:
     def on_battery_low(self, level_percentage: float, callback: BatteryLowCallback):
         battery_low_level_percentage: float = level_percentage
 
-        def check(_: float | None, batt_level_percentage: float) -> None:
-            if batt_level_percentage <= battery_low_level_percentage:
-                callback(batt_level_percentage)
+        def check(batt: Battery) -> None:
+            if batt.level_percentage <= battery_low_level_percentage:
+                callback(batt.level_percentage)
 
-        self.states.battery_level_percent.on_change(check)
+        self.states.battery.on_change(check)
 
     def on_connection_change(self, callback: StateChangeCb):
         self._connection_state.on_change(callback)
