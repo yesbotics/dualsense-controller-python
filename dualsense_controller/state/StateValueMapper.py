@@ -1,8 +1,7 @@
 from functools import partial
 
 from dualsense_controller.state import (
-    Float, FromTo, FromToTuple,
-    Integer, JoyStick,
+    FromTo, JoyStick,
     MapFn,
     Number,
     NumberType, StateValueMapping,
@@ -76,6 +75,11 @@ class StateValueMapper:
         self.set_left_motor_mapped_to_raw: MapFn | None = None
         self.set_right_motor_mapped_to_raw: MapFn | None = None
 
+        self.left_stick_deadzone_mapped_to_raw: MapFn | None = None
+        self.right_stick_deadzone_mapped_to_raw: MapFn | None = None
+        self.left_shoulder_key_deadzone_mapped_to_raw: MapFn | None = None
+        self.left_shoulder_key_deadzone_mapped_to_raw: MapFn | None = None
+
         self._mapping_data: StateValueMappingData = mapping.value
         if isinstance(self._mapping_data, tuple):
             self._mapping_data = self._mapping_data[0]
@@ -84,88 +88,106 @@ class StateValueMapper:
             return
 
         ######## LEFT JOYSTICK ##########
-        self.left_stick_x_raw_to_mapped: MapFn = partial(
+        self.left_stick_x_raw_to_mapped = partial(
             self._number_raw_to_mapped,
             self._mapping_data.left_stick_x
         )
-        self.left_stick_x_mapped_to_raw: MapFn = partial(
+        self.left_stick_x_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.left_stick_x
         )
-        self.left_stick_y_raw_to_mapped: MapFn = partial(
+        self.left_stick_y_raw_to_mapped = partial(
             self._number_raw_to_mapped,
             self._mapping_data.left_stick_y
         )
-        self.left_stick_y_mapped_to_raw: MapFn = partial(
+        self.left_stick_y_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.left_stick_y
         )
-        self.left_stick_raw_to_mapped: MapFn = partial(
+        self.left_stick_raw_to_mapped = partial(
             self._joystick_raw_to_mapped,
             self._mapping_data.left_stick_x,
             self._mapping_data.left_stick_y,
         )
-        self.left_stick_mapped_to_raw: MapFn = partial(
+        self.left_stick_mapped_to_raw = partial(
             self._joystick_mapped_to_raw,
             self._mapping_data.left_stick_x,
             self._mapping_data.left_stick_y,
         )
 
         ######## RIGHT JOYSTICK ##########
-        self.right_stick_x_raw_to_mapped: MapFn = partial(
+        self.right_stick_x_raw_to_mapped = partial(
             self._number_raw_to_mapped,
             self._mapping_data.right_stick_x
         )
-        self.right_stick_x_mapped_to_raw: MapFn = partial(
+        self.right_stick_x_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.right_stick_x
         )
-        self.right_stick_y_raw_to_mapped: MapFn = partial(
+        self.right_stick_y_raw_to_mapped = partial(
             self._number_raw_to_mapped,
             self._mapping_data.right_stick_y
         )
-        self.right_stick_y_mapped_to_raw: MapFn = partial(
+        self.right_stick_y_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.right_stick_y
         )
-        self.right_stick_raw_to_mapped: MapFn = partial(
+        self.right_stick_raw_to_mapped = partial(
             self._joystick_raw_to_mapped,
             self._mapping_data.right_stick_x,
             self._mapping_data.right_stick_y,
         )
-        self.right_stick_mapped_to_raw: MapFn = partial(
+        self.right_stick_mapped_to_raw = partial(
             self._joystick_mapped_to_raw,
             self._mapping_data.right_stick_x,
             self._mapping_data.right_stick_y,
         )
 
         ######## LEFT SHOULDER KEY ##########
-        self.left_shoulder_key_raw_to_mapped: MapFn = partial(
+        self.left_shoulder_key_raw_to_mapped = partial(
             self._number_raw_to_mapped,
             self._mapping_data.left_shoulder_key
         )
-        self.left_shoulder_key_mapped_to_raw: MapFn = partial(
+        self.left_shoulder_key_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.left_shoulder_key
         )
 
         ######## RIGHT SHOULDER KEY ##########
-        self.right_shoulder_key_raw_to_mapped: MapFn = partial(
+        self.right_shoulder_key_raw_to_mapped = partial(
             self._number_raw_to_mapped,
             self._mapping_data.right_shoulder_key
         )
-        self.right_shoulder_key_mapped_to_raw: MapFn = partial(
+        self.right_shoulder_key_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.right_shoulder_key
         )
 
         ######## MOTORS - ONLY NEED TO SET ##########
-        self.set_left_motor_mapped_to_raw: MapFn = partial(
+        self.set_left_motor_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.set_motor_left
         )
 
-        self.set_right_motor_mapped_to_raw: MapFn = partial(
+        self.set_right_motor_mapped_to_raw = partial(
             self._number_mapped_to_raw,
             self._mapping_data.set_motor_right
+        )
+
+        ######## DEADZONE ##########
+        self.left_stick_deadzone_mapped_to_raw = partial(
+            self._number_mapped_to_raw,
+            self._mapping_data.left_stick_deadzone
+        )
+        self.right_stick_deadzone_mapped_to_raw = partial(
+            self._number_mapped_to_raw,
+            self._mapping_data.right_stick_deadzone
+        )
+        self.left_shoulder_key_deadzone_mapped_to_raw = partial(
+            self._number_mapped_to_raw,
+            self._mapping_data.left_shoulder_key_deadzone
+        )
+        self.right_shoulder_key_deadzone_mapped_to_raw = partial(
+            self._number_mapped_to_raw,
+            self._mapping_data.right_shoulder_key_deadzone
         )

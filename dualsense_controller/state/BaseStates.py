@@ -58,7 +58,7 @@ class BaseStates(Generic[StateNameEnumType]):
 
     @staticmethod
     def _wrap_compare_fn(compare_fn, **kwargs) -> CompareFn:
-        def _inner(before, after) -> bool:
+        def _compare_fn(before, after) -> bool:
             return compare_fn(before, after, **kwargs)
 
-        return _inner
+        return _compare_fn

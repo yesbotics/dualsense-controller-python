@@ -9,7 +9,6 @@ from dualsense_controller.state import (
     Gyroscope,
     JoyStick,
     Orientation,
-    StateDeterminationLevel,
 )
 
 
@@ -21,18 +20,20 @@ class Example:
             # ##### BASE  #####
             device_index_or_device_info=0,
             # ##### FEELING  #####
-            joystick_deadzone=10,  # 0-255  # TODO: Deadzone calc based on Mapping
-            shoulder_key_deadzone=10,  # 0-255
+            left_joystick_deadzone=0.5,  # based on mapping
+            right_joystick_deadzone=0.5,  # based on mapping
+            left_shoulder_key_deadzone=0.5,  # based on mapping
+            right_shoulder_key_deadzone=0.5,  # based on mapping
             gyroscope_threshold=100,
             accelerometer_threshold=100,
             orientation_threshold=100,
             # state_value_mapping=StateValueMapping.RAW,  # stick y-axis: 0 ... 255, shoulder key: 0 ... 255
             # state_value_mapping=StateValueMapping.HUNDRED,  # stick y-axis: -100 ... 100, shoulder key: 0 ... 100
             # state_value_mapping=StateValueMapping.RAW_INVERTED,  # stick y-axis: 255 ... 0, shoulder key: 255 ... 0
-            state_value_mapping=StateValueMapping.DEFAULT,  # stick y-axis: 127 ... -128, shoulder key: 0 ... 255
+            # state_value_mapping=StateValueMapping.DEFAULT,  # stick y-axis: 127 ... -128, shoulder key: 0 ... 255
             # state_value_mapping=StateValueMapping.DEFAULT_INVERTED,
             # stick y-axis: -128 ... 127, shoulder key: 0 ... 255
-            # state_value_mapping=StateValueMapping.NORMALIZED,  # stick y-axis: 1.0 ... -1.0, shoulder key: 0.0 ... 1.0
+            state_value_mapping=StateValueMapping.NORMALIZED,  # stick y-axis: 1.0 ... -1.0, shoulder key: 0.0 ... 1.0
             # state_value_mapping=StateValueMapping.NORMALIZED_INVERTED,  # stick y-axis: -1.0 ... 1.0, shoulder key: 0.0 ... 1.0
             # ##### CORE #####
             enforce_update=False,
@@ -43,67 +44,67 @@ class Example:
         self._dualsense_controller.on_connection_change(self._on_connection_change)
 
         # sticks
-        # self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
-        # self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
-        # self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
-        #
-        # self._dualsense_controller.states.btn_ps.on_change(self._on_btn_ps)
-        # self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
-        # self._dualsense_controller.states.btn_create.on_change(self._on_btn_create)
-        # self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute)
-        #
-        # self._dualsense_controller.states.btn_l1.on_change(self._on_btn_l1)
-        # self._dualsense_controller.states.btn_r1.on_change(self._on_btn_r1)
-        # self._dualsense_controller.states.l2.on_change(self._on_l2)
-        # self._dualsense_controller.states.r2.on_change(self._on_r2)
-        #
-        # self._dualsense_controller.states.btn_cross.on_change(self._on_btn_cross)
-        # self._dualsense_controller.states.btn_square.on_change(self._on_btn_square)
-        # self._dualsense_controller.states.btn_triangle.on_change(self._on_btn_triangle)
-        # self._dualsense_controller.states.btn_circle.on_change(self._on_btn_circle)
+        self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
+        self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
+        self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
 
-        # self._dualsense_controller.states.btn_left.on_change(self._on_btn_left)
-        # self._dualsense_controller.states.btn_up.on_change(self._on_btn_up)
-        # self._dualsense_controller.states.btn_right.on_change(self._on_btn_right)
-        # self._dualsense_controller.states.btn_down.on_change(self._on_btn_down)
+        self._dualsense_controller.states.btn_ps.on_change(self._on_btn_ps)
+        self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
+        self._dualsense_controller.states.btn_create.on_change(self._on_btn_create)
+        self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute)
 
-        # self._dualsense_controller.states.btn_r3.on_change(self._on_btn_r3)
-        # self._dualsense_controller.states.btn_l3.on_change(self._on_btn_l3)
-        #
-        # # 4 methods to get all state changes
-        # self._dualsense_controller.on_any_state_change(self._on_any_state)
-        # self._dualsense_controller.states.on_any_change(self._on_any_state_3)
-        # self._dualsense_controller.on_state_change(self._on_any_state_2)
-        # self._dualsense_controller.states.on_change(self._on_any_state_4)
-        #
-        # # 3 methods to get state changes of specific property
-        # self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
-        # self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
-        # self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
-        #
-        # # batt
-        # self._dualsense_controller.on_battery_low(75, self._on_battery_low)
-        #
-        # # blubb
-        # self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
-        #
-        # # touch
-        # self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
-        # self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
-        #
-        # # sticks
-        # self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
-        # self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
-        # self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
-        #
-        # self._dualsense_controller.states.right_stick_x.on_change(self._on_right_stick_x)
-        # self._dualsense_controller.states.right_stick_y.on_change(self._on_right_stick_y)
-        # self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
-        #
-        # # other complex
-        # self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
-        # self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
-        # self._dualsense_controller.states.orientation.on_change(self._on_orientation)
+        self._dualsense_controller.states.btn_l1.on_change(self._on_btn_l1)
+        self._dualsense_controller.states.btn_r1.on_change(self._on_btn_r1)
+        self._dualsense_controller.states.l2.on_change(self._on_l2)
+        self._dualsense_controller.states.r2.on_change(self._on_r2)
+
+        self._dualsense_controller.states.btn_cross.on_change(self._on_btn_cross)
+        self._dualsense_controller.states.btn_square.on_change(self._on_btn_square)
+        self._dualsense_controller.states.btn_triangle.on_change(self._on_btn_triangle)
+        self._dualsense_controller.states.btn_circle.on_change(self._on_btn_circle)
+
+        self._dualsense_controller.states.btn_left.on_change(self._on_btn_left)
+        self._dualsense_controller.states.btn_up.on_change(self._on_btn_up)
+        self._dualsense_controller.states.btn_right.on_change(self._on_btn_right)
+        self._dualsense_controller.states.btn_down.on_change(self._on_btn_down)
+
+        self._dualsense_controller.states.btn_r3.on_change(self._on_btn_r3)
+        self._dualsense_controller.states.btn_l3.on_change(self._on_btn_l3)
+
+        # 4 methods to get all state changes
+        self._dualsense_controller.on_any_state_change(self._on_any_state)
+        self._dualsense_controller.states.on_any_change(self._on_any_state_3)
+        self._dualsense_controller.on_state_change(self._on_any_state_2)
+        self._dualsense_controller.states.on_change(self._on_any_state_4)
+
+        # 3 methods to get state changes of specific property
+        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
+        self._dualsense_controller.states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
+        self._dualsense_controller.states.btn_mute.on_change(self._on_btn_mute_3)
+
+        # batt
+        self._dualsense_controller.on_battery_low(75, self._on_battery_low)
+
+        # blubb
+        self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
+
+        # touch
+        self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
+        self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
+
+        # sticks
+        self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
+        self._dualsense_controller.states.left_stick_y.on_change(self._on_left_stick_y)
+        self._dualsense_controller.states.left_stick.on_change(self._on_left_stick)
+
+        self._dualsense_controller.states.right_stick_x.on_change(self._on_right_stick_x)
+        self._dualsense_controller.states.right_stick_y.on_change(self._on_right_stick_y)
+        self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
+
+        # other complex
+        self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
+        self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
+        self._dualsense_controller.states.orientation.on_change(self._on_orientation)
 
     def run(self) -> None:
         self._stay_alive = True

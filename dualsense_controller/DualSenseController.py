@@ -23,8 +23,10 @@ class DualSenseController:
             # ##### BASE  #####
             device_index_or_device_info: int | hidapi.DeviceInfo = 0,
             # ##### FEELING  #####
-            joystick_deadzone: int = 0,
-            shoulder_key_deadzone: int = 0,
+            left_joystick_deadzone: Number = 0,
+            right_joystick_deadzone: Number = 0,
+            left_shoulder_key_deadzone: Number = 0,
+            right_shoulder_key_deadzone: Number = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
@@ -37,8 +39,10 @@ class DualSenseController:
         self._connection_state: Final[State[Connection]] = State(name=EventType.CONNECTION_CHANGE, ignore_none=False)
 
         self._read_states: Final[ReadStates] = ReadStates(
-            joystick_deadzone=joystick_deadzone,
-            shoulder_key_deadzone=shoulder_key_deadzone,
+            left_joystick_deadzone=left_joystick_deadzone,
+            right_joystick_deadzone=right_joystick_deadzone,
+            left_shoulder_key_deadzone=left_shoulder_key_deadzone,
+            right_shoulder_key_deadzone=right_shoulder_key_deadzone,
             gyroscope_threshold=gyroscope_threshold,
             accelerometer_threshold=accelerometer_threshold,
             orientation_threshold=orientation_threshold,

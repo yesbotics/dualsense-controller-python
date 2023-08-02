@@ -161,7 +161,11 @@ def compare(before: StateValueType | None, after: StateValueType) -> CompareResu
     return (True, after) if before != after else (False, after)
 
 
-def compare_joystick(before: JoyStick | None, after: JoyStick, deadzone: int = 0) -> CompareResult:
+def compare_joystick(
+        before: JoyStick | None,
+        after: JoyStick,
+        deadzone: Number = 0
+) -> CompareResult:
     if before is None:
         return True, after
     if deadzone > 0 and (((after.x - _HALF_255) ** 2) + ((after.y - _HALF_255) ** 2)) <= (deadzone ** 2):
@@ -170,7 +174,10 @@ def compare_joystick(before: JoyStick | None, after: JoyStick, deadzone: int = 0
     return changed, after
 
 
-def compare_shoulder_key(before: int | None, after: int, deadzone: int = 0) -> CompareResult:
+def compare_shoulder_key(
+        before: int | None,
+        after: int,
+        deadzone: Number = 0) -> CompareResult:
     if before is None:
         return True, after
     if deadzone > 0 and after <= deadzone:
@@ -180,7 +187,11 @@ def compare_shoulder_key(before: int | None, after: int, deadzone: int = 0) -> C
 
 
 # TODO: refact that compare fcts
-def compare_gyroscope(before: Gyroscope, after: Gyroscope, threshold: int = 0) -> CompareResult:
+def compare_gyroscope(
+        before: Gyroscope,
+        after: Gyroscope,
+        threshold: Number = 0
+) -> CompareResult:
     if before is None:
         return True, after
     if threshold > 0:
@@ -192,7 +203,11 @@ def compare_gyroscope(before: Gyroscope, after: Gyroscope, threshold: int = 0) -
     return changed, after
 
 
-def compare_accelerometer(before: Accelerometer, after: Accelerometer, threshold: int = 0) -> CompareResult:
+def compare_accelerometer(
+        before: Accelerometer,
+        after: Accelerometer,
+        threshold: Number = 0
+) -> CompareResult:
     if before is None:
         return True, after
     if threshold > 0:
@@ -204,7 +219,11 @@ def compare_accelerometer(before: Accelerometer, after: Accelerometer, threshold
     return changed, after
 
 
-def compare_orientation(before: Orientation, after: Orientation, threshold: int = 0) -> CompareResult:
+def compare_orientation(
+        before: Orientation,
+        after: Orientation,
+        threshold: Number = 0
+) -> CompareResult:
     if before is None:
         return True, after
     if threshold > 0:
@@ -214,12 +233,6 @@ def compare_orientation(before: Orientation, after: Orientation, threshold: int 
             after = Orientation(before.yaw, before.pitch, before.roll)
     changed: bool = after.yaw != before.yaw or after.pitch != before.pitch or after.roll != before.roll
     return changed, after
-
-
-# ######### MAPPING #######
-class StateDeterminationLevel(int, Enum):
-    LISTENER = 0  # only if has listener(s)
-    ALWAYS = 1  # every loo state is determined
 
 
 # ######### MAPPING #######
@@ -263,10 +276,18 @@ class FromTo:
 class StateValueMappingData:
     left_stick_x: FromTo = None
     left_stick_y: FromTo = None
+    left_stick_deadzone: FromTo = None
+
     right_stick_x: FromTo = None
     right_stick_y: FromTo = None
+    right_stick_deadzone: FromTo = None
+
     left_shoulder_key: FromTo = None
+    left_shoulder_key_deadzone: FromTo = None
+
     right_shoulder_key: FromTo = None
+    right_shoulder_key_deadzone: FromTo = None
+
     set_motor_left: FromTo = None
     set_motor_right: FromTo = None
 
@@ -281,24 +302,32 @@ class StateValueMapping(Enum):
     # RAW = StateValueMappingData(
     #     left_stick_x=FromTo(0, 255, 0, 255),
     #     left_stick_y=FromTo(0, 255, 0, 255),
+    #     left_stick_deadzone=FromTo(0, 255, 0, 255),
     #     right_stick_x=FromTo(0, 255, 0, 255),
     #     right_stick_y=FromTo(0, 255, 0, 255),
+    #     right_stick_deadzone=FromTo(0, 255, 0, 255),
     #     left_shoulder_key=FromTo(0, 255, 0, 255),
+    #     left_shoulder_key_deadzone=FromTo(0, 255, 0, 255),
     #     right_shoulder_key=FromTo(0, 255, 0, 255),
+    #     right_shoulder_key_deadzone=FromTo(0, 255, 0, 255),
     #     set_motor_left=FromTo(0, 255, 0, 255),
     #     set_motor_right=FromTo(0, 255, 0, 255),
     # ),
-    # thats why
+    # # thats why
     RAW = None
 
     # stick y-axis: -100 ... 100, shoulder key: 0 ... 100
     HUNDRED = StateValueMappingData(
         left_stick_x=FromTo(0, 255, -100, 100),
         left_stick_y=FromTo(0, 255, 100, -100),
+        left_stick_deadzone=FromTo(0, 255, 0, 100),
         right_stick_x=FromTo(0, 255, -100, 100),
         right_stick_y=FromTo(0, 255, 100, -100),
+        right_stick_deadzone=FromTo(0, 255, 0, 100),
         left_shoulder_key=FromTo(0, 255, 0, 100),
+        left_shoulder_key_deadzone=FromTo(0, 255, 0, 100),
         right_shoulder_key=FromTo(0, 255, 0, 100),
+        right_shoulder_key_deadzone=FromTo(0, 255, 0, 100),
         set_motor_left=FromTo(0, 255, 0, 100),
         set_motor_right=FromTo(0, 255, 0, 100),
     )
@@ -329,10 +358,14 @@ class StateValueMapping(Enum):
     NORMALIZED = StateValueMappingData(
         left_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
         left_stick_y=FromTo(0, 255, 1.0, -1.0, to_type=Float()),
+        left_stick_deadzone=FromTo(0, 127, 0, 1.0, to_type=Float()),
         right_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
         right_stick_y=FromTo(0, 255, 1.0, -1.0, to_type=Float()),
+        right_stick_deadzone=FromTo(0, 127, 0, 1.0, to_type=Float()),
         left_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        left_shoulder_key_deadzone=FromTo(0, 255, 0, 1.0, to_type=Float()),
         right_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        right_shoulder_key_deadzone=FromTo(0, 255, 0, 1.0, to_type=Float()),
         set_motor_left=FromTo(0, 255, 0, 1.0, to_type=Float()),
         set_motor_right=FromTo(0, 255, 0, 1.0, to_type=Float()),
     )
@@ -340,10 +373,14 @@ class StateValueMapping(Enum):
     NORMALIZED_INVERTED = StateValueMappingData(
         left_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
         left_stick_y=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        left_stick_deadzone=FromTo(0, 127, 0, 1.0, to_type=Float()),
         right_stick_x=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
         right_stick_y=FromTo(0, 255, -1.0, 1.0, to_type=Float()),
+        right_stick_deadzone=FromTo(0, 127, 0, 1.0, to_type=Float()),
         left_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        left_shoulder_key_deadzone=FromTo(0, 255, 0, 1.0, to_type=Float()),
         right_shoulder_key=FromTo(0, 255, 0, 1.0, to_type=Float()),
+        right_shoulder_key_deadzone=FromTo(0, 255, 0, 1.0, to_type=Float()),
         set_motor_left=FromTo(0, 255, 0, 1.0, to_type=Float()),
         set_motor_right=FromTo(0, 255, 0, 1.0, to_type=Float()),
     )
