@@ -1,3 +1,4 @@
+import math
 import time
 from typing import Final
 
@@ -122,10 +123,14 @@ class ReadStates(BaseStates[ReadStateName]):
         )
         self._orientation: Final[State[Orientation]] = self._create_and_register_state(
             ReadStateName.ORIENTATION,
-            default_value=Orientation(),
+            default_value=Orientation(0, 0, 0),
             depends_on=[self._gyroscope, self._accelerometer],
             compare_fn=compare_orientation,
-            threshold=orientation_threshold
+            threshold=orientation_threshold,
+            raw_to_mapped_fn=lambda raw: Orientation(
+                round(math.degrees(raw.pitch), 2),
+                round(math.degrees(raw.roll), 2)
+            ),
         )
 
         # INIT SHOULDER KEYS
@@ -330,7 +335,11 @@ class ReadStates(BaseStates[ReadStateName]):
 
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
-        self._timestamp = time.perf_counter_ns()
+        now_timestamp: int = time.perf_counter_ns()
+        diff_timestamp: int = now_timestamp - self._timestamp if self._timestamp is not None else 0
+        # print('diff_timestamp ns', diff_timestamp)
+
+        self._timestamp = now_timestamp
         self._in_report = in_report
 
         # #### ANALOG STICKS #####
@@ -398,7 +407,14 @@ class ReadStates(BaseStates[ReadStateName]):
         self._handle_state(self._accelerometer_z, self._accelerometer.value.z)
 
         # ##### ORIENTATION #####
-        self._handle_state(self._orientation, Orientation())  # TODO: calc it
+        # self._handle_state(self._orientation, StateValueCalc.orientation_complementary_filter(
+        #     gyro=self._gyroscope.value,
+        #     accel=self.accelerometer.value,
+        #     previous_orientation=self._orientation.value,
+        # ))
+        self._handle_state(self._orientation, StateValueCalc.orientation_simple(
+            accel=self.accelerometer.value,
+        ))
 
         # ##### TOUCH 0 #####
         self._handle_state(self._touch_finger_1_active, StateValueCalc.touch_active(in_report.touch_1_0))

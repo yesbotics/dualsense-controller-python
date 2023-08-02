@@ -179,9 +179,9 @@ class Feedback:
 
 @dataclass(frozen=True, slots=True)
 class Orientation:
-    yaw: int = _DEFAULT_NUMBER
-    pitch: int = _DEFAULT_NUMBER
-    roll: int = _DEFAULT_NUMBER
+    pitch: float = _DEFAULT_NUMBER
+    roll: float = _DEFAULT_NUMBER
+    yaw: float | None = None
 
 
 def compare(before: StateValueType | None, after: StateValueType) -> CompareResult:

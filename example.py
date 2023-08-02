@@ -1,3 +1,4 @@
+import math
 from time import sleep
 from typing import Any
 
@@ -24,9 +25,9 @@ class Example:
             right_joystick_deadzone=10,  # based on mapping
             left_shoulder_key_deadzone=10,  # based on mapping
             right_shoulder_key_deadzone=10,  # based on mapping
-            gyroscope_threshold=100,
-            accelerometer_threshold=100,
-            orientation_threshold=100,
+            gyroscope_threshold=0,
+            accelerometer_threshold=0,
+            orientation_threshold=0,
             # state_value_mapping=StateValueMapping.RAW,  # stick y-axis: 0 ... 255, shoulder key: 0 ... 255
             # state_value_mapping=StateValueMapping.HUNDRED,  # stick y-axis: -100 ... 100, shoulder key: 0 ... 100
             # state_value_mapping=StateValueMapping.RAW_INVERTED,  # stick y-axis: 255 ... 0, shoulder key: 255 ... 0
@@ -106,9 +107,9 @@ class Example:
         self._dualsense_controller.states.right_stick.on_change(self._on_right_stick)
 
         # other complex
-        self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
-        self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
-        self._dualsense_controller.states.orientation.on_change(self._on_orientation)
+        # self._dualsense_controller.states.gyroscope.on_change(self._on_gyroscope)
+        # self._dualsense_controller.states.accelerometer.on_change(self._on_accelerometer)
+        # self._dualsense_controller.states.orientation.on_change(self._on_orientation)
 
     def run(self) -> None:
         self._stay_alive = True
@@ -342,7 +343,7 @@ class Example:
         pass
 
     def _on_orientation(self, state: Orientation) -> None:
-        # print(f'Orientation: {state}')
+        print(f'Orientation: {state}')
         pass
 
 
