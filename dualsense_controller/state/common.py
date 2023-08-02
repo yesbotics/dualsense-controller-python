@@ -9,6 +9,7 @@ from dualsense_controller import ConnectionType
 
 class ReadStateName(str, Enum):
     DPAD = 'DPAD'
+
     BTN_UP = 'BTN_UP'
     BTN_LEFT = 'BTN_LEFT'
     BTN_DOWN = 'BTN_DOWN'
@@ -44,14 +45,14 @@ class ReadStateName(str, Enum):
     ACCELEROMETER_Y = "ACCELEROMETER_Y"
     ACCELEROMETER_Z = "ACCELEROMETER_Z"
 
-    TOUCH_0_ACTIVE = 'TOUCH_0_ACTIVE'
-    TOUCH_0_ID = 'TOUCH_0_ID'
-    TOUCH_0_X = 'TOUCH_0_X'
-    TOUCH_0_Y = 'TOUCH_0_Y'
-    TOUCH_1_ACTIVE = 'TOUCH_1_ACTIVE'
-    TOUCH_1_ID = 'TOUCH_1_ID'
-    TOUCH_1_X = 'TOUCH_1_X'
-    TOUCH_1_Y = 'TOUCH_1_Y'
+    TOUCH_FINGER_1_ACTIVE = 'TOUCH_FINGER_1_ACTIVE'
+    TOUCH_FINGER_1_ID = 'TOUCH_FINGER_1_ID'
+    TOUCH_FINGER_1_X = 'TOUCH_FINGER_1_X'
+    TOUCH_FINGER_1_Y = 'TOUCH_FINGER_1_Y'
+    TOUCH_FINGER_2_ACTIVE = 'TOUCH_FINGER_2_ACTIVE'
+    TOUCH_FINGER_2_ID = 'TOUCH_FINGER_2_ID'
+    TOUCH_FINGER_2_X = 'TOUCH_FINGER_2_X'
+    TOUCH_FINGER_2_Y = 'TOUCH_FINGER_2_Y'
 
     L2_FEEDBACK_ACTIVE = 'L2_FEEDBACK_ACTIVE'
     L2_FEEDBACK_VALUE = 'L2_FEEDBACK_VALUE'
@@ -68,6 +69,8 @@ class ReadStateName(str, Enum):
     GYROSCOPE = 'GYROSCOPE'
     ACCELEROMETER = 'ACCELEROMETER'
     ORIENTATION = 'ORIENTATION'
+    TOUCH_FINGER_1 = 'TOUCH_FINGER_1'
+    TOUCH_FINGER_2 = 'TOUCH_FINGER_2'
 
 
 class WriteStateName(str, Enum):
@@ -151,6 +154,14 @@ class Accelerometer:
 
 
 @dataclass(frozen=True, slots=True)
+class TouchFinger:
+    active: bool = False
+    id: int = _DEFAULT_NUMBER
+    x: int = _DEFAULT_NUMBER
+    y: int = _DEFAULT_NUMBER
+
+
+@dataclass(frozen=True, slots=True)
 class Orientation:
     yaw: int = _DEFAULT_NUMBER
     pitch: int = _DEFAULT_NUMBER
@@ -218,6 +229,16 @@ def compare_accelerometer(
                 and abs(after.z - before.z) < threshold:
             after = Gyroscope(before.x, before.y, before.z)
     changed: bool = after.x != before.x or after.y != before.y or after.z != before.z
+    return changed, after
+
+
+def compare_touch_finger(
+        before: TouchFinger,
+        after: TouchFinger
+) -> CompareResult:
+    if before is None:
+        return True, after
+    changed: bool = after.active != before.active or after.x != before.x or after.y != before.y or after.id != before.id
     return changed, after
 
 

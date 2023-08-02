@@ -7,7 +7,7 @@ class StateValueCalc:
 
     @classmethod
     def touch_active(cls, t_0: int) -> bool:
-        return bool(t_0 & 0x80)
+        return not (t_0 & 0x80)
 
     @classmethod
     def touch_id(cls, t_0: int) -> int:
@@ -19,7 +19,7 @@ class StateValueCalc:
 
     @classmethod
     def touch_y(cls, t_3: int, t_2: int) -> int:
-        return (t_3 << 4) | ((t_2 & 0xF0) >> 4)
+        return ((t_3 << 4) | ((t_2 & 0xF0) >> 4))
 
     @classmethod
     def batt_level_percentage(cls, b: int) -> float:

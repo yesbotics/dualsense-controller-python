@@ -8,7 +8,7 @@ from dualsense_controller.state import (
     Accelerometer,
     Gyroscope,
     JoyStick,
-    Orientation,
+    Orientation, TouchFinger,
 )
 
 
@@ -89,8 +89,8 @@ class Example:
         self._dualsense_controller.states.btn_options.on_change(self._on_btn_options)
 
         # touch
-        self._dualsense_controller.states.touch_0_x.on_change(self._on_touch_0)
-        self._dualsense_controller.states.touch_0_y.on_change(self._on_touch_0)
+        self._dualsense_controller.states.touch_finger_1.on_change(self._on_touch_finger_1)
+        self._dualsense_controller.states.touch_finger_2.on_change(self._on_touch_finger_2)
 
         # sticks
         self._dualsense_controller.states.left_stick_x.on_change(self._on_left_stick_x)
@@ -231,27 +231,31 @@ class Example:
             print(f"L3 -> pulse FADE_BLUE")
             self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
 
+    def _on_touch_finger_2(self, touch: TouchFinger) -> None:
+        print('touch2', touch)
+
     #
     # Touch0 x-value -> rgb-color
     #
-    def _on_touch_0(self) -> None:
-        x_max = 1920
-        y_max = 1080
-        x = self._dualsense_controller.states.touch_0_x.value
-        y = self._dualsense_controller.states.touch_0_y.value
-        x = min(x_max, max(0, x))
-        y = min(y_max, max(0, y))
+    def _on_touch_finger_1(self, touch: TouchFinger) -> None:
+        print('touch1', touch)
+        # x_max = 1920
+        # y_max = 1080
+        # x = self._dualsense_controller.states.touch_0_x.value
+        # y = self._dualsense_controller.states.touch_0_y.value
+        # x = min(x_max, max(0, x))
+        # y = min(y_max, max(0, y))
+        #
+        # color = int(0xffffff * x / x_max)
+        # red = (color >> 16) & 0xff
+        # green = (color >> 8) & 0xff
+        # blue = color & 0xff
 
-        color = int(0xffffff * x / x_max)
-        red = (color >> 16) & 0xff
-        green = (color >> 8) & 0xff
-        blue = color & 0xff
-
-        # print(f"Touch {x}-{y} -> color {hex(color)} {red}-{green}-{blue}")
-
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, red)
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, green)
-        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, blue)
+        # # print(f"Touch {x}-{y} -> color {hex(color)} {red}-{green}-{blue}")
+        #
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, red)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, green)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, blue)
 
     #
     # all

@@ -101,11 +101,11 @@ class InReport(ABC):
         return self._accel_y_0
 
     @property
-    def touch_0_2(self) -> int:
+    def touch_1_2(self) -> int:
         return self._touch_0_2
 
     @property
-    def touch_1_1(self) -> int:
+    def touch_2_1(self) -> int:
         return self._touch_1_1
 
     @property
@@ -117,11 +117,11 @@ class InReport(ABC):
         return self._accel_z_0
 
     @property
-    def touch_0_3(self) -> int:
+    def touch_1_3(self) -> int:
         return self._touch_0_3
 
     @property
-    def touch_1_2(self) -> int:
+    def touch_2_2(self) -> int:
         return self._touch_1_2
 
     @property
@@ -129,11 +129,11 @@ class InReport(ABC):
         return self._accel_z_1
 
     @property
-    def touch_1_3(self) -> int:
+    def touch_2_3(self) -> int:
         return self._touch_1_3
 
     @property
-    def touch_0_0(self) -> int:
+    def touch_1_0(self) -> int:
         return self._touch_0_0
 
     @property
@@ -141,11 +141,11 @@ class InReport(ABC):
         return self._accel_x_0
 
     @property
-    def touch_0_1(self) -> int:
+    def touch_1_1(self) -> int:
         return self._touch_0_1
 
     @property
-    def touch_1_0(self) -> int:
+    def touch_2_0(self) -> int:
         return self._touch_1_0
 
     @property

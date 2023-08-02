@@ -8,11 +8,11 @@ from dualsense_controller.state import (
     Orientation, ReadStateName, RestrictedStateAccess, State, StateValueCalc, StateValueMapper
 )
 from .common import Number, StateChangeCb, StateValueMapping, StateValueType, \
-    compare_accelerometer, \
+    TouchFinger, compare_accelerometer, \
     compare_gyroscope, \
     compare_joystick, \
     compare_orientation, \
-    compare_shoulder_key
+    compare_shoulder_key, compare_touch_finger
 
 
 class ReadStates(BaseStates[ReadStateName]):
@@ -213,29 +213,51 @@ class ReadStates(BaseStates[ReadStateName]):
         )
 
         # INIT TOUCH
-        self._touch_0_active: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_ACTIVE,
+        self._touch_finger_1_active: Final[State[bool]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_1_ACTIVE,
         )
-        self._touch_0_id: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_ID,
+        self._touch_finger_1_id: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_1_ID,
         )
-        self._touch_0_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_X,
+        self._touch_finger_1_x: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_1_X,
         )
-        self._touch_0_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_0_Y,
+        self._touch_finger_1_y: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_1_Y,
         )
-        self._touch_1_active: Final[State[bool]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_ACTIVE,
+        self._touch_finger_1: Final[State[TouchFinger]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_1,
+            compare_fn=compare_touch_finger,
+            depends_on=[
+                self._touch_finger_1_active,
+                self._touch_finger_1_id,
+                self._touch_finger_1_x,
+                self._touch_finger_1_y
+            ]
         )
-        self._touch_1_id: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_ID,
+
+        self._touch_finger_2_active: Final[State[bool]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_2_ACTIVE,
         )
-        self._touch_1_x: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_X,
+        self._touch_finger_2_id: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_2_ID,
         )
-        self._touch_1_y: Final[State[int]] = self._create_and_register_state(
-            ReadStateName.TOUCH_1_Y,
+        self._touch_finger_2_x: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_2_X,
+        )
+        self._touch_finger_2_y: Final[State[int]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_2_Y,
+        )
+        self._touch_finger_2: Final[State[TouchFinger]] = self._create_and_register_state(
+            ReadStateName.TOUCH_FINGER_2,
+            compare_fn=compare_touch_finger,
+            depends_on=[
+                self._touch_finger_1,
+                self._touch_finger_2_active,
+                self._touch_finger_2_id,
+                self._touch_finger_2_x,
+                self._touch_finger_2_y
+            ]
         )
 
         # INIT FEEDBACK
@@ -272,11 +294,7 @@ class ReadStates(BaseStates[ReadStateName]):
             self,
             state: State[StateValueType],
             value: StateValueType,
-            skip: bool = False,
     ) -> StateValueType | None:
-        if skip:
-            return None
-
         if (
                 self._enforce_update
                 or state.has_listeners
@@ -366,36 +384,28 @@ class ReadStates(BaseStates[ReadStateName]):
         self._handle_state(self._orientation, Orientation())  # TODO: calc it
 
         # ##### TOUCH 0 #####
-        touch_0_active: bool = self._handle_state(
-            self._touch_0_active, StateValueCalc.touch_active(in_report.touch_0_0)
-        )
-        self._handle_state(self._touch_0_id, StateValueCalc.touch_id(in_report.touch_0_0), skip=not touch_0_active)
-        self._handle_state(
-            self._touch_0_x,
-            StateValueCalc.touch_x(in_report.touch_0_2, in_report.touch_0_1),
-            skip=not touch_0_active
-        )
-        self._handle_state(
-            self._touch_0_y,
-            StateValueCalc.touch_x(in_report.touch_0_3, in_report.touch_0_2),
-            skip=not touch_0_active
-        )
+        self._handle_state(self._touch_finger_1_active, StateValueCalc.touch_active(in_report.touch_1_0))
+        self._handle_state(self._touch_finger_1_id, StateValueCalc.touch_id(in_report.touch_1_0))
+        self._handle_state(self._touch_finger_1_x, StateValueCalc.touch_x(in_report.touch_1_2, in_report.touch_1_1))
+        self._handle_state(self._touch_finger_1_y, StateValueCalc.touch_y(in_report.touch_1_3, in_report.touch_1_2))
+        self._handle_state(self._touch_finger_1, TouchFinger(
+            active=self._touch_finger_1_active.value,
+            id=self._touch_finger_1_id.value,
+            x=self._touch_finger_1_x.value,
+            y=self._touch_finger_1_y.value,
+        ))
 
         # ##### TOUCH 1 #####
-        touch_1_active: bool = self._handle_state(
-            self._touch_1_active, StateValueCalc.touch_active(in_report.touch_1_0)
-        )
-        self._handle_state(self._touch_1_id, StateValueCalc.touch_id(in_report.touch_1_0), skip=not touch_1_active)
-        self._handle_state(
-            self._touch_1_x,
-            StateValueCalc.touch_x(in_report.touch_1_2, in_report.touch_1_1),
-            skip=not touch_1_active
-        )
-        self._handle_state(
-            self._touch_1_y,
-            StateValueCalc.touch_x(in_report.touch_1_3, in_report.touch_1_2),
-            skip=not touch_1_active
-        )
+        self._handle_state(self._touch_finger_2_active, StateValueCalc.touch_active(in_report.touch_2_0))
+        self._handle_state(self._touch_finger_2_id, StateValueCalc.touch_id(in_report.touch_2_0))
+        self._handle_state(self._touch_finger_2_x, StateValueCalc.touch_x(in_report.touch_2_2, in_report.touch_2_1))
+        self._handle_state(self._touch_finger_2_y, StateValueCalc.touch_y(in_report.touch_2_3, in_report.touch_2_2))
+        self._handle_state(self._touch_finger_2, TouchFinger(
+            active=self._touch_finger_2_active.value,
+            id=self._touch_finger_2_id.value,
+            x=self._touch_finger_2_x.value,
+            y=self._touch_finger_2_y.value,
+        ))
 
         # ##### TRIGGER FEEDBACK #####
         self._handle_state(self._l2_feedback_active, bool(in_report.l2_feedback & 0x10))
@@ -570,35 +580,35 @@ class ReadStates(BaseStates[ReadStateName]):
 
     @property
     def touch_0_active(self) -> RestrictedStateAccess[bool]:
-        return self._touch_0_active.restricted_access
+        return self._touch_finger_1_active.restricted_access
 
     @property
     def touch_0_id(self) -> RestrictedStateAccess[int]:
-        return self._touch_0_id.restricted_access
+        return self._touch_finger_1_id.restricted_access
 
     @property
     def touch_0_x(self) -> RestrictedStateAccess[int]:
-        return self._touch_0_x.restricted_access
+        return self._touch_finger_1_x.restricted_access
 
     @property
     def touch_0_y(self) -> RestrictedStateAccess[int]:
-        return self._touch_0_y.restricted_access
+        return self._touch_finger_1_y.restricted_access
 
     @property
     def touch_1_active(self) -> RestrictedStateAccess[bool]:
-        return self._touch_1_active.restricted_access
+        return self._touch_finger_1_active.restricted_access
 
     @property
     def touch_1_id(self) -> RestrictedStateAccess[int]:
-        return self._touch_1_id.restricted_access
+        return self._touch_finger_2_id.restricted_access
 
     @property
     def touch_1_x(self) -> RestrictedStateAccess[int]:
-        return self._touch_1_x.restricted_access
+        return self._touch_finger_2_x.restricted_access
 
     @property
     def touch_1_y(self) -> RestrictedStateAccess[int]:
-        return self._touch_1_y.restricted_access
+        return self._touch_finger_2_y.restricted_access
 
     @property
     def l2_feedback_active(self) -> RestrictedStateAccess[bool]:
@@ -648,3 +658,11 @@ class ReadStates(BaseStates[ReadStateName]):
     @property
     def orientation(self) -> RestrictedStateAccess[Orientation]:
         return self._orientation.restricted_access
+
+    @property
+    def touch_finger_1(self) -> RestrictedStateAccess[TouchFinger]:
+        return self._touch_finger_1.restricted_access
+
+    @property
+    def touch_finger_2(self) -> RestrictedStateAccess[TouchFinger]:
+        return self._touch_finger_2.restricted_access
