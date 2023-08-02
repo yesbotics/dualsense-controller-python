@@ -231,31 +231,29 @@ class Example:
             print(f"L3 -> pulse FADE_BLUE")
             self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
 
-    def _on_touch_finger_2(self, touch: TouchFinger) -> None:
-        print('touch2', touch)
-
     #
     # Touch0 x-value -> rgb-color
     #
     def _on_touch_finger_1(self, touch: TouchFinger) -> None:
         print('touch1', touch)
-        # x_max = 1920
-        # y_max = 1080
-        # x = self._dualsense_controller.states.touch_0_x.value
-        # y = self._dualsense_controller.states.touch_0_y.value
-        # x = min(x_max, max(0, x))
-        # y = min(y_max, max(0, y))
-        #
-        # color = int(0xffffff * x / x_max)
-        # red = (color >> 16) & 0xff
-        # green = (color >> 8) & 0xff
-        # blue = color & 0xff
+        x_max = 1920
+        y_max = 1080
+        x = min(x_max, max(0, touch.x))
+        y = min(y_max, max(0, touch.y))
 
-        # # print(f"Touch {x}-{y} -> color {hex(color)} {red}-{green}-{blue}")
-        #
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, red)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, green)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, blue)
+        color = int(0xffffff * x / x_max)
+        red = (color >> 16) & 0xff
+        green = (color >> 8) & 0xff
+        blue = color & 0xff
+
+        # print(f"Touch {x}-{y} -> color {hex(color)} {red}-{green}-{blue}")
+
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, red)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, green)
+        self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, blue)
+
+    def _on_touch_finger_2(self, touch: TouchFinger) -> None:
+        print('touch2', touch)
 
     #
     # all
