@@ -121,7 +121,7 @@ MapFn = Callable[[Any], Any]
 DetermineStateValueFn = Callable[[StateValueType, int], StateValueType]
 
 _DEFAULT_NUMBER: Final[Number] = -99999
-_HALF_255: Final[Number] = 127
+_HALF_255: Final[Number] = 127.5
 
 
 @dataclass(frozen=True, slots=True)
@@ -164,12 +164,13 @@ def compare(before: StateValueType | None, after: StateValueType) -> CompareResu
 def compare_joystick(
         before: JoyStick | None,
         after: JoyStick,
-        deadzone: Number = 0
+        deadzone: Number = 0,
 ) -> CompareResult:
     if before is None:
         return True, after
     if deadzone > 0 and (((after.x - _HALF_255) ** 2) + ((after.y - _HALF_255) ** 2)) <= (deadzone ** 2):
         after = JoyStick(_HALF_255, _HALF_255)
+
     changed: bool = after.x != before.x or after.y != before.y
     return changed, after
 
@@ -177,7 +178,8 @@ def compare_joystick(
 def compare_shoulder_key(
         before: int | None,
         after: int,
-        deadzone: Number = 0) -> CompareResult:
+        deadzone: Number = 0,
+) -> CompareResult:
     if before is None:
         return True, after
     if deadzone > 0 and after <= deadzone:
@@ -334,7 +336,9 @@ class StateValueMapping(Enum):
 
     # stick y-axis: 255 ... 0, shoulder key: 0 ... 255
     RAW_INVERTED = StateValueMappingData(
+        left_stick_x=FromTo(0, 255, 0, 255),
         left_stick_y=FromTo(0, 255, 255, 0),
+        right_stick_x=FromTo(0, 255, 0, 255),
         right_stick_y=FromTo(0, 255, 255, 0),
         # undefined maps handled like StateValueMapping.RAW
     )

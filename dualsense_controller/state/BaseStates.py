@@ -6,9 +6,9 @@ from dualsense_controller.state import CompareFn, MapFn, State, StateNameEnumTyp
 
 class BaseStates(Generic[StateNameEnumType]):
 
-    def __init__(self, state_value_mapping: StateValueMapping):
+    def __init__(self, state_value_mapper: StateValueMapper):
         self._states_dict: Final[dict[StateNameEnumType, State]] = {}
-        self._state_value_mapper: Final[StateValueMapper] = StateValueMapper(state_value_mapping)
+        self._state_value_mapper: Final[StateValueMapper] = state_value_mapper
 
     def set_value(self, name: StateNameEnumType, value: StateValueType, trigger_change: bool = True) -> None:
         state: State[StateValueType] = self._get_state_by_name(name)

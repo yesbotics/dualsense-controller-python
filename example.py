@@ -20,20 +20,20 @@ class Example:
             # ##### BASE  #####
             device_index_or_device_info=0,
             # ##### FEELING  #####
-            left_joystick_deadzone=0.5,  # based on mapping
-            right_joystick_deadzone=0.5,  # based on mapping
-            left_shoulder_key_deadzone=0.5,  # based on mapping
-            right_shoulder_key_deadzone=0.5,  # based on mapping
+            left_joystick_deadzone=10,  # based on mapping
+            right_joystick_deadzone=10,  # based on mapping
+            left_shoulder_key_deadzone=10,  # based on mapping
+            right_shoulder_key_deadzone=10,  # based on mapping
             gyroscope_threshold=100,
             accelerometer_threshold=100,
             orientation_threshold=100,
             # state_value_mapping=StateValueMapping.RAW,  # stick y-axis: 0 ... 255, shoulder key: 0 ... 255
             # state_value_mapping=StateValueMapping.HUNDRED,  # stick y-axis: -100 ... 100, shoulder key: 0 ... 100
             # state_value_mapping=StateValueMapping.RAW_INVERTED,  # stick y-axis: 255 ... 0, shoulder key: 255 ... 0
-            # state_value_mapping=StateValueMapping.DEFAULT,  # stick y-axis: 127 ... -128, shoulder key: 0 ... 255
+            state_value_mapping=StateValueMapping.DEFAULT,  # stick y-axis: 127 ... -128, shoulder key: 0 ... 255
             # state_value_mapping=StateValueMapping.DEFAULT_INVERTED,
             # stick y-axis: -128 ... 127, shoulder key: 0 ... 255
-            state_value_mapping=StateValueMapping.NORMALIZED,  # stick y-axis: 1.0 ... -1.0, shoulder key: 0.0 ... 1.0
+            # state_value_mapping=StateValueMapping.NORMALIZED,  # stick y-axis: 1.0 ... -1.0, shoulder key: 0.0 ... 1.0
             # state_value_mapping=StateValueMapping.NORMALIZED_INVERTED,  # stick y-axis: -1.0 ... 1.0, shoulder key: 0.0 ... 1.0
             # ##### CORE #####
             enforce_update=False,

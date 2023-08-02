@@ -1,6 +1,7 @@
 from dualsense_controller.report import (OutBrightness, OutFlagsLights, OutFlagsPhysics, OutLedOptions, OutPulseOptions)
 from dualsense_controller.report.out_report import OutReport
-from dualsense_controller.state import BaseStates, MapFn, StateChangeCb, StateValueMapping, StateValueType, \
+from dualsense_controller.state import BaseStates, MapFn, StateChangeCb, StateValueMapper, StateValueMapping, \
+    StateValueType, \
     WriteStateName
 
 
@@ -10,7 +11,9 @@ class WriteStates(BaseStates[WriteStateName]):
             self,
             state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
     ):
-        super().__init__(state_value_mapping)
+        super().__init__(StateValueMapper(
+            mapping=state_value_mapping
+        ))
 
         self._changed = False
 

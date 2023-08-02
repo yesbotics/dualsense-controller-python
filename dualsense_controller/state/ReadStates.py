@@ -5,9 +5,9 @@ from dualsense_controller import ConnectionType
 from dualsense_controller.report import InReport
 from dualsense_controller.state import (
     Accelerometer, BaseStates, Gyroscope, JoyStick,
-    Orientation, ReadStateName, RestrictedStateAccess, State, StateValueCalc
+    Orientation, ReadStateName, RestrictedStateAccess, State, StateValueCalc, StateValueMapper
 )
-from .common import StateChangeCb, StateValueMapping, StateValueType, \
+from .common import Number, StateChangeCb, StateValueMapping, StateValueType, \
     compare_accelerometer, \
     compare_gyroscope, \
     compare_joystick, \
@@ -19,10 +19,10 @@ class ReadStates(BaseStates[ReadStateName]):
 
     def __init__(
             self,
-            left_joystick_deadzone: int = 0,
-            right_joystick_deadzone: int = 0,
-            left_shoulder_key_deadzone: int = 0,
-            right_shoulder_key_deadzone: int = 0,
+            left_joystick_deadzone: Number = 0,
+            right_joystick_deadzone: Number = 0,
+            left_shoulder_key_deadzone: Number = 0,
+            right_shoulder_key_deadzone: Number = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
@@ -31,7 +31,13 @@ class ReadStates(BaseStates[ReadStateName]):
             trigger_change_after_all_values_set: bool = True,
     ):
         super().__init__(
-            state_value_mapping=state_value_mapping
+            StateValueMapper(
+                mapping=state_value_mapping,
+                left_joystick_deadzone=left_joystick_deadzone,
+                right_joystick_deadzone=right_joystick_deadzone,
+                left_shoulder_key_deadzone=left_shoulder_key_deadzone,
+                right_shoulder_key_deadzone=right_shoulder_key_deadzone,
+            )
         )
         # CONST
         self._enforce_update: Final[bool] = enforce_update
@@ -57,7 +63,7 @@ class ReadStates(BaseStates[ReadStateName]):
             default_value=JoyStick(),
             depends_on=[self._left_stick_x, self._left_stick_y],
             compare_fn=compare_joystick,
-            deadzone=self._state_value_mapper.left_stick_deadzone_mapped_to_raw(left_joystick_deadzone),
+            deadzone=self._state_value_mapper.left_stick_deadzone_mapped_to_raw,
             raw_to_mapped_fn=self._state_value_mapper.left_stick_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.left_stick_mapped_to_raw,
         )
@@ -76,7 +82,7 @@ class ReadStates(BaseStates[ReadStateName]):
             default_value=JoyStick(),
             depends_on=[self._right_stick_x, self._right_stick_y],
             compare_fn=compare_joystick,
-            deadzone=self._state_value_mapper.right_stick_deadzone_mapped_to_raw(right_joystick_deadzone),
+            deadzone=self._state_value_mapper.right_stick_deadzone_mapped_to_raw,
             raw_to_mapped_fn=self._state_value_mapper.right_stick_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.right_stick_mapped_to_raw,
         )
@@ -126,14 +132,14 @@ class ReadStates(BaseStates[ReadStateName]):
         self._l2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.L2,
             compare_fn=compare_shoulder_key,
-            deadzone=self._state_value_mapper.left_shoulder_key_deadzone_mapped_to_raw(left_shoulder_key_deadzone),
+            deadzone=self._state_value_mapper.left_shoulder_key_deadzone_mapped_to_raw,
             raw_to_mapped_fn=self._state_value_mapper.left_shoulder_key_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.left_shoulder_key_mapped_to_raw,
         )
         self._r2: Final[State[int]] = self._create_and_register_state(
             ReadStateName.R2,
             compare_fn=compare_shoulder_key,
-            deadzone=self._state_value_mapper.right_shoulder_key_deadzone_mapped_to_raw(right_shoulder_key_deadzone),
+            deadzone=self._state_value_mapper.right_shoulder_key_deadzone_mapped_to_raw,
             raw_to_mapped_fn=self._state_value_mapper.right_shoulder_key_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.right_shoulder_key_mapped_to_raw,
         )
