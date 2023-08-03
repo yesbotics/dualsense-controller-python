@@ -13,7 +13,7 @@ from .common import Battery, Feedback, Number, StateChangeCb, StateValueMapping,
     compare_battery, compare_feedback, compare_gyroscope, \
     compare_joystick, \
     compare_orientation, \
-    compare_shoulder_key, compare_touch_finger
+    compare_shoulder_key, compare_touch_finger, StateValueFn
 
 
 class ReadStates(BaseStates[ReadStateName]):
@@ -28,7 +28,7 @@ class ReadStates(BaseStates[ReadStateName]):
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
-            enforce_update: bool = True,
+            enforce_update: bool = False,
             trigger_change_after_all_values_set: bool = True,
     ):
         super().__init__(
@@ -138,7 +138,7 @@ class ReadStates(BaseStates[ReadStateName]):
             ReadStateName.ORIENTATION,
             enforce_update=enforce_update,
             default_value=Orientation(0, 0, 0),
-            depends_on=[self._gyroscope, self._accelerometer],
+            depends_on=[self._accelerometer],
             compare_fn=compare_orientation,
             threshold=orientation_threshold,
             raw_to_mapped_fn=lambda raw: Orientation(
@@ -303,7 +303,6 @@ class ReadStates(BaseStates[ReadStateName]):
             enforce_update=enforce_update,
             compare_fn=compare_touch_finger,
             depends_on=[
-                self._touch_finger_1,
                 self._touch_finger_2_active,
                 self._touch_finger_2_id,
                 self._touch_finger_2_x,
@@ -371,19 +370,27 @@ class ReadStates(BaseStates[ReadStateName]):
     def _handle_state(
             self,
             state: State[StateValueType],
-            value: StateValueType,
+            value_or_value_fn: StateValueType | StateValueFn,
+            *args,
+            **kwagrs,
     ) -> StateValueType | None:
+        state.set_cycle_timestamp(self._timestamp)
         if (
                 state.enforce_update
                 or state.has_listeners
                 or state.has_listened_dependents
                 or state.has_changed_dependencies
         ):
+            value: StateValueType = value_or_value_fn if not callable(value_or_value_fn) else value_or_value_fn(
+                self._in_report,
+                *args,
+                **kwagrs
+            )
             if self._trigger_change_after_all_values_set:
-                state.set_value_without_triggering_change(value, self._timestamp)
+                state.set_value_without_triggering_change(value)
                 self._states_to_trigger_after_all_states_set.append(state)
             else:
-                state.set_value(value, timestamp=self._timestamp)
+                state.set_value(value)
             return value
         return None
 
@@ -400,42 +407,42 @@ class ReadStates(BaseStates[ReadStateName]):
 
         # #### ANALOG STICKS #####
 
-        self._handle_state(self._left_stick, JoyStick(x=in_report.axes_0, y=in_report.axes_1))
+        self._handle_state(self._left_stick, StateValueCalc.left_stick)
         # use values from stick because deadzone calc is done there
-        self._handle_state(self._left_stick_x, self._left_stick.value.x)
-        self._handle_state(self._left_stick_y, self._left_stick.value.y)
+        self._handle_state(self._left_stick_x, StateValueCalc.left_stick_x, self._left_stick)
+        self._handle_state(self._left_stick_y, StateValueCalc.left_stick_y, self._left_stick)
 
-        self._handle_state(self._right_stick, JoyStick(x=in_report.axes_2, y=in_report.axes_3))
+        self._handle_state(self._right_stick, StateValueCalc.right_stick)
         # use values from stick because deadzone calc is done there
-        self._handle_state(self._right_stick_x, self._right_stick.value.x)
-        self._handle_state(self._right_stick_y, self._right_stick.value.y)
+        self._handle_state(self._right_stick_x, StateValueCalc.right_stick_x, self._right_stick)
+        self._handle_state(self._right_stick_y, StateValueCalc.right_stick_x, self._right_stick)
 
-        # ##### SHOULDER KEYS #####
-        self._handle_state(self._l2, in_report.axes_4)
-        self._handle_state(self._r2, in_report.axes_5)
+        # # ##### SHOULDER KEYS #####
+        self._handle_state(self._l2, StateValueCalc.left_shoulder_key)
+        self._handle_state(self._r2, StateValueCalc.right_shoulder_key)
+        #
+        # # ##### BUTTONS #####
+        self._handle_state(self._dpad, StateValueCalc.dpad)
+        self._handle_state(self._btn_up, StateValueCalc.btn_up, self._dpad)
+        self._handle_state(self._btn_down, StateValueCalc.btn_down, self._dpad)
+        self._handle_state(self._btn_left, StateValueCalc.btn_left, self._dpad)
+        self._handle_state(self._btn_right, StateValueCalc.btn_right, self._dpad)
 
-        # ##### BUTTONS #####
-        self._handle_state(self._dpad, in_report.buttons_0 & 0x0f)
-        self._handle_state(self._btn_up, self._dpad.value == 0 or self._dpad.value == 1 or self._dpad.value == 7)
-        self._handle_state(self._btn_down, self._dpad.value == 3 or self._dpad.value == 4 or self._dpad.value == 5)
-        self._handle_state(self._btn_left, self._dpad.value == 5 or self._dpad.value == 6 or self._dpad.value == 7)
-        self._handle_state(self._btn_right, self._dpad.value == 1 or self._dpad.value == 2 or self._dpad.value == 3)
-
-        self._handle_state(self._btn_cross, bool(in_report.buttons_0 & 0x20))
-        self._handle_state(self._btn_r1, bool(in_report.buttons_1 & 0x02))
-        self._handle_state(self._btn_square, bool(in_report.buttons_0 & 0x10))
-        self._handle_state(self._btn_circle, bool(in_report.buttons_0 & 0x40))
-        self._handle_state(self._btn_triangle, bool(in_report.buttons_0 & 0x80))
-        self._handle_state(self._btn_l1, bool(in_report.buttons_1 & 0x01))
-        self._handle_state(self._btn_l2, bool(in_report.buttons_1 & 0x04))
-        self._handle_state(self._btn_r2, bool(in_report.buttons_1 & 0x08))
-        self._handle_state(self._btn_create, bool(in_report.buttons_1 & 0x10))
-        self._handle_state(self._btn_options, bool(in_report.buttons_1 & 0x20))
-        self._handle_state(self._btn_l3, bool(in_report.buttons_1 & 0x40))
-        self._handle_state(self._btn_r3, bool(in_report.buttons_1 & 0x80))
-        self._handle_state(self._btn_ps, bool(in_report.buttons_2 & 0x01))
-        self._handle_state(self._btn_mute, bool(in_report.buttons_2 & 0x04))
-        self._handle_state(self._btn_touchpad, bool(in_report.buttons_2 & 0x02))
+        self._handle_state(self._btn_cross, StateValueCalc.btn_cross)
+        self._handle_state(self._btn_r1, StateValueCalc.btn_r1)
+        self._handle_state(self._btn_square, StateValueCalc.btn_square)
+        self._handle_state(self._btn_circle, StateValueCalc.btn_circle)
+        self._handle_state(self._btn_triangle, StateValueCalc.btn_triangle)
+        self._handle_state(self._btn_l1, StateValueCalc.btn_l1)
+        self._handle_state(self._btn_l2, StateValueCalc.btn_l2)
+        self._handle_state(self._btn_r2, StateValueCalc.btn_r2)
+        self._handle_state(self._btn_create, StateValueCalc.btn_create)
+        self._handle_state(self._btn_options, StateValueCalc.btn_options)
+        self._handle_state(self._btn_l3, StateValueCalc.btn_l3)
+        self._handle_state(self._btn_r3, StateValueCalc.btn_r3)
+        self._handle_state(self._btn_ps, StateValueCalc.btn_ps)
+        self._handle_state(self._btn_mute, StateValueCalc.btn_mute)
+        self._handle_state(self._btn_touchpad, StateValueCalc.btn_touchpad)
 
         # following not supported for BT01
         if connection_type == ConnectionType.BT_01:
@@ -443,83 +450,76 @@ class ReadStates(BaseStates[ReadStateName]):
 
         # ##### GYRO #####
 
-        self._handle_state(self._gyroscope, Gyroscope(
-            x=StateValueCalc.sensor_axis(in_report.gyro_x_1, in_report.gyro_x_0),
-            y=StateValueCalc.sensor_axis(in_report.gyro_y_1, in_report.gyro_y_0),
-            z=StateValueCalc.sensor_axis(in_report.gyro_z_1, in_report.gyro_z_0),
-        ))
-        self._handle_state(self._gyroscope_x, self._gyroscope.value.x)
-        self._handle_state(self._gyroscope_y, self._gyroscope.value.y)
-        self._handle_state(self._gyroscope_z, self._gyroscope.value.z)
-
+        self._handle_state(self._gyroscope, StateValueCalc.gyroscope)
+        self._handle_state(self._gyroscope_x, StateValueCalc.gyroscope_x, self._gyroscope)
+        self._handle_state(self._gyroscope_y, StateValueCalc.gyroscope_y, self._gyroscope)
+        self._handle_state(self._gyroscope_z, StateValueCalc.gyroscope_z, self._gyroscope)
+        #
         # ##### ACCEL #####
-        self._handle_state(self._accelerometer, Accelerometer(
-            x=StateValueCalc.sensor_axis(in_report.accel_x_1, in_report.accel_x_0),
-            y=StateValueCalc.sensor_axis(in_report.accel_y_1, in_report.accel_y_0),
-            z=StateValueCalc.sensor_axis(in_report.accel_z_1, in_report.accel_z_0),
-        ))
-        self._handle_state(self._accelerometer_x, self._accelerometer.value.x)
-        self._handle_state(self._accelerometer_y, self._accelerometer.value.y)
-        self._handle_state(self._accelerometer_z, self._accelerometer.value.z)
-
+        self._handle_state(self._accelerometer, StateValueCalc.accelerometer)
+        self._handle_state(self._accelerometer_x, StateValueCalc.accelerometer_x, self._accelerometer)
+        self._handle_state(self._accelerometer_y, StateValueCalc.accelerometer_y, self._accelerometer)
+        self._handle_state(self._accelerometer_z, StateValueCalc.accelerometer_z, self._accelerometer)
+        #
         # ##### ORIENTATION #####
-        # self._handle_state(self._orientation, StateValueCalc.orientation_complementary_filter(
-        #     gyro=self._gyroscope.value,
-        #     accel=self.accelerometer.value,
-        #     previous_orientation=self._orientation.value,
-        # ))
-        self._handle_state(self._orientation, StateValueCalc.orientation_simple(
-            accel=self.accelerometer.value,
-        ))
-
-        # ##### TOUCH 0 #####
-        self._handle_state(self._touch_finger_1_active, StateValueCalc.touch_active(in_report.touch_1_0))
-        self._handle_state(self._touch_finger_1_id, StateValueCalc.touch_id(in_report.touch_1_0))
-        self._handle_state(self._touch_finger_1_x, StateValueCalc.touch_x(in_report.touch_1_2, in_report.touch_1_1))
-        self._handle_state(self._touch_finger_1_y, StateValueCalc.touch_y(in_report.touch_1_3, in_report.touch_1_2))
-        self._handle_state(self._touch_finger_1, TouchFinger(
-            active=self._touch_finger_1_active.value,
-            id=self._touch_finger_1_id.value,
-            x=self._touch_finger_1_x.value,
-            y=self._touch_finger_1_y.value,
-        ))
-
+        self._handle_state(self._orientation, StateValueCalc.orientation, self._accelerometer)
+        #
         # ##### TOUCH 1 #####
-        self._handle_state(self._touch_finger_2_active, StateValueCalc.touch_active(in_report.touch_2_0))
-        self._handle_state(self._touch_finger_2_id, StateValueCalc.touch_id(in_report.touch_2_0))
-        self._handle_state(self._touch_finger_2_x, StateValueCalc.touch_x(in_report.touch_2_2, in_report.touch_2_1))
-        self._handle_state(self._touch_finger_2_y, StateValueCalc.touch_y(in_report.touch_2_3, in_report.touch_2_2))
-        self._handle_state(self._touch_finger_2, TouchFinger(
-            active=self._touch_finger_2_active.value,
-            id=self._touch_finger_2_id.value,
-            x=self._touch_finger_2_x.value,
-            y=self._touch_finger_2_y.value,
-        ))
+        self._handle_state(self._touch_finger_1_active, StateValueCalc.touch_finger_1_active)
+        self._handle_state(self._touch_finger_1_id, StateValueCalc.touch_finger_1_id)
+        self._handle_state(self._touch_finger_1_x, StateValueCalc.touch_finger_1_x)
+        self._handle_state(self._touch_finger_1_y, StateValueCalc.touch_finger_1_y)
+        self._handle_state(
+            self._touch_finger_1,
+            StateValueCalc.touch_finger_1,
+            self._touch_finger_1_active,
+            self._touch_finger_1_id,
+            self._touch_finger_1_x,
+            self._touch_finger_1_y
+        )
 
-        # ##### TRIGGER FEEDBACK #####
-        self._handle_state(self._l2_feedback_active, bool(in_report.l2_feedback & 0x10))
-        self._handle_state(self._l2_feedback_value, in_report.l2_feedback & 0xff)
-        self._handle_state(self._l2_feedback, Feedback(
-            active=self._l2_feedback_active.value,
-            value=self._l2_feedback_value.value
-        ))
+        # ##### TOUCH 2 #####
+        self._handle_state(self._touch_finger_2_active, StateValueCalc.touch_finger_2_active)
+        self._handle_state(self._touch_finger_2_id, StateValueCalc.touch_finger_2_id)
+        self._handle_state(self._touch_finger_2_x, StateValueCalc.touch_finger_2_x)
+        self._handle_state(self._touch_finger_2_y, StateValueCalc.touch_finger_2_y)
+        self._handle_state(
+            self._touch_finger_2,
+            StateValueCalc.touch_finger_2,
+            self._touch_finger_2_active,
+            self._touch_finger_2_id,
+            self._touch_finger_2_x,
+            self._touch_finger_2_y
+        )
 
-        self._handle_state(self._r2_feedback_active, bool(in_report.r2_feedback & 0x10))
-        self._handle_state(self._r2_feedback_value, in_report.r2_feedback & 0xff)
-        self._handle_state(self._r2_feedback, Feedback(
-            active=self._r2_feedback_active.value,
-            value=self._r2_feedback_value.value
-        ))
-
+        # ##### TRIGGER FEEDBACK INFO #####
+        self._handle_state(self._l2_feedback_active, StateValueCalc.l2_feedback_active)
+        self._handle_state(self._l2_feedback_value, StateValueCalc.l2_feedback_value)
+        self._handle_state(
+            self._l2_feedback,
+            StateValueCalc.l2_feedback,
+            self._l2_feedback_active,
+            self._l2_feedback_value
+        )
+        self._handle_state(self._r2_feedback_active, StateValueCalc.r2_feedback_active)
+        self._handle_state(self._r2_feedback_value, StateValueCalc.r2_feedback_value)
+        self._handle_state(
+            self._r2_feedback,
+            StateValueCalc.r2_feedback,
+            self._r2_feedback_active,
+            self._r2_feedback_value
+        )
         # ##### BATTERY #####
-        self._handle_state(self._battery_level_percentage, StateValueCalc.batt_level_percentage(in_report.battery_0))
-        self._handle_state(self._battery_full, not not (in_report.battery_0 & 0x20))
-        self._handle_state(self._battery_charging, not not (in_report.battery_1 & 0x08))
-        self._handle_state(self._battery, Battery(
-            level_percentage=self._battery_level_percentage.value,
-            full=self._battery_full.value,
-            charging=self._battery_charging.value,
-        ))
+        self._handle_state(self._battery_level_percentage, StateValueCalc.battery_level_percentage)
+        self._handle_state(self._battery_full, StateValueCalc.battery_full)
+        self._handle_state(self._battery_charging, StateValueCalc.battery_charging)
+        self._handle_state(
+            self._battery,
+            StateValueCalc.battery,
+            self._battery_level_percentage,
+            self._battery_full,
+            self._battery_charging,
+        )
 
         for state in self._states_to_trigger_after_all_states_set:
             state.trigger_change_if_changed()
@@ -682,35 +682,35 @@ class ReadStates(BaseStates[ReadStateName]):
         return self._accelerometer_z.restricted_access
 
     @property
-    def touch_0_active(self) -> RestrictedStateAccess[bool]:
+    def touch_finger_1_active(self) -> RestrictedStateAccess[bool]:
         return self._touch_finger_1_active.restricted_access
 
     @property
-    def touch_0_id(self) -> RestrictedStateAccess[int]:
+    def touch_finger_1_id(self) -> RestrictedStateAccess[int]:
         return self._touch_finger_1_id.restricted_access
 
     @property
-    def touch_0_x(self) -> RestrictedStateAccess[int]:
+    def touch_finger_1_x(self) -> RestrictedStateAccess[int]:
         return self._touch_finger_1_x.restricted_access
 
     @property
-    def touch_0_y(self) -> RestrictedStateAccess[int]:
+    def touch_finger_1_y(self) -> RestrictedStateAccess[int]:
         return self._touch_finger_1_y.restricted_access
 
     @property
-    def touch_1_active(self) -> RestrictedStateAccess[bool]:
-        return self._touch_finger_1_active.restricted_access
+    def touch_finger_2_active(self) -> RestrictedStateAccess[bool]:
+        return self._touch_finger_2_active.restricted_access
 
     @property
-    def touch_1_id(self) -> RestrictedStateAccess[int]:
+    def touch_finger_2_id(self) -> RestrictedStateAccess[int]:
         return self._touch_finger_2_id.restricted_access
 
     @property
-    def touch_1_x(self) -> RestrictedStateAccess[int]:
+    def touch_finger_2_x(self) -> RestrictedStateAccess[int]:
         return self._touch_finger_2_x.restricted_access
 
     @property
-    def touch_1_y(self) -> RestrictedStateAccess[int]:
+    def touch_finger_2_y(self) -> RestrictedStateAccess[int]:
         return self._touch_finger_2_y.restricted_access
 
     @property

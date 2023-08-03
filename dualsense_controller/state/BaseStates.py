@@ -15,14 +15,14 @@ class BaseStates(Generic[StateNameEnumType]):
         if not trigger_change:
             state.set_value_without_triggering_change(value)
         else:
-            state.value = value
+            state.set_value(value)
 
     def set_value_mapped(self, name: StateNameEnumType, value: StateValueType, trigger_change: bool = True) -> None:
         state: State[StateValueType] = self._get_state_by_name(name)
         if not trigger_change:
             state.set_value_mapped_without_triggering_change(value)
         else:
-            state.value_mapped = value
+            state.set_value_mapped(value)
 
     def _get_state_by_name(self, name: StateNameEnumType) -> State:
         return self._states_dict[name]

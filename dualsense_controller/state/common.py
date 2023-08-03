@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Final, TypeVar
 
-from dualsense_controller import ConnectionType
+from dualsense_controller import ConnectionType, InReport
 
 
 class ReadStateName(str, Enum):
@@ -124,7 +124,7 @@ CompareResult = tuple[bool, StateValueType]
 CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
 Number = int | float
 MapFn = Callable[[Any], Any]
-DetermineStateValueFn = Callable[[StateValueType, int], StateValueType]
+StateValueFn = Callable[[InReport, ...], StateValueType]
 
 _DEFAULT_NUMBER: Final[Number] = -99999
 _HALF_255: Final[Number] = 127.5

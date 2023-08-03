@@ -1,92 +1,327 @@
 import math
-import time
-from typing import Final
 
-from dualsense_controller.state import Accelerometer, Gyroscope, Orientation
+from dualsense_controller.report import InReport
+from dualsense_controller.state import Accelerometer, Gyroscope, Orientation, State, JoyStick, TouchFinger, \
+    Feedback, Battery
 
 
 class StateValueCalc:
 
-    @classmethod
-    def sensor_axis(cls, v1: int, v0: int) -> int:
-        res: int = ((v1 << 8) | v0)
-        if res > 0x7FFF:
-            res -= 0x10000
-        return res
+    ########## NEW #############
 
     @classmethod
-    def touch_active(cls, t_0: int) -> bool:
-        return not (t_0 & 0x80)
+    def left_stick(cls, in_report: InReport) -> JoyStick:
+        return JoyStick(x=in_report.axes_0, y=in_report.axes_1)
 
     @classmethod
-    def touch_id(cls, t_0: int) -> int:
-        return t_0 & 0x7F
+    def left_stick_x(cls, _: InReport, left_stick: State[JoyStick]) -> int:
+        return left_stick.value.x
 
     @classmethod
-    def touch_x(cls, t_2: int, t_1: int) -> int:
-        return ((t_2 & 0x0F) << 8) | t_1
+    def left_stick_y(cls, _: InReport, left_stick: State[JoyStick]) -> int:
+        return left_stick.value.y
 
     @classmethod
-    def touch_y(cls, t_3: int, t_2: int) -> int:
-        return (t_3 << 4) | ((t_2 & 0xF0) >> 4)
+    def right_stick(cls, in_report: InReport) -> JoyStick:
+        return JoyStick(x=in_report.axes_2, y=in_report.axes_3)
 
     @classmethod
-    def batt_level_percentage(cls, b: int) -> float:
-        batt_level_raw: int = b & 0x0f
+    def right_stick_x(cls, _: InReport, right_stick: State[JoyStick]) -> int:
+        return right_stick.value.x
+
+    @classmethod
+    def right_stick_y(cls, _: InReport, right_stick: State[JoyStick]) -> int:
+        return right_stick.value.y
+
+    @classmethod
+    def left_shoulder_key(cls, in_report: InReport) -> int:
+        return in_report.axes_4
+
+    @classmethod
+    def right_shoulder_key(cls, in_report: InReport) -> int:
+        return in_report.axes_5
+
+    @classmethod
+    def dpad(cls, in_report: InReport) -> int:
+        return in_report.buttons_0 & 0x0f
+
+    @classmethod
+    def btn_up(cls, _: InReport, dpad: State[int]) -> bool:
+        return dpad.value == 0 or dpad.value == 1 or dpad.value == 7
+
+    @classmethod
+    def btn_down(cls, _: InReport, dpad: State[int]) -> bool:
+        return dpad.value == 3 or dpad.value == 4 or dpad.value == 5
+
+    @classmethod
+    def btn_left(cls, _: InReport, dpad: State[int]) -> bool:
+        return dpad.value == 5 or dpad.value == 6 or dpad.value == 7
+
+    @classmethod
+    def btn_right(cls, _: InReport, dpad: State[int]) -> bool:
+        return dpad.value == 1 or dpad.value == 2 or dpad.value == 3
+
+    @classmethod
+    def btn_cross(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_0 & 0x20)
+
+    @classmethod
+    def btn_r1(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x02)
+
+    @classmethod
+    def btn_square(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_0 & 0x10)
+
+    @classmethod
+    def btn_circle(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_0 & 0x40)
+
+    @classmethod
+    def btn_triangle(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_0 & 0x80)
+
+    @classmethod
+    def btn_l1(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x01)
+
+    @classmethod
+    def btn_l2(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x04)
+
+    @classmethod
+    def btn_r2(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x08)
+
+    @classmethod
+    def btn_create(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x10)
+
+    @classmethod
+    def btn_options(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x20)
+
+    @classmethod
+    def btn_l3(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x40)
+
+    @classmethod
+    def btn_r3(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_1 & 0x80)
+
+    @classmethod
+    def btn_ps(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_2 & 0x01)
+
+    @classmethod
+    def btn_mute(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_2 & 0x04)
+
+    @classmethod
+    def btn_touchpad(cls, in_report: InReport) -> bool:
+        return bool(in_report.buttons_2 & 0x02)
+
+    @classmethod
+    def gyroscope(cls, in_report: InReport) -> Gyroscope:
+        return Gyroscope(
+            x=cls._sensor_axis(in_report.gyro_x_1, in_report.gyro_x_0),
+            y=cls._sensor_axis(in_report.gyro_y_1, in_report.gyro_y_0),
+            z=cls._sensor_axis(in_report.gyro_z_1, in_report.gyro_z_0),
+        )
+
+    @classmethod
+    def gyroscope_x(cls, _: InReport, gyroscope: State[Gyroscope]) -> int:
+        return gyroscope.value.x
+
+    @classmethod
+    def gyroscope_y(cls, _: InReport, gyroscope: State[Gyroscope]) -> int:
+        return gyroscope.value.y
+
+    @classmethod
+    def gyroscope_z(cls, _: InReport, gyroscope: State[Gyroscope]) -> int:
+        return gyroscope.value.z
+
+    @classmethod
+    def accelerometer(cls, in_report: InReport) -> Accelerometer:
+        return Accelerometer(
+            x=cls._sensor_axis(in_report.accel_x_1, in_report.accel_x_0),
+            y=cls._sensor_axis(in_report.accel_y_1, in_report.accel_y_0),
+            z=cls._sensor_axis(in_report.accel_z_1, in_report.accel_z_0),
+        )
+
+    @classmethod
+    def accelerometer_x(cls, _: InReport, accelerometer: State[Accelerometer]) -> int:
+        return accelerometer.value.x
+
+    @classmethod
+    def accelerometer_y(cls, _: InReport, accelerometer: State[Accelerometer]) -> int:
+        return accelerometer.value.y
+
+    @classmethod
+    def accelerometer_z(cls, _: InReport, accelerometer: State[Accelerometer]) -> int:
+        return accelerometer.value.z
+
+    @classmethod
+    def orientation(cls, _: InReport, accelerometer: State[Accelerometer]) -> Orientation:
+        accel: Accelerometer = accelerometer.value
+        return Orientation(
+            pitch=(math.atan2(-accel.y, -accel.z) + math.pi),
+            roll=(math.atan2(-accel.x, -accel.z) + math.pi)
+        )
+
+    @classmethod
+    def touch_finger_1_active(cls, in_report: InReport) -> bool:
+        return cls._touch_active(in_report.touch_1_0)
+
+    @classmethod
+    def touch_finger_1_id(cls, in_report: InReport) -> int:
+        return cls._touch_id(in_report.touch_1_0)
+
+    @classmethod
+    def touch_finger_1_x(cls, in_report: InReport) -> int:
+        return cls._touch_x(in_report.touch_1_2, in_report.touch_1_1)
+
+    @classmethod
+    def touch_finger_1_y(cls, in_report: InReport) -> int:
+        return cls._touch_y(in_report.touch_1_3, in_report.touch_1_2)
+
+    @classmethod
+    def touch_finger_1(
+            cls,
+            _: InReport,
+            touch_finger_1_active: State[bool],
+            touch_finger_1_id: State[int],
+            touch_finger_1_x: State[int],
+            touch_finger_1_y: State[int],
+    ) -> TouchFinger:
+        return TouchFinger(
+            active=touch_finger_1_active.value,
+            id=touch_finger_1_id.value,
+            x=touch_finger_1_x.value,
+            y=touch_finger_1_y.value,
+        )
+
+    @classmethod
+    def touch_finger_2_active(cls, in_report: InReport) -> bool:
+        return cls._touch_active(in_report.touch_2_0)
+
+    @classmethod
+    def touch_finger_2_id(cls, in_report: InReport) -> int:
+        return cls._touch_id(in_report.touch_2_0)
+
+    @classmethod
+    def touch_finger_2_x(cls, in_report: InReport) -> int:
+        return cls._touch_x(in_report.touch_2_2, in_report.touch_2_1)
+
+    @classmethod
+    def touch_finger_2_y(cls, in_report: InReport) -> int:
+        return cls._touch_y(in_report.touch_2_3, in_report.touch_2_2)
+
+    @classmethod
+    def touch_finger_2(
+            cls,
+            _: InReport,
+            touch_finger_2_active: State[bool],
+            touch_finger_2_id: State[int],
+            touch_finger_2_x: State[int],
+            touch_finger_2_y: State[int],
+    ) -> TouchFinger:
+        return TouchFinger(
+            active=touch_finger_2_active.value,
+            id=touch_finger_2_id.value,
+            x=touch_finger_2_x.value,
+            y=touch_finger_2_y.value,
+        )
+
+    @classmethod
+    def l2_feedback_active(cls, in_report: InReport) -> bool:
+        return cls._feedback_active(in_report.l2_feedback)
+
+    @classmethod
+    def l2_feedback_value(cls, in_report: InReport) -> int:
+        return cls._feedback_value(in_report.l2_feedback)
+
+    @classmethod
+    def l2_feedback(cls, _: InReport, l2_feedback_active: State[bool], l2_feedback_value: State[int]) -> Feedback:
+        return Feedback(
+            active=l2_feedback_active.value,
+            value=l2_feedback_value.value
+        )
+
+    @classmethod
+    def r2_feedback_active(cls, in_report: InReport) -> bool:
+        return cls._feedback_active(in_report.r2_feedback)
+
+    @classmethod
+    def r2_feedback_value(cls, in_report: InReport) -> int:
+        return cls._feedback_value(in_report.r2_feedback)
+
+    @classmethod
+    def r2_feedback(cls, _: InReport, r2_feedback_active: State[bool], r2_feedback_value: State[int]) -> Feedback:
+        return Feedback(
+            active=r2_feedback_active.value,
+            value=r2_feedback_value.value
+        )
+
+    @classmethod
+    def battery_level_percentage(cls, in_report: InReport) -> float:
+        batt_level_raw: int = in_report.battery_0 & 0x0f
         if batt_level_raw > 8:
             batt_level_raw = 8
         batt_level: float = batt_level_raw / 8
         return batt_level * 100
 
     @classmethod
-    def orientation_simple(cls, accel: Accelerometer) -> Orientation:
-        accel_z: float = accel.z
-        return Orientation(
-            pitch=(math.atan2(-accel.y, -accel_z) + math.pi),
-            roll=(math.atan2(-accel.x, -accel_z) + math.pi)
-        )
-
-    _ALPHA: Final[float] = 0.98
-    _DT: Final[float] = 0.01
-    _LAST_TIME: float = 0
+    def battery_full(cls, in_report: InReport) -> bool:
+        return not not (in_report.battery_0 & 0x20)
 
     @classmethod
-    def orientation_complementary_filter(
+    def battery_charging(cls, in_report: InReport) -> bool:
+        return not not (in_report.battery_1 & 0x08)
+
+    @classmethod
+    def battery(
             cls,
-            gyro: Gyroscope,
-            accel: Accelerometer,
-            previous_orientation: Orientation
-    ) -> Orientation:
-        gyro_x: float = gyro.x
-        gyro_y: float = gyro.y
-        gyro_z: float = gyro.z
-        accel_x: float = accel.x
-        accel_y: float = accel.y
-        accel_z: float = accel.z
-
-        new_time: float = time.perf_counter()
-        dt: float = new_time - cls._LAST_TIME
-        cls._LAST_TIME = new_time
-
-        # print('g', gyro_x, gyro_y, gyro_z)
-        # print('a', accel_x, accel_y, accel_z)
-
-        # Calculate accelerometer angles
-        roll_accel: float = math.atan2(accel_y, accel_z)
-        pitch_accel: float = math.atan2(-accel_x, math.sqrt(accel_y ** 2 + accel_z ** 2))
-
-        # Calculate gyroscope angles (integration)
-        roll_gyro: float = previous_orientation.roll + gyro_x * dt
-        pitch_gyro: float = previous_orientation.pitch + gyro_y * dt
-
-        # Calculate the yaw using a complementary filter with limited yaw rate
-        # The yaw is limited to prevent it from becoming unstable (negative infinity)
-        yaw_gyro: float = previous_orientation.yaw + gyro_z * dt
-        yaw_gyro = math.atan2(math.sin(yaw_gyro), math.cos(yaw_gyro))
-
-        # Complementary filter to combine accelerometer and gyroscope data
-        return Orientation(
-            roll=cls._ALPHA * roll_gyro + (1 - cls._ALPHA) * roll_accel,
-            pitch=cls._ALPHA * pitch_gyro + (1 - cls._ALPHA) * pitch_accel,
-            yaw=yaw_gyro,  # Yaw is typically not estimated using accelerometer data alone
+            _: InReport,
+            battery_level_percentage: State[float],
+            battery_full: State[bool],
+            battery_charging: State[bool]
+    ) -> Battery:
+        return Battery(
+            level_percentage=battery_level_percentage.value,
+            full=battery_full.value,
+            charging=battery_charging.value,
         )
+
+    # ######### HELPERS #############
+
+    @classmethod
+    def _feedback_active(cls, feedback: int) -> bool:
+        return bool(feedback & 0x10)
+
+    @classmethod
+    def _feedback_value(cls, feedback: int) -> int:
+        return feedback & 0xff
+
+    @classmethod
+    def _sensor_axis(cls, v1: int, v0: int) -> int:
+        res: int = ((v1 << 8) | v0)
+        if res > 0x7FFF:
+            res -= 0x10000
+        return res
+
+    @classmethod
+    def _touch_active(cls, t_0: int) -> bool:
+        return not (t_0 & 0x80)
+
+    @classmethod
+    def _touch_id(cls, t_0: int) -> int:
+        return t_0 & 0x7F
+
+    @classmethod
+    def _touch_x(cls, t_2: int, t_1: int) -> int:
+        return ((t_2 & 0x0F) << 8) | t_1
+
+    @classmethod
+    def _touch_y(cls, t_3: int, t_2: int) -> int:
+        return (t_3 << 4) | ((t_2 & 0xF0) >> 4)
