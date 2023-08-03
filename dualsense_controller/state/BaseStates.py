@@ -38,6 +38,7 @@ class BaseStates(Generic[StateNameEnumType]):
             raw_to_mapped_fn: MapFn = None,
             depends_on: list[State[Any]] = None,
             is_dependency_of: list[State[Any]] = None,
+            enforce_update: bool = False,
             **kwargs
     ) -> State[StateValueType]:
         if compare_fn is not None:
@@ -52,6 +53,7 @@ class BaseStates(Generic[StateNameEnumType]):
             ignore_none=ignore_none,
             depends_on=depends_on,
             is_dependency_of=is_dependency_of,
+            enforce_update=enforce_update
         )
         self._states_dict[name] = state
         return state

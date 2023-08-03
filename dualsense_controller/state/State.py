@@ -49,6 +49,7 @@ class State(Generic[StateValueType]):
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn = None,
+            enforce_update: bool = False,
             ignore_none: bool = True,
             depends_on: list[State[Any]] = None,
             is_dependency_of: list[State[Any]] = None,
@@ -71,6 +72,7 @@ class State(Generic[StateValueType]):
         self._mapped_to_raw_fn: Final[MapFn] = mapped_to_raw_fn
         self._raw_to_mapped_fn: Final[MapFn] = raw_to_mapped_fn
         self._ignore_none: Final[bool] = ignore_none
+        self._enforce_update: Final[bool] = enforce_update
         # VAR
         self._value: StateValueType | None = value if value is not None else default_value
         self._timestamp: int = 0
@@ -217,6 +219,10 @@ class State(Generic[StateValueType]):
     @property
     def last_value(self) -> StateValueType:
         return self._last_value
+
+    @property
+    def enforce_update(self) -> bool:
+        return self._enforce_update
 
     @property
     def value_mapped(self) -> StateValueType:
