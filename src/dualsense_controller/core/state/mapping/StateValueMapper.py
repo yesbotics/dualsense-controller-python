@@ -190,12 +190,20 @@ class StateValueMapper:
             self._mapping_data.r2
         )
 
-        # #################################################### MOTORS - ONLY NEED TO SET ###############################
+        # #################################################### MOTORS ###############################
         self.set_left_motor_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
             self._number_mapped_to_raw,
             self._mapping_data.set_motor_left
         )
+        self.set_left_motor_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
+            self._number_raw_to_mapped,
+            self._mapping_data.set_motor_left
+        )
         self.set_right_motor_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
             self._number_mapped_to_raw,
+            self._mapping_data.set_motor_right
+        )
+        self.set_right_motor_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
+            self._number_raw_to_mapped,
             self._mapping_data.set_motor_right
         )

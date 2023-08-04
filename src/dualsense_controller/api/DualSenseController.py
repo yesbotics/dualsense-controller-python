@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dualsense_controller.api.Properties import Properties
-from dualsense_controller.api.property import ButtonProperty, TriggerProperty
+from dualsense_controller.api.property import ButtonProperty, RumbleProperty, TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
 from dualsense_controller.core.hidapi import DeviceInfo
 from dualsense_controller.core.state.mapping.enum import StateValueMapping as Mapping
@@ -38,6 +38,14 @@ class DualSenseController:
     @property
     def right_trigger(self) -> TriggerProperty:
         return self._properties.right_trigger
+
+    @property
+    def left_rumble(self) -> RumbleProperty:
+        return self._properties.left_rumble
+
+    @property
+    def right_rumble(self) -> RumbleProperty:
+        return self._properties.right_rumble
 
     def __init__(
             self,

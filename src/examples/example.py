@@ -51,11 +51,14 @@ class Example:
         print(f'Get Square button. It is {self.controller.btn_square.pressed}')
 
     def on_left_trigger_changed(self, value: Number) -> None:
-        print(f'L2 trigger {value}')
-        # self.controller.left_rumble = value
+        print(f'L2 trigger: {value}')
+        self.controller.left_rumble.value = value
+        print(f'Left Rumble: {self.controller.left_rumble.value}')
 
     def on_right_trigger_changed(self, value: Number) -> None:
-        print(f'L2 trigger {value}')
+        print(f'L2 trigger: {value}')
+        self.controller.right_rumble.value = value
+        print(f'Right Rumble: {self.controller.right_rumble.value}')
 
 
 def main():

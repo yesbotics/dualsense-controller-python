@@ -16,8 +16,12 @@ class Property(Generic[PropertyType], ABC):
         self._state.on_change(callback)
 
     @property
-    def value(self) -> PropertyType:
-        return self._state.get_value_mapped()
+    def _value(self) -> PropertyType:
+        return self._state.value
+
+    @_value.setter
+    def _value(self, value: Number) -> None:
+        self._state.value = value
 
 
 class BoolProperty(Property[bool], ABC):
@@ -44,8 +48,21 @@ class ButtonProperty(BoolProperty):
 
     @property
     def pressed(self) -> bool:
-        return self.value
+        return self._value
 
 
 class TriggerProperty(Property[Number]):
-    pass
+    @property
+    def value(self) -> bool:
+        return self._value
+
+
+class RumbleProperty(Property[Number]):
+
+    @property
+    def value(self) -> Number:
+        return self._value
+
+    @value.setter
+    def value(self, value: Number) -> None:
+        self._value = value

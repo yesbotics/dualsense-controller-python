@@ -1,6 +1,6 @@
 from typing import Final
 
-from dualsense_controller.api.property import ButtonProperty, TriggerProperty
+from dualsense_controller.api.property import ButtonProperty, RumbleProperty, TriggerProperty
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates
 from dualsense_controller.core.state.write_state.WriteStates import WriteStates
 
@@ -17,5 +17,5 @@ class Properties:
         self.btn_circle: Final[ButtonProperty] = ButtonProperty(read_states.btn_circle)
         self.left_trigger: Final[TriggerProperty] = TriggerProperty(read_states.l2)
         self.right_trigger: Final[TriggerProperty] = TriggerProperty(read_states.r2)
-        # self.left_rumble: Final[RumbleProperty] = RumbleProperty(write_states.left_rumble)
-        # self.right_rumble: Final[RumbleProperty] = RumbleProperty(read_states.right_rumble)
+        self.left_rumble: Final[RumbleProperty] = RumbleProperty(write_states.left_motor)
+        self.right_rumble: Final[RumbleProperty] = RumbleProperty(write_states.right_motor)

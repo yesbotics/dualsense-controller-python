@@ -25,12 +25,14 @@ class WriteStates:
         self.left_motor: Final[State[int]] = self._create_and_register_state(
             WriteStateName.MOTOR_LEFT,
             value=0x00,
-            mapped_to_raw_fn=self._state_value_mapper.set_left_motor_mapped_to_raw
+            mapped_to_raw_fn=self._state_value_mapper.set_left_motor_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.set_left_motor_raw_to_mapped,
         )
         self.right_motor: Final[State[int]] = self._create_and_register_state(
             WriteStateName.MOTOR_RIGHT,
             value=0x00,
-            mapped_to_raw_fn=self._state_value_mapper.set_right_motor_mapped_to_raw
+            mapped_to_raw_fn=self._state_value_mapper.set_right_motor_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.set_right_motor_raw_to_mapped,
         )
 
         self._create_and_register_state(WriteStateName.FLAGS_PHYSICS, value=OutFlagsPhysics.ALL)
@@ -126,13 +128,15 @@ class WriteStates:
             value: StateValueType = None,
             callback: StateChangeCallback = None,
             mapped_to_raw_fn: MapFn = None,
+            raw_to_mapped_fn: MapFn = None,
     ) -> State[StateValueType]:
         if callback is None:
             callback = self._on_change
         state: State[StateValueType] = State[StateValueType](
             name=name,
             value=value,
-            mapped_to_raw_fn=mapped_to_raw_fn
+            mapped_to_raw_fn=mapped_to_raw_fn,
+            raw_to_mapped_fn=raw_to_mapped_fn,
         )
         self._states_dict[name] = state
         state.on_change(callback)
