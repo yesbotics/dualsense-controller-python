@@ -19,8 +19,7 @@ StateChangeCallback = _StChCb0 | _StChCb1 | _StChCb2 | _StChCb3 | _StChCb4
 
 Number = int | float
 CompareResult = tuple[bool, StateValueType]
-CompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
+_WrappedCompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
+_CompareFn = Callable[[StateValueType, StateValueType], CompareResult]
+CompareFn = _WrappedCompareFn | _CompareFn
 StateValueFn = Callable[[InReport, ...], StateValueType]
-
-
-

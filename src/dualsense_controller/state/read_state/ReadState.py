@@ -5,8 +5,7 @@ from typing import Any, Final, Generic
 from dualsense_controller.state.State import State
 from dualsense_controller.state.mapping.typedef import MapFn
 from dualsense_controller.state.read_state.enum import ReadStateName
-from dualsense_controller.state.typedef import CompareFn, StateValueType
-
+from dualsense_controller.state.typedef import StateValueType, CompareFn
 
 
 class ReadState(Generic[StateValueType], State[StateValueType]):
@@ -44,12 +43,6 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
     @property
     def has_listened_dependencies(self) -> bool:
         return any(state.has_listeners for state in self._depends_on)
-
-    @property
-    def restricted_access(self) -> RestrictedStateAccess[StateValueType]:
-        if self._restricted_access is None:
-            self._restricted_access = RestrictedStateAccess(self)
-        return self._restricted_access
 
     def __init__(
             self,

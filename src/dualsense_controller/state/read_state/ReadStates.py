@@ -18,7 +18,8 @@ from dualsense_controller.state.read_state.enum import ReadStateName
 from dualsense_controller.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
     Orientation, \
     TouchFinger
-from dualsense_controller.state.typedef import CompareFn, StateChangeCallback, StateValueFn, StateValueType
+from dualsense_controller.state.typedef import CompareFn, StateChangeCallback, StateValueFn, \
+    StateValueType
 
 
 class ReadStates:

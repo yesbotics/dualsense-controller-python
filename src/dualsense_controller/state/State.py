@@ -7,13 +7,14 @@ from typing import Final, Generic
 import pyee
 
 from dualsense_controller.state.mapping.typedef import MapFn
-from dualsense_controller.state.typedef import CompareFn, CompareResult, StateChangeCallback, StateName, StateValueType
+from dualsense_controller.state.typedef import CompareResult, StateChangeCallback, StateName, StateValueType, \
+    CompareFn
 
 
 class State(Generic[StateValueType]):
 
     @staticmethod
-    def _compare(before: StateValueType | None, after: StateValueType) -> CompareResult:
+    def _compare(before: StateValueType, after: StateValueType) -> CompareResult:
         return (True, after) if before != after else (False, after)
 
     def __init__(
