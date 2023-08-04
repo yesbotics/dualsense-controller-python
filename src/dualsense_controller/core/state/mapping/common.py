@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from dualsense_controller.state.mapping.typedef import FromToTuple
-from dualsense_controller.state.typedef import Number
+from dualsense_controller.core.state.mapping.typedef import FromToTuple
+from dualsense_controller.core.state.typedef import Number
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,10 +1,10 @@
 from functools import partial
 
-from dualsense_controller.state.mapping.common import Float, FromTo, Integer, StateValueMappingData
-from dualsense_controller.state.mapping.enum import StateValueMapping
-from dualsense_controller.state.mapping.typedef import FromToTuple, MapFn
-from dualsense_controller.state.read_state.value_type import JoyStick
-from dualsense_controller.state.typedef import Number
+from dualsense_controller.core.state.mapping.common import Float, FromTo, Integer, StateValueMappingData
+from dualsense_controller.core.state.mapping.enum import StateValueMapping
+from dualsense_controller.core.state.mapping.typedef import FromToTuple, MapFn
+from dualsense_controller.core.state.read_state.value_type import JoyStick
+from dualsense_controller.core.state.typedef import Number
 
 _NumberType = Float | Integer
 

@@ -3,23 +3,23 @@ from typing import Final
 
 from dualsense_controller.core.HidControllerDevice import HidControllerDevice
 from dualsense_controller.core.hidapi.hidapi import DeviceInfo
-from dualsense_controller.enum import EventType
-from dualsense_controller.report.in_report.InReport import InReport
-from dualsense_controller.state.State import State
-from dualsense_controller.state.mapping.StateValueMapper import StateValueMapper
-from dualsense_controller.state.mapping.enum import StateValueMapping
-from dualsense_controller.state.read_state.ReadStates import ReadStates
-from dualsense_controller.state.read_state.RestictedStatesAccess import RestrictedStatesAccess
-from dualsense_controller.state.read_state.enum import ReadStateName
-from dualsense_controller.state.read_state.value_type import Battery, Connection
-from dualsense_controller.state.typedef import Number, StateChangeCallback
-from dualsense_controller.state.write_state.WriteStates import WriteStates
-from dualsense_controller.state.write_state.enum import WriteStateName
-from dualsense_controller.typedef import BatteryLowCallback, ExceptionCallback, SimpleCallback
-from dualsense_controller.util import format_exception
+from dualsense_controller.core.enum import EventType
+from dualsense_controller.core.report.in_report.InReport import InReport
+from dualsense_controller.core.state.State import State
+from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
+from dualsense_controller.core.state.mapping.enum import StateValueMapping
+from dualsense_controller.core.state.read_state.ReadStates import ReadStates
+from dualsense_controller.core.state.read_state.RestictedStatesAccess import RestrictedStatesAccess
+from dualsense_controller.core.state.read_state.enum import ReadStateName
+from dualsense_controller.core.state.read_state.value_type import Battery, Connection
+from dualsense_controller.core.state.typedef import Number, StateChangeCallback
+from dualsense_controller.core.state.write_state.WriteStates import WriteStates
+from dualsense_controller.core.state.write_state.enum import WriteStateName
+from dualsense_controller.core.typedef import BatteryLowCallback, ExceptionCallback, SimpleCallback
+from dualsense_controller.core.util import format_exception
 
 
-class DualSenseController:
+class DualSenseControllerCore:
 
     @staticmethod
     def enumerate_devices() -> list[DeviceInfo]:
@@ -95,7 +95,7 @@ class DualSenseController:
         self._read_states.on_any_change(callback)
 
     def set_state(self, state_name: WriteStateName, value: Number):
-        self._write_states.set_value_mapped(state_name, value)
+        self._write_states.set_value(state_name, value)
 
     def set_motor_left(self, value: Number):
         self.set_state(WriteStateName.MOTOR_LEFT, value)

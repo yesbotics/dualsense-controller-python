@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Final
 
-from dualsense_controller.enum import ConnectionType
-from dualsense_controller.state.typedef import Number
+from dualsense_controller.core.enum import ConnectionType
+from dualsense_controller.core.state.typedef import Number
 
 _DEFAULT_NUMBER: Final[Number] = -99999
 

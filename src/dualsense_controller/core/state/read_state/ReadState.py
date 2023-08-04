@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Final, Generic
 
-from dualsense_controller.state.State import State
-from dualsense_controller.state.mapping.typedef import MapFn
-from dualsense_controller.state.read_state.enum import ReadStateName
-from dualsense_controller.state.typedef import StateValueType, CompareFn
+from dualsense_controller.core.state.State import State
+from dualsense_controller.core.state.mapping.typedef import MapFn
+from dualsense_controller.core.state.read_state.enum import ReadStateName
+from dualsense_controller.core.state.typedef import StateValueType, CompareFn
 
 
 class ReadState(Generic[StateValueType], State[StateValueType]):
@@ -47,7 +47,6 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
     def __init__(
             self,
             name: ReadStateName,
-            # opts
             value: StateValueType = None,
             default_value: StateValueType = None,
             ignore_none: bool = True,
@@ -68,17 +67,24 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
             raw_to_mapped_fn=raw_to_mapped_fn,
             compare_fn=compare_fn,
         )
+        # CONST
         self._depends_on: Final[list[ReadState[StateValueType]]] = depends_on if depends_on is not None else []
         self._is_dependency_of: Final[list[ReadState[StateValueType]]] = (
             is_dependency_of if is_dependency_of is not None else []
         )
         self._enforce_update: Final[bool] = enforce_update
 
+        # VAR
+        self._cycle_timestamp: int = 0
+
+        # AFTER
         for depends_on_state in self._depends_on:
             depends_on_state.add_as_dependecy_of(self)
-
         for is_dependency_of_state in self._is_dependency_of:
             is_dependency_of_state.add_depends_on(self)
+
+    def set_cycle_timestamp(self, timestamp: int):
+        self._cycle_timestamp = timestamp
 
     def add_as_dependecy_of(self, state: ReadState[Any]):
         self._is_dependency_of.append(state)

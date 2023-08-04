@@ -1,8 +1,8 @@
 import math
 
-from dualsense_controller.report.in_report.InReport import InReport
-from dualsense_controller.state.State import State
-from dualsense_controller.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
+from dualsense_controller.core.report.in_report import InReport
+from dualsense_controller.core.state.State import State
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
     Orientation, \
     TouchFinger
 

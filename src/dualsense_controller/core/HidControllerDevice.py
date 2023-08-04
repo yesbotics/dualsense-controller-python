@@ -5,19 +5,19 @@ from typing import Any, Final
 import pyee
 
 from dualsense_controller.core.hidapi import Device, DeviceInfo, enumerate
-from dualsense_controller.enum import ConnectionType, EventType
+from dualsense_controller.core.enum import ConnectionType, EventType
 from dualsense_controller.core.exception import InvalidDeviceIndexException, InvalidInReportLengthException, \
     NoDeviceDetectedException
-from dualsense_controller.report.in_report.Bt01InReport import Bt01InReport
-from dualsense_controller.report.in_report.Bt31InReport import Bt31InReport
-from dualsense_controller.report.in_report.InReport import InReport
-from dualsense_controller.report.in_report.Usb01InReport import Usb01InReport
-from dualsense_controller.report.in_report.enum import InReportLength
-from dualsense_controller.report.in_report.typedef import InReportCallback
-from dualsense_controller.report.out_report.Bt31OutReport import Bt01OutReport, Bt31OutReport
-from dualsense_controller.report.out_report.OutReport import OutReport
-from dualsense_controller.report.out_report.Usb01OutReport import Usb01OutReport
-from dualsense_controller.typedef import ExceptionCallback
+from dualsense_controller.core.report.in_report.Bt01InReport import Bt01InReport
+from dualsense_controller.core.report.in_report.Bt31InReport import Bt31InReport
+from dualsense_controller.core.report.in_report.InReport import InReport
+from dualsense_controller.core.report.in_report.Usb01InReport import Usb01InReport
+from dualsense_controller.core.report.in_report.enum import InReportLength
+from dualsense_controller.core.report.in_report.typedef import InReportCallback
+from dualsense_controller.core.report.out_report.Bt31OutReport import Bt01OutReport, Bt31OutReport
+from dualsense_controller.core.report.out_report.OutReport import OutReport
+from dualsense_controller.core.report.out_report.Usb01OutReport import Usb01OutReport
+from dualsense_controller.core.typedef import ExceptionCallback
 
 
 class HidControllerDevice:

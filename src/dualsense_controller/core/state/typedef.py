@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any, Callable, TypeVar
 
-from dualsense_controller.report.in_report.InReport import InReport
-from dualsense_controller.state.read_state.enum import ReadStateName
-from dualsense_controller.state.write_state.enum import WriteStateName
+from dualsense_controller.core.report.in_report import InReport
+from dualsense_controller.core.state.read_state.enum import ReadStateName
+from dualsense_controller.core.state.write_state.enum import WriteStateName
 
 StateValueType = TypeVar('StateValueType')
 MappedStateValueType = TypeVar('MappedStateValueType')

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from dualsense_controller.state.mapping.common import Float, FromTo, StateValueMappingData
+from dualsense_controller.core.state.mapping.common import Float, FromTo, StateValueMappingData
 
 
 class StateValueMapping(Enum):

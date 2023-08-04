@@ -6,19 +6,19 @@ from typing import Callable
 
 import pyee
 
-from dualsense_controller.enum import ConnectionType
-from dualsense_controller.report.in_report.InReport import InReport
-from dualsense_controller.state.mapping.StateValueMapper import StateValueMapper
-from dualsense_controller.state.mapping.enum import StateValueMapping
-from dualsense_controller.state.mapping.typedef import MapFn
-from dualsense_controller.state.read_state.ReadState import ReadState
-from dualsense_controller.state.read_state.ValueCalc import ValueCalc
-from dualsense_controller.state.read_state.ValueCompare import ValueCompare
-from dualsense_controller.state.read_state.enum import ReadStateName
-from dualsense_controller.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
+from dualsense_controller.core.enum import ConnectionType
+from dualsense_controller.core.report.in_report import InReport
+from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
+from dualsense_controller.core.state.mapping.enum import StateValueMapping
+from dualsense_controller.core.state.mapping.typedef import MapFn
+from dualsense_controller.core.state.read_state.ReadState import ReadState
+from dualsense_controller.core.state.read_state.ValueCalc import ValueCalc
+from dualsense_controller.core.state.read_state.ValueCompare import ValueCompare
+from dualsense_controller.core.state.read_state.enum import ReadStateName
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
     Orientation, \
     TouchFinger
-from dualsense_controller.state.typedef import CompareFn, StateChangeCallback, StateValueFn, \
+from dualsense_controller.core.state.typedef import CompareFn, StateChangeCallback, StateValueFn, \
     StateValueType
 
 

@@ -1,13 +1,13 @@
 from typing import Final
 
-from dualsense_controller.report.out_report.OutReport import OutReport
-from dualsense_controller.report.out_report.enum import OutBrightness, OutFlagsLights, OutFlagsPhysics, OutLedOptions, \
+from dualsense_controller.core.report.out_report.OutReport import OutReport
+from dualsense_controller.core.report.out_report.enum import OutBrightness, OutFlagsLights, OutFlagsPhysics, OutLedOptions, \
     OutPulseOptions
-from dualsense_controller.state.State import State
-from dualsense_controller.state.mapping.StateValueMapper import StateValueMapper
-from dualsense_controller.state.mapping.typedef import MapFn
-from dualsense_controller.state.typedef import StateChangeCallback, StateValueType
-from dualsense_controller.state.write_state.enum import WriteStateName
+from dualsense_controller.core.state.State import State
+from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
+from dualsense_controller.core.state.mapping.typedef import MapFn
+from dualsense_controller.core.state.typedef import StateChangeCallback, StateValueType
+from dualsense_controller.core.state.write_state.enum import WriteStateName
 
 
 class WriteStates:
@@ -16,7 +16,6 @@ class WriteStates:
             self,
             state_value_mapper: StateValueMapper,
     ):
-
         self._states_dict: Final[dict[WriteStateName, State]] = {}
         self._state_value_mapper: Final[StateValueMapper] = state_value_mapper
 
@@ -67,19 +66,13 @@ class WriteStates:
     def changed(self) -> bool:
         return self._changed
 
-    def set_value(self, name: WriteStateName, value: StateValueType, trigger_change: bool = True) -> None:
+    def set_value(self, name: WriteStateName, value: StateValueType) -> None:
         state: State[StateValueType] = self._get_state_by_name(name)
-        if not trigger_change:
-            state.set_value_without_triggering_change(value)
-        else:
-            state.set_value(value)
+        state.set_value_mapped(value)
 
-    def set_value_mapped(self, name: WriteStateName, value: StateValueType, trigger_change: bool = True) -> None:
+    def set_value_without_triggering_change(self, name: WriteStateName, value: StateValueType) -> None:
         state: State[StateValueType] = self._get_state_by_name(name)
-        if not trigger_change:
-            state.set_value_mapped_without_triggering_change(value)
-        else:
-            state.set_value_mapped(value)
+        state.set_value_mapped_without_triggering_change(value)
 
     def set_unchanged(self):
         self._get_state_by_name(WriteStateName.FLAGS_LIGHTS).set_value_without_triggering_change(
@@ -146,5 +139,5 @@ class WriteStates:
 
     def _on_change_mute_led(self):
         # Remove mic control flag to allow setting brightness
-        self.set_value(WriteStateName.FLAGS_LIGHTS, OutFlagsLights.ALL, False)
+        self.set_value_without_triggering_change(WriteStateName.FLAGS_LIGHTS, OutFlagsLights.ALL)
         self._changed = True

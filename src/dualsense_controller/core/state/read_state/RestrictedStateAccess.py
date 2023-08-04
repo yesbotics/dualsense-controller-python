@@ -1,7 +1,7 @@
 from typing import Callable, Generic
 
-from dualsense_controller.state.State import State
-from dualsense_controller.state.typedef import StateChangeCallback, StateValueType
+from dualsense_controller.core.state.State import State
+from dualsense_controller.core.state.typedef import StateChangeCallback, StateValueType
 
 
 class RestrictedStateAccess(Generic[StateValueType]):

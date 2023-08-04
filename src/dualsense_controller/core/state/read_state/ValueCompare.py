@@ -1,8 +1,8 @@
 from typing import Final
 
-from dualsense_controller.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
     Orientation, TouchFinger
-from dualsense_controller.state.typedef import CompareResult, Number
+from dualsense_controller.core.state.typedef import CompareResult, Number
 
 _HALF_255: Final[Number] = 127.5
 

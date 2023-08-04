@@ -1,20 +1,21 @@
 from time import sleep
 from typing import Any
 
-from dualsense_controller.DualSenseController import DualSenseController
-from dualsense_controller.report.out_report.enum import OutBrightness, OutPlayerLed, OutPulseOptions
-from dualsense_controller.state.mapping.enum import StateValueMapping
-from dualsense_controller.state.read_state.enum import ReadStateName
-from dualsense_controller.state.read_state.value_type import Accelerometer, Connection, Gyroscope, JoyStick, \
-    Orientation, TouchFinger
-from dualsense_controller.state.write_state.enum import WriteStateName
+from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
+from dualsense_controller.core.report.out_report.enum import OutBrightness, OutPlayerLed, OutPulseOptions
+from dualsense_controller.core.state.mapping.enum import StateValueMapping
+from dualsense_controller.core.state.read_state.enum import ReadStateName
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Connection, Gyroscope, JoyStick, \
+    Orientation, \
+    TouchFinger
+from dualsense_controller.core.state.write_state.enum import WriteStateName
 
 
 class Example:
     def __init__(self):
         self._stay_alive: bool = False
 
-        self._dualsense_controller: DualSenseController = DualSenseController(
+        self._dualsense_controller: DualSenseControllerCore = DualSenseControllerCore(
             # ##### BASE  #####
             device_index_or_device_info=0,
             # ##### FEELING  #####
