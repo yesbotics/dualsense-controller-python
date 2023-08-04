@@ -6,7 +6,7 @@ import pyee
 
 from dualsense_controller.core.hidapi import Device, DeviceInfo, enumerate
 from dualsense_controller.enum import ConnectionType, EventType
-from dualsense_controller.exception import InvalidDeviceIndexException, InvalidInReportLengthException, \
+from dualsense_controller.core.exception import InvalidDeviceIndexException, InvalidInReportLengthException, \
     NoDeviceDetectedException
 from dualsense_controller.report.in_report.Bt01InReport import Bt01InReport
 from dualsense_controller.report.in_report.Bt31InReport import Bt31InReport

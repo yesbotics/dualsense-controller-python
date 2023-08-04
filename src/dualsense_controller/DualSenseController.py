@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Final
 
-from dualsense_controller.HidControllerDevice import HidControllerDevice
+from dualsense_controller.core.HidControllerDevice import HidControllerDevice
 from dualsense_controller.core.hidapi.hidapi import DeviceInfo
 from dualsense_controller.enum import EventType
 from dualsense_controller.report.in_report.InReport import InReport
