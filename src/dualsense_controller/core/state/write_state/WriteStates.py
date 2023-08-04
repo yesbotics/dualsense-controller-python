@@ -71,11 +71,11 @@ class WriteStates:
 
     def set_value(self, name: WriteStateName, value: StateValueType) -> None:
         state: State[StateValueType] = self._get_state_by_name(name)
-        state.set_value_mapped(value)
+        state.value = value
 
     def set_value_without_triggering_change(self, name: WriteStateName, value: StateValueType) -> None:
         state: State[StateValueType] = self._get_state_by_name(name)
-        state.set_value_mapped_without_triggering_change(value)
+        state.set_value_without_triggering_change(value)
 
     def set_unchanged(self):
         self._get_state_by_name(WriteStateName.FLAGS_LIGHTS).set_value_without_triggering_change(
@@ -84,38 +84,38 @@ class WriteStates:
         self._changed = False
 
     def update_out_report(self, out_report: OutReport):
-        out_report.flags_physics = self._get_state_by_name(WriteStateName.FLAGS_PHYSICS).value
-        out_report.flags_lights = self._get_state_by_name(WriteStateName.FLAGS_LIGHTS).value
+        out_report.flags_physics = self._get_state_by_name(WriteStateName.FLAGS_PHYSICS).value_raw
+        out_report.flags_lights = self._get_state_by_name(WriteStateName.FLAGS_LIGHTS).value_raw
 
-        out_report.lightbar_red = self._get_state_by_name(WriteStateName.LIGHTBAR_RED).value
-        out_report.lightbar_green = self._get_state_by_name(WriteStateName.LIGHTBAR_GREEN).value
-        out_report.lightbar_blue = self._get_state_by_name(WriteStateName.LIGHTBAR_BLUE).value
-        out_report.motor_left = self._get_state_by_name(WriteStateName.MOTOR_LEFT).value
-        out_report.motor_right = self._get_state_by_name(WriteStateName.MOTOR_RIGHT).value
-        out_report.l2_effect_mode = self._get_state_by_name(WriteStateName.L2_EFFECT_MODE).value
-        out_report.l2_effect_param1 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM1).value
-        out_report.l2_effect_param2 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM2).value
-        out_report.l2_effect_param3 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM3).value
-        out_report.l2_effect_param4 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM4).value
-        out_report.l2_effect_param5 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM5).value
-        out_report.l2_effect_param6 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM6).value
-        out_report.l2_effect_param7 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM7).value
-        out_report.r2_effect_mode = self._get_state_by_name(WriteStateName.R2_EFFECT_MODE).value
-        out_report.r2_effect_param1 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM1).value
-        out_report.r2_effect_param2 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM2).value
-        out_report.r2_effect_param3 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM3).value
-        out_report.r2_effect_param4 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM4).value
-        out_report.r2_effect_param5 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM5).value
-        out_report.r2_effect_param6 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM6).value
-        out_report.r2_effect_param7 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM7).value
+        out_report.lightbar_red = self._get_state_by_name(WriteStateName.LIGHTBAR_RED).value_raw
+        out_report.lightbar_green = self._get_state_by_name(WriteStateName.LIGHTBAR_GREEN).value_raw
+        out_report.lightbar_blue = self._get_state_by_name(WriteStateName.LIGHTBAR_BLUE).value_raw
+        out_report.motor_left = self._get_state_by_name(WriteStateName.MOTOR_LEFT).value_raw
+        out_report.motor_right = self._get_state_by_name(WriteStateName.MOTOR_RIGHT).value_raw
+        out_report.l2_effect_mode = self._get_state_by_name(WriteStateName.L2_EFFECT_MODE).value_raw
+        out_report.l2_effect_param1 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM1).value_raw
+        out_report.l2_effect_param2 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM2).value_raw
+        out_report.l2_effect_param3 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM3).value_raw
+        out_report.l2_effect_param4 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM4).value_raw
+        out_report.l2_effect_param5 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM5).value_raw
+        out_report.l2_effect_param6 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM6).value_raw
+        out_report.l2_effect_param7 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM7).value_raw
+        out_report.r2_effect_mode = self._get_state_by_name(WriteStateName.R2_EFFECT_MODE).value_raw
+        out_report.r2_effect_param1 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM1).value_raw
+        out_report.r2_effect_param2 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM2).value_raw
+        out_report.r2_effect_param3 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM3).value_raw
+        out_report.r2_effect_param4 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM4).value_raw
+        out_report.r2_effect_param5 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM5).value_raw
+        out_report.r2_effect_param6 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM6).value_raw
+        out_report.r2_effect_param7 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM7).value_raw
 
-        out_report.lightbar = self._get_state_by_name(WriteStateName.LIGHTBAR.LIGHTBAR).value
-        out_report.microphone_led = self._get_state_by_name(WriteStateName.MICROPHONE_LED).value
-        out_report.microphone_mute = self._get_state_by_name(WriteStateName.MICROPHONE_MUTE).value
-        out_report.led_options = self._get_state_by_name(WriteStateName.LED_OPTIONS).value
-        out_report.pulse_options = self._get_state_by_name(WriteStateName.PULSE_OPTIONS).value
-        out_report.brightness = self._get_state_by_name(WriteStateName.BRIGHTNESS).value
-        out_report.player_led = self._get_state_by_name(WriteStateName.PLAYER_LED).value
+        out_report.lightbar = self._get_state_by_name(WriteStateName.LIGHTBAR.LIGHTBAR).value_raw
+        out_report.microphone_led = self._get_state_by_name(WriteStateName.MICROPHONE_LED).value_raw
+        out_report.microphone_mute = self._get_state_by_name(WriteStateName.MICROPHONE_MUTE).value_raw
+        out_report.led_options = self._get_state_by_name(WriteStateName.LED_OPTIONS).value_raw
+        out_report.pulse_options = self._get_state_by_name(WriteStateName.PULSE_OPTIONS).value_raw
+        out_report.brightness = self._get_state_by_name(WriteStateName.BRIGHTNESS).value_raw
+        out_report.player_led = self._get_state_by_name(WriteStateName.PLAYER_LED).value_raw
 
     def _get_state_by_name(self, name: WriteStateName) -> State:
         return self._states_dict[name]

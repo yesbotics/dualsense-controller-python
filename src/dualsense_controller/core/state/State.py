@@ -7,8 +7,8 @@ from typing import Final, Generic
 import pyee
 
 from dualsense_controller.core.state.mapping.typedef import MapFn
-from dualsense_controller.core.state.typedef import CompareResult, StateChangeCallback, StateName, StateValueType, \
-    CompareFn
+from dualsense_controller.core.state.typedef import CompareFn, CompareResult, StateChangeCallback, StateName, \
+    StateValueType
 
 
 class State(Generic[StateValueType]):
@@ -18,23 +18,32 @@ class State(Generic[StateValueType]):
         return (True, after) if before != after else (False, after)
 
     def __repr__(self) -> str:
-        return f'State[{type(self.value).__name__}]({self.name}: {self.value})'
+        return f'State[{type(self._value).__name__}]({self.name}: {self._value} -> {self.value})'
 
     @property
     def value(self) -> StateValueType:
-        return self.get_value()
+        value_raw: StateValueType = self.value_raw
+        return value_raw if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(value_raw)
+
+    @value.setter
+    def value(self, value_mapped: StateValueType) -> None:
+        self._set_value(value_mapped)
 
     @property
     def last_value(self) -> StateValueType:
-        return self.get_last_value()
+        last_value_raw: StateValueType = self.last_value_raw
+        return last_value_raw if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(last_value_raw)
 
     @property
-    def value_mapped(self) -> StateValueType:
-        return self.get_value_mapped()
+    def value_raw(self) -> StateValueType:
+        # if self._change_timestamp >= self._cycle_timestamp:
+        #     return self._value
+        # raise Exception('no current lavue')
+        return self._value
 
     @property
-    def last_value_mapped(self) -> StateValueType:
-        return self.get_last_value_mapped()
+    def last_value_raw(self) -> StateValueType:
+        return self._last_value
 
     @property
     def has_changed(self) -> bool:
@@ -76,23 +85,22 @@ class State(Generic[StateValueType]):
         self._event_name_3_args: Final[str] = f'{name}_3'
         self._event_name_4_args: Final[str] = f'{name}_4'
 
+    def set_value_raw_without_triggering_change(self, new_value: StateValueType | None):
+        self._set_value_raw(new_value, trigger_change_on_changed=False)
+
     def set_value_without_triggering_change(self, new_value: StateValueType | None):
         self._set_value(new_value, trigger_change_on_changed=False)
 
-    def set_value_mapped_without_triggering_change(self, new_value: StateValueType | None):
-        self.set_value_mapped(new_value, trigger_change_on_changed=False)
-
-    def set_value_mapped(
+    def _set_value(
             self,
-            vmapped: StateValueType | None,
+            value_mapped: StateValueType | None,
             trigger_change_on_changed: bool = True,
     ) -> None:
-        raw_val: StateValueType | None = vmapped if self._mapped_to_raw_fn is None else self._mapped_to_raw_fn(vmapped)
-        # print(f'{self.name}: {vmapped} -> {raw_val}')
-        self._set_value(raw_val, trigger_change_on_changed=trigger_change_on_changed)
-
-    def set_value(self, value: StateValueType | None) -> None:
-        self._set_value(value)
+        value_raw: StateValueType | None = (
+            value_mapped if self._mapped_to_raw_fn is None else self._mapped_to_raw_fn(value_mapped)
+        )
+        # print(f'{self.name}: {value_mapped} -> {raw_val}')
+        self._set_value_raw(value_raw, trigger_change_on_changed=trigger_change_on_changed)
 
     def trigger_change_if_changed(self) -> None:
         if self.has_changed:
@@ -116,28 +124,9 @@ class State(Generic[StateValueType]):
     def remove_all_change_listeners(self) -> None:
         self._event_emitter.remove_all_listeners()
 
-    # ################# GETTERS AND SETTERS - OLDSCHOOL ###############
-
-    def get_value(self) -> StateValueType:
-        # if self._change_timestamp >= self._cycle_timestamp:
-        #     return self._value
-        # raise Exception('no current lavue')
-        return self._value
-
-    def get_last_value(self) -> StateValueType:
-        return self._last_value
-
-    def get_value_mapped(self) -> StateValueType:
-        value: StateValueType = self.get_value()
-        return value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(value)
-
-    def get_last_value_mapped(self) -> StateValueType:
-        last_value: StateValueType = self.get_last_value()
-        return last_value if not callable(self._raw_to_mapped_fn) else self._raw_to_mapped_fn(last_value)
-
     # ################# GETTERS AND SETTERS ###############
 
-    def _set_value(self, value: StateValueType | None, trigger_change_on_changed: bool = True) -> None:
+    def _set_value_raw(self, value: StateValueType | None, trigger_change_on_changed: bool = True) -> None:
         old_value: StateValueType = self._value
         new_value: StateValueType = value
         if old_value is None and self._default_value is not None:
@@ -175,7 +164,7 @@ class State(Generic[StateValueType]):
             self._trigger_change()
 
     def _trigger_change(self):
-        self._emit_change(self.last_value_mapped, self.value_mapped)
+        self._emit_change(self.last_value, self.value)
 
     def _emit_change(self, old_value: StateValueType, new_value: StateValueType):
         self._event_emitter.emit(self._event_name_0_args)

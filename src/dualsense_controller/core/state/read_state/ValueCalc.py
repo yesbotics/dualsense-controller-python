@@ -18,11 +18,11 @@ class ValueCalc:
 
     @classmethod
     def left_stick_x(cls, _: InReport, left_stick: State[JoyStick]) -> int:
-        return left_stick.value.x
+        return left_stick.value_raw.x
 
     @classmethod
     def left_stick_y(cls, _: InReport, left_stick: State[JoyStick]) -> int:
-        return left_stick.value.y
+        return left_stick.value_raw.y
 
     @classmethod
     def right_stick(cls, in_report: InReport) -> JoyStick:
@@ -30,11 +30,11 @@ class ValueCalc:
 
     @classmethod
     def right_stick_x(cls, _: InReport, right_stick: State[JoyStick]) -> int:
-        return right_stick.value.x
+        return right_stick.value_raw.x
 
     @classmethod
     def right_stick_y(cls, _: InReport, right_stick: State[JoyStick]) -> int:
-        return right_stick.value.y
+        return right_stick.value_raw.y
 
     @classmethod
     def l2(cls, in_report: InReport) -> int:
@@ -50,19 +50,19 @@ class ValueCalc:
 
     @classmethod
     def btn_up(cls, _: InReport, dpad: State[int]) -> bool:
-        return dpad.value == 0 or dpad.value == 1 or dpad.value == 7
+        return dpad.value_raw == 0 or dpad.value_raw == 1 or dpad.value_raw == 7
 
     @classmethod
     def btn_down(cls, _: InReport, dpad: State[int]) -> bool:
-        return dpad.value == 3 or dpad.value == 4 or dpad.value == 5
+        return dpad.value_raw == 3 or dpad.value_raw == 4 or dpad.value_raw == 5
 
     @classmethod
     def btn_left(cls, _: InReport, dpad: State[int]) -> bool:
-        return dpad.value == 5 or dpad.value == 6 or dpad.value == 7
+        return dpad.value_raw == 5 or dpad.value_raw == 6 or dpad.value_raw == 7
 
     @classmethod
     def btn_right(cls, _: InReport, dpad: State[int]) -> bool:
-        return dpad.value == 1 or dpad.value == 2 or dpad.value == 3
+        return dpad.value_raw == 1 or dpad.value_raw == 2 or dpad.value_raw == 3
 
     @classmethod
     def btn_cross(cls, in_report: InReport) -> bool:
@@ -134,15 +134,15 @@ class ValueCalc:
 
     @classmethod
     def gyroscope_x(cls, _: InReport, gyroscope: State[Gyroscope]) -> int:
-        return gyroscope.value.x
+        return gyroscope.value_raw.x
 
     @classmethod
     def gyroscope_y(cls, _: InReport, gyroscope: State[Gyroscope]) -> int:
-        return gyroscope.value.y
+        return gyroscope.value_raw.y
 
     @classmethod
     def gyroscope_z(cls, _: InReport, gyroscope: State[Gyroscope]) -> int:
-        return gyroscope.value.z
+        return gyroscope.value_raw.z
 
     @classmethod
     def accelerometer(cls, in_report: InReport) -> Accelerometer:
@@ -154,19 +154,19 @@ class ValueCalc:
 
     @classmethod
     def accelerometer_x(cls, _: InReport, accelerometer: State[Accelerometer]) -> int:
-        return accelerometer.value.x
+        return accelerometer.value_raw.x
 
     @classmethod
     def accelerometer_y(cls, _: InReport, accelerometer: State[Accelerometer]) -> int:
-        return accelerometer.value.y
+        return accelerometer.value_raw.y
 
     @classmethod
     def accelerometer_z(cls, _: InReport, accelerometer: State[Accelerometer]) -> int:
-        return accelerometer.value.z
+        return accelerometer.value_raw.z
 
     @classmethod
     def orientation(cls, _: InReport, accelerometer: State[Accelerometer]) -> Orientation:
-        accel: Accelerometer = accelerometer.value
+        accel: Accelerometer = accelerometer.value_raw
         return Orientation(
             pitch=(math.atan2(-accel.y, -accel.z) + math.pi),
             roll=(math.atan2(-accel.x, -accel.z) + math.pi)
@@ -198,10 +198,10 @@ class ValueCalc:
             touch_finger_1_y: State[int],
     ) -> TouchFinger:
         return TouchFinger(
-            active=touch_finger_1_active.value,
-            id=touch_finger_1_id.value,
-            x=touch_finger_1_x.value,
-            y=touch_finger_1_y.value,
+            active=touch_finger_1_active.value_raw,
+            id=touch_finger_1_id.value_raw,
+            x=touch_finger_1_x.value_raw,
+            y=touch_finger_1_y.value_raw,
         )
 
     @classmethod
@@ -230,10 +230,10 @@ class ValueCalc:
             touch_finger_2_y: State[int],
     ) -> TouchFinger:
         return TouchFinger(
-            active=touch_finger_2_active.value,
-            id=touch_finger_2_id.value,
-            x=touch_finger_2_x.value,
-            y=touch_finger_2_y.value,
+            active=touch_finger_2_active.value_raw,
+            id=touch_finger_2_id.value_raw,
+            x=touch_finger_2_x.value_raw,
+            y=touch_finger_2_y.value_raw,
         )
 
     @classmethod
@@ -247,8 +247,8 @@ class ValueCalc:
     @classmethod
     def l2_feedback(cls, _: InReport, l2_feedback_active: State[bool], l2_feedback_value: State[int]) -> Feedback:
         return Feedback(
-            active=l2_feedback_active.value,
-            value=l2_feedback_value.value
+            active=l2_feedback_active.value_raw,
+            value=l2_feedback_value.value_raw
         )
 
     @classmethod
@@ -262,8 +262,8 @@ class ValueCalc:
     @classmethod
     def r2_feedback(cls, _: InReport, r2_feedback_active: State[bool], r2_feedback_value: State[int]) -> Feedback:
         return Feedback(
-            active=r2_feedback_active.value,
-            value=r2_feedback_value.value
+            active=r2_feedback_active.value_raw,
+            value=r2_feedback_value.value_raw
         )
 
     @classmethod
@@ -291,9 +291,9 @@ class ValueCalc:
             battery_charging: State[bool]
     ) -> Battery:
         return Battery(
-            level_percentage=battery_level_percentage.value,
-            full=battery_full.value,
-            charging=battery_charging.value,
+            level_percentage=battery_level_percentage.value_raw,
+            full=battery_full.value_raw,
+            charging=battery_charging.value_raw,
         )
 
     # ######### HELPERS #############

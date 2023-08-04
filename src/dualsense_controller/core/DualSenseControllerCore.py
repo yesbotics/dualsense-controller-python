@@ -102,12 +102,12 @@ class DualSenseControllerCore:
     def init(self) -> None:
         assert not self._hid_controller_device.opened, 'already opened'
         self._hid_controller_device.open()
-        self._connection_state.set_value(Connection(True, self._hid_controller_device.connection_type))
+        self._connection_state.value = Connection(True, self._hid_controller_device.connection_type)
 
     def deinit(self) -> None:
         assert self._hid_controller_device.opened, 'not opened yet'
         self._hid_controller_device.close()
-        self._connection_state.set_value(Connection(False, self._hid_controller_device.connection_type))
+        self._connection_state.value = Connection(False, self._hid_controller_device.connection_type)
 
     def _check_battery(self, callback: BatteryLowCallback, level_percentage: float, battery: Battery) -> None:
         if battery.level_percentage <= level_percentage:

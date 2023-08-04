@@ -406,17 +406,17 @@ class ReadStates:
                 or state.has_listened_dependents
                 or state.has_changed_dependencies
         ):
-            value: StateValueType = value_or_value_fn if not callable(value_or_value_fn) else value_or_value_fn(
+            value_raw: StateValueType = value_or_value_fn if not callable(value_or_value_fn) else value_or_value_fn(
                 self._in_report,
                 *args,
                 **kwagrs
             )
             if self._trigger_change_after_all_values_set:
-                state.set_value_without_triggering_change(value)
+                state.set_value_raw_without_triggering_change(value_raw)
                 self._states_to_trigger_after_all_states_set.append(state)
             else:
-                state.set_value(value)
-            return value
+                state.set_value_raw(value_raw)
+            return value_raw
         return None
 
     def _post_update(self):

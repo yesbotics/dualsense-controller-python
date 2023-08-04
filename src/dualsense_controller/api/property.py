@@ -17,7 +17,7 @@ class Property(Generic[PropertyType], ABC):
 
     @property
     def value(self) -> PropertyType:
-        return self._state.value_mapped
+        return self._state.get_value_mapped()
 
 
 class BoolProperty(Property[bool], ABC):

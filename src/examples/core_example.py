@@ -146,11 +146,11 @@ class CoreExample:
     #
     def _on_l2(self, value: int) -> None:
         print(f'L2 Analog Button: {value}')
-        self._dualsense_controller.write_states.left_motor.set_value_mapped(value)
+        self._dualsense_controller.write_states.left_motor.value = value
 
     def _on_r2(self, value: int) -> None:
         print(f'R2 Analog Button: {value}')
-        self._dualsense_controller.write_states.right_motor.set_value_mapped(value)
+        self._dualsense_controller.write_states.right_motor.value = value
 
     #
     # Left Controls -> lightbar color
