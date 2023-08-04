@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Final
 
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates
-from dualsense_controller.core.state.read_state.RestrictedStateAccess import RestrictedStateAccess
+from dualsense_controller.api.RestrictedStateAccess import RestrictedStateAccess
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
     Orientation, TouchFinger
 
