@@ -5,7 +5,10 @@ description = "Use DualSense Controller with Python."
 authors = ["Albrecht Nitsche <albrechtnitsche@gmail.com>"]
 license = "MIT LICENSE"
 readme = "README.md"
-packages = [{ include = "dualsense_controller" }]
+packages = [
+    { include = "examples", from = "src" },
+    { include = "dualsense_controller", from = "src" }
+]
 
 repository = 'https://github.com/yesbotics/dualsense-controller-python'
 homepage = 'https://github.com/yesbotics/dualsense-controller-python'
@@ -24,7 +27,7 @@ cffi = "^1.15.1"
 setuptools = "^68.0.0"
 
 [tool.poetry.scripts]
-dualsense-controller-example = 'example:main'
+dualsense-controller-example = 'examples:example:main'
 
 [build-system]
 requires = ["poetry-core"]
