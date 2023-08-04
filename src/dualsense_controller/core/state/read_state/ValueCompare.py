@@ -24,7 +24,7 @@ class ValueCompare:
         return changed, after
 
     @staticmethod
-    def compare_shoulder_key(
+    def compare_trigger(
             before: int | None,
             after: int,
             deadzone: Number = 0,

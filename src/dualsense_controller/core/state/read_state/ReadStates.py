@@ -141,26 +141,25 @@ class ReadStates:
             ),
         )
 
-        # INIT SHOULDER KEYS
+        # INIT TRIGGERS
         self.l2: Final[ReadState[int]] = self._create_and_register_state(
             ReadStateName.L2,
             enforce_update=enforce_update,
-            compare_fn=ValueCompare.compare_shoulder_key,
-            deadzone=self._state_value_mapper.left_shoulder_key_deadzone_mapped_to_raw,
-            raw_to_mapped_fn=self._state_value_mapper.left_shoulder_key_raw_to_mapped,
-            mapped_to_raw_fn=self._state_value_mapper.left_shoulder_key_mapped_to_raw,
+            compare_fn=ValueCompare.compare_trigger,
+            deadzone=self._state_value_mapper.left_trigger_deadzone_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.left_trigger_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.left_trigger_mapped_to_raw,
         )
         self.r2: Final[ReadState[int]] = self._create_and_register_state(
             ReadStateName.R2,
             enforce_update=enforce_update,
-            compare_fn=ValueCompare.compare_shoulder_key,
-            deadzone=self._state_value_mapper.right_shoulder_key_deadzone_mapped_to_raw,
-            raw_to_mapped_fn=self._state_value_mapper.right_shoulder_key_raw_to_mapped,
-            mapped_to_raw_fn=self._state_value_mapper.right_shoulder_key_mapped_to_raw,
+            compare_fn=ValueCompare.compare_trigger,
+            deadzone=self._state_value_mapper.right_trigger_deadzone_mapped_to_raw,
+            raw_to_mapped_fn=self._state_value_mapper.right_trigger_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.right_trigger_mapped_to_raw,
         )
 
         # INIT DIG BTN
-
         self.dpad: Final[ReadState[int]] = self._create_and_register_state(
             ReadStateName.DPAD,
             enforce_update=enforce_update,
@@ -446,9 +445,9 @@ class ReadStates:
         self._handle_state(self.right_stick_x, ValueCalc.right_stick_x, self.right_stick)
         self._handle_state(self.right_stick_y, ValueCalc.right_stick_x, self.right_stick)
 
-        # # ##### SHOULDER KEYS #####
-        self._handle_state(self.l2, ValueCalc.left_shoulder_key)
-        self._handle_state(self.r2, ValueCalc.right_shoulder_key)
+        # # ##### TRIGGERS #####
+        self._handle_state(self.l2, ValueCalc.l2)
+        self._handle_state(self.r2, ValueCalc.r2)
         #
         # # ##### BUTTONS #####
         self._handle_state(self.dpad, ValueCalc.dpad)

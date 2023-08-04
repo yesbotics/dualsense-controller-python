@@ -15,5 +15,5 @@ class Properties:
         self.btn_square: Final[ButtonProperty] = ButtonProperty(read_states.btn_square)
         self.btn_triangle: Final[ButtonProperty] = ButtonProperty(read_states.btn_triangle)
         self.btn_circle: Final[ButtonProperty] = ButtonProperty(read_states.btn_circle)
-        self.left_trigger: Final[TriggerProperty] = TriggerProperty(read_states.l2)
-        self.right_trigger: Final[TriggerProperty] = TriggerProperty(read_states.r2)
+        self.l2: Final[TriggerProperty] = TriggerProperty(read_states.l2)
+        self.r2: Final[TriggerProperty] = TriggerProperty(read_states.r2)

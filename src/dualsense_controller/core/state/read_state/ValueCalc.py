@@ -37,11 +37,11 @@ class ValueCalc:
         return right_stick.value.y
 
     @classmethod
-    def left_shoulder_key(cls, in_report: InReport) -> int:
+    def l2(cls, in_report: InReport) -> int:
         return in_report.axes_4
 
     @classmethod
-    def right_shoulder_key(cls, in_report: InReport) -> int:
+    def r2(cls, in_report: InReport) -> int:
         return in_report.axes_5
 
     @classmethod

@@ -60,8 +60,8 @@ class StateValueMapper:
             mapping: StateValueMapping,
             left_joystick_deadzone: Number = 0,
             right_joystick_deadzone: Number = 0,
-            left_shoulder_key_deadzone: Number = 0,
-            right_shoulder_key_deadzone: Number = 0,
+            l2_deadzone: Number = 0,
+            r2_deadzone: Number = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
@@ -87,33 +87,33 @@ class StateValueMapper:
                 right_joystick_deadzone
             )
         )
-        self.left_shoulder_key_deadzone_mapped_to_raw: Number = (
-            left_shoulder_key_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.left_shoulder_key_deadzone,
-                left_shoulder_key_deadzone
+        self.left_trigger_deadzone_mapped_to_raw: Number = (
+            l2_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
+                self._mapping_data.l2_deadzone,
+                l2_deadzone
             )
         )
-        self.right_shoulder_key_deadzone_mapped_to_raw: Number = (
-            right_shoulder_key_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.right_shoulder_key_deadzone,
-                right_shoulder_key_deadzone
+        self.right_trigger_deadzone_mapped_to_raw: Number = (
+            r2_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
+                self._mapping_data.r2_deadzone,
+                r2_deadzone
             )
         )
         self.gyroscope_threshold: Number = (
             gyroscope_threshold if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.right_shoulder_key_deadzone,
+                self._mapping_data.r2_deadzone,
                 gyroscope_threshold
             )
         )
         self.accelerometer_threshold: Number = (
             accelerometer_threshold if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.right_shoulder_key_deadzone,
+                self._mapping_data.r2_deadzone,
                 accelerometer_threshold
             )
         )
         self.orientation_threshold: Number = (
             orientation_threshold if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.right_shoulder_key_deadzone,
+                self._mapping_data.r2_deadzone,
                 orientation_threshold
             )
         )
@@ -172,22 +172,22 @@ class StateValueMapper:
             self._mapping_data.right_stick_y,
         )
 
-        # #################################################### SHOULDER KEYS ###############################
-        self.left_shoulder_key_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
+        # #################################################### TRIGGERS ###############################
+        self.left_trigger_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
             self._number_raw_to_mapped,
-            self._mapping_data.left_shoulder_key
+            self._mapping_data.l2
         )
-        self.left_shoulder_key_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
+        self.left_trigger_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
             self._number_mapped_to_raw,
-            self._mapping_data.left_shoulder_key
+            self._mapping_data.l2
         )
-        self.right_shoulder_key_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
+        self.right_trigger_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
             self._number_raw_to_mapped,
-            self._mapping_data.right_shoulder_key
+            self._mapping_data.r2
         )
-        self.right_shoulder_key_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
+        self.right_trigger_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
             self._number_mapped_to_raw,
-            self._mapping_data.right_shoulder_key
+            self._mapping_data.r2
         )
 
         # #################################################### MOTORS - ONLY NEED TO SET ###############################

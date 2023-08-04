@@ -32,20 +32,20 @@ class DualSenseController:
         return self._properties.btn_circle
 
     @property
-    def left_trigger(self) -> TriggerProperty:
-        return self._properties.left_trigger
+    def l2(self) -> TriggerProperty:
+        return self._properties.l2
 
     @property
-    def right_trigger(self) -> TriggerProperty:
-        return self._properties.right_trigger
+    def r2(self) -> TriggerProperty:
+        return self._properties.r2
 
     def __init__(
             self,
             device_index_or_device_info: int | DeviceInfo = 0,
             left_joystick_deadzone: Number = 2,
             right_joystick_deadzone: Number = 2,
-            left_shoulder_key_deadzone: Number = 0,
-            right_shoulder_key_deadzone: Number = 0,
+            l2_deadzone: Number = 0,
+            r2_deadzone: Number = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
@@ -57,8 +57,8 @@ class DualSenseController:
             device_index_or_device_info=device_index_or_device_info,
             left_joystick_deadzone=left_joystick_deadzone,
             right_joystick_deadzone=right_joystick_deadzone,
-            left_shoulder_key_deadzone=left_shoulder_key_deadzone,
-            right_shoulder_key_deadzone=right_shoulder_key_deadzone,
+            l2_deadzone=l2_deadzone,
+            r2_deadzone=r2_deadzone,
             gyroscope_threshold=gyroscope_threshold,
             accelerometer_threshold=accelerometer_threshold,
             orientation_threshold=orientation_threshold,

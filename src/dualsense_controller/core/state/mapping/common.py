@@ -45,11 +45,11 @@ class StateValueMappingData:
     right_stick_y: FromTo = None
     right_stick_deadzone: FromTo = None
 
-    left_shoulder_key: FromTo = None
-    left_shoulder_key_deadzone: FromTo = None
+    l2: FromTo = None
+    l2_deadzone: FromTo = None
 
-    right_shoulder_key: FromTo = None
-    right_shoulder_key_deadzone: FromTo = None
+    r2: FromTo = None
+    r2_deadzone: FromTo = None
 
     set_motor_left: FromTo = None
     set_motor_right: FromTo = None
