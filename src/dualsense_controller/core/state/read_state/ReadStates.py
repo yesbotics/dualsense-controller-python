@@ -419,6 +419,12 @@ class ReadStates:
             return value
         return None
 
+    def _post_update(self):
+        for state in self._states_to_trigger_after_all_states_set:
+            state.trigger_change_if_changed()
+        self._states_to_trigger_after_all_states_set.clear()
+        self._update_emitter.emit(self._EVENT_UPDATE)
+
     # #################### PUBLIC #######################
 
     def on_updated(self, callback: Callable[[], None]) -> None:
@@ -474,6 +480,7 @@ class ReadStates:
 
         # following not supported for BT01
         if connection_type == ConnectionType.BT_01:
+            self._post_update()
             return
 
         # ##### GYRO #####
@@ -548,12 +555,7 @@ class ReadStates:
             self.battery_full,
             self.battery_charging,
         )
-
-        for state in self._states_to_trigger_after_all_states_set:
-            state.trigger_change_if_changed()
-        self._states_to_trigger_after_all_states_set.clear()
-
-        self._update_emitter.emit(self._EVENT_UPDATE)
+        self._post_update()
 
     def on_change(
             self, name_or_callback: ReadStateName | StateChangeCallback, callback: StateChangeCallback | None = None

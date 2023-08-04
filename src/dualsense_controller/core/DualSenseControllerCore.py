@@ -99,9 +99,6 @@ class DualSenseControllerCore:
     def set_state(self, state_name: WriteStateName, value: Number):
         self._write_states.set_value(state_name, value)
 
-    def set_motor_left(self, value: Number):
-        self.set_state(WriteStateName.MOTOR_LEFT, value)
-
     def init(self) -> None:
         assert not self._hid_controller_device.opened, 'already opened'
         self._hid_controller_device.open()

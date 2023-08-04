@@ -1,7 +1,8 @@
 from typing import Final
 
 from dualsense_controller.core.report.out_report.OutReport import OutReport
-from dualsense_controller.core.report.out_report.enum import OutBrightness, OutFlagsLights, OutFlagsPhysics, OutLedOptions, \
+from dualsense_controller.core.report.out_report.enum import OutBrightness, OutFlagsLights, OutFlagsPhysics, \
+    OutLedOptions, \
     OutPulseOptions
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
@@ -21,22 +22,24 @@ class WriteStates:
 
         self._changed = False
 
+        self.left_motor: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.MOTOR_LEFT,
+            value=0x00,
+            mapped_to_raw_fn=self._state_value_mapper.set_left_motor_mapped_to_raw
+        )
+        self.right_motor: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.MOTOR_RIGHT,
+            value=0x00,
+            mapped_to_raw_fn=self._state_value_mapper.set_right_motor_mapped_to_raw
+        )
+
         self._create_and_register_state(WriteStateName.FLAGS_PHYSICS, value=OutFlagsPhysics.ALL)
         self._create_and_register_state(WriteStateName.FLAGS_LIGHTS, value=OutFlagsLights.ALL_BUT_MUTE_LED)
 
         self._create_and_register_state(WriteStateName.LIGHTBAR_RED, value=0xff)
         self._create_and_register_state(WriteStateName.LIGHTBAR_GREEN, value=0xff)
         self._create_and_register_state(WriteStateName.LIGHTBAR_BLUE, value=0xff)
-        self._create_and_register_state(
-            WriteStateName.MOTOR_LEFT,
-            value=0x00,
-            mapped_to_raw_fn=self._state_value_mapper.set_left_motor_mapped_to_raw
-        )
-        self._create_and_register_state(
-            WriteStateName.MOTOR_RIGHT,
-            value=0x00,
-            mapped_to_raw_fn=self._state_value_mapper.set_right_motor_mapped_to_raw
-        )
+
         self._create_and_register_state(WriteStateName.L2_EFFECT_MODE, value=0x26)
         self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM1, value=0x90)
         self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM2, value=0xA0)
@@ -131,6 +134,7 @@ class WriteStates:
             value=value,
             mapped_to_raw_fn=mapped_to_raw_fn
         )
+        self._states_dict[name] = state
         state.on_change(callback)
         return state
 

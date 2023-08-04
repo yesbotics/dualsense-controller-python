@@ -32,12 +32,12 @@ class DualSenseController:
         return self._properties.btn_circle
 
     @property
-    def l2(self) -> TriggerProperty:
-        return self._properties.l2
+    def left_trigger(self) -> TriggerProperty:
+        return self._properties.left_trigger
 
     @property
-    def r2(self) -> TriggerProperty:
-        return self._properties.r2
+    def right_trigger(self) -> TriggerProperty:
+        return self._properties.right_trigger
 
     def __init__(
             self,

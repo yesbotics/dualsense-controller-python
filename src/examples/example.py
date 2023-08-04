@@ -18,8 +18,8 @@ class Example:
 
         self.controller.btn_cross.on_down(self.on_btn_cross_down)
 
-        self.controller.l2.on_change(self.on_l2_changed)
-        self.controller.r2.on_change(self.on_r2_changed)
+        self.controller.left_trigger.on_change(self.on_left_trigger_changed)
+        self.controller.right_trigger.on_change(self.on_right_trigger_changed)
 
     def run(self) -> None:
         self.controller.start()
@@ -50,11 +50,11 @@ class Example:
         print(f'Cross button down')
         print(f'Get Square button. It is {self.controller.btn_square.pressed}')
 
-    def on_l2_changed(self, value: Number) -> None:
+    def on_left_trigger_changed(self, value: Number) -> None:
         print(f'L2 trigger {value}')
         # self.controller.left_rumble = value
 
-    def on_r2_changed(self, value: Number) -> None:
+    def on_right_trigger_changed(self, value: Number) -> None:
         print(f'L2 trigger {value}')
 
 

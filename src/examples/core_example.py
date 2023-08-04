@@ -19,14 +19,14 @@ class CoreExample:
             # ##### BASE  #####
             device_index_or_device_info=0,
             # ##### FEELING  #####
-            left_joystick_deadzone=10,
-            right_joystick_deadzone=10,
-            l2_deadzone=10,
-            r2_deadzone=10,
+            left_joystick_deadzone=.1,
+            right_joystick_deadzone=.1,
+            l2_deadzone=.1,
+            r2_deadzone=.1,
             gyroscope_threshold=0,
             accelerometer_threshold=0,
             orientation_threshold=0,
-            state_value_mapping=StateValueMapping.DEFAULT,
+            state_value_mapping=StateValueMapping.NORMALIZED,
             # ##### CORE #####
             enforce_update=False,
             trigger_change_after_all_values_set=True,  # trigger change of state after all other states has been updated
@@ -96,11 +96,11 @@ class CoreExample:
         self._dualsense_controller.read_states.right_stick_x.on_change(self._on_right_stick_x)
         self._dualsense_controller.read_states.right_stick_y.on_change(self._on_right_stick_y)
         self._dualsense_controller.read_states.right_stick.on_change(self._on_right_stick)
-
-        # other complex
-        self._dualsense_controller.read_states.gyroscope.on_change(self._on_gyroscope)
-        self._dualsense_controller.read_states.accelerometer.on_change(self._on_accelerometer)
-        self._dualsense_controller.read_states.orientation.on_change(self._on_orientation)
+        #
+        # # other complex
+        # self._dualsense_controller.read_states.gyroscope.on_change(self._on_gyroscope)
+        # self._dualsense_controller.read_states.accelerometer.on_change(self._on_accelerometer)
+        # self._dualsense_controller.read_states.orientation.on_change(self._on_orientation)
 
     def run(self) -> None:
         self._stay_alive = True
@@ -129,24 +129,28 @@ class CoreExample:
     #
     def _on_btn_l1(self, state: bool) -> None:
         print(f'L1 Button pressed: {state} -> brightness ')
-        self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
-                                             OutBrightness.LOW if state else OutBrightness.HIGH)
+        self._dualsense_controller.set_state(
+            WriteStateName.BRIGHTNESS,
+            OutBrightness.LOW if state else OutBrightness.HIGH
+        )
 
     def _on_btn_r1(self, state: bool) -> None:
         print(f'R1 Button pressed: {state}')
-        self._dualsense_controller.set_state(WriteStateName.BRIGHTNESS,
-                                             OutBrightness.MEDIUM if state else OutBrightness.HIGH)
+        self._dualsense_controller.set_state(
+            WriteStateName.BRIGHTNESS,
+            OutBrightness.MEDIUM if state else OutBrightness.HIGH
+        )
 
     #
     # L2 / R2 -> rumble
     #
     def _on_l2(self, value: int) -> None:
         print(f'L2 Analog Button: {value}')
-        self._dualsense_controller.set_state(WriteStateName.MOTOR_LEFT, value)
+        self._dualsense_controller.write_states.left_motor.set_value_mapped(value)
 
     def _on_r2(self, value: int) -> None:
         print(f'R2 Analog Button: {value}')
-        self._dualsense_controller.set_state(WriteStateName.MOTOR_RIGHT, value)
+        self._dualsense_controller.write_states.right_motor.set_value_mapped(value)
 
     #
     # Left Controls -> lightbar color
