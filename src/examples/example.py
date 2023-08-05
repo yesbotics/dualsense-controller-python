@@ -39,10 +39,10 @@ class Example:
         self.controller.right_stick.on_change(self.on_right_stick_changed)
 
     def run(self) -> None:
-        self.controller.start()
+        self.controller.activate()
         while self.is_running:
             time.sleep(1)
-        self.controller.stop()
+        self.controller.deactivate()
 
     def on_exception(self, exception: Exception) -> None:
         print(f'Exception occured:', exception)

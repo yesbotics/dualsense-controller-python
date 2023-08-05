@@ -2,7 +2,7 @@ from functools import partial
 from typing import Final
 
 from dualsense_controller.core.HidControllerDevice import HidControllerDevice
-from dualsense_controller.core.enum import EventType
+from dualsense_controller.core.enum import ConnectionType, EventType
 from dualsense_controller.core.hidapi.hidapi import DeviceInfo
 from dualsense_controller.core.report.in_report.InReport import InReport
 from dualsense_controller.core.state.State import State
@@ -25,12 +25,20 @@ class DualSenseControllerCore:
         return HidControllerDevice.enumerate_devices()
 
     @property
+    def is_initialized(self) -> bool:
+        return self._hid_controller_device.is_opened
+
+    @property
     def read_states(self) -> ReadStates:
         return self._read_states
 
     @property
     def write_states(self) -> WriteStates:
         return self._write_states
+
+    @property
+    def connection_type(self) -> ConnectionType:
+        return self._hid_controller_device.connection_type
 
     def __init__(
             self,
@@ -100,12 +108,12 @@ class DualSenseControllerCore:
         self._write_states.set_value(state_name, value)
 
     def init(self) -> None:
-        assert not self._hid_controller_device.opened, 'already opened'
+        assert not self._hid_controller_device.is_opened, 'already opened'
         self._hid_controller_device.open()
         self._connection_state.value = Connection(True, self._hid_controller_device.connection_type)
 
     def deinit(self) -> None:
-        assert self._hid_controller_device.opened, 'not opened yet'
+        assert self._hid_controller_device.is_opened, 'not opened yet'
         self._hid_controller_device.close()
         self._connection_state.value = Connection(False, self._hid_controller_device.connection_type)
 

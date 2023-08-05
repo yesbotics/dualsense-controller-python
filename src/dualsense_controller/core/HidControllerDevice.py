@@ -37,7 +37,7 @@ class HidControllerDevice:
         return self._out_report
 
     @property
-    def opened(self) -> bool:
+    def is_opened(self) -> bool:
         return self._hid_device is not None
 
     def __init__(self, device_index_or_device_info: int | DeviceInfo = 0):
@@ -67,11 +67,7 @@ class HidControllerDevice:
 
     def open(self):
         assert self._hid_device is None, "Device already opened"
-        self._hid_device: Device = Device(
-            vendor_id=HidControllerDevice.VENDOR_ID,
-            product_id=HidControllerDevice.PRODUCT_ID,
-            serial_number=self._serial_number
-        )
+        self._hid_device: Device = self._create()
         self._detect()
         self._start_loop_thread()
 
@@ -93,9 +89,16 @@ class HidControllerDevice:
     def on_in_report(self, callback: InReportCallback) -> None:
         self._event_emitter.on(EventType.IN_REPORT, callback)
 
+    def _create(self) -> Device:
+        return Device(
+            vendor_id=HidControllerDevice.VENDOR_ID,
+            product_id=HidControllerDevice.PRODUCT_ID,
+            serial_number=self._serial_number
+        )
+
     def _detect(self) -> None:
-        dummy_report: Any | None = self._hid_device.read(InReportLength.DUMMY)
-        self._in_report_length: int = len(dummy_report)
+        dummy_report_bytes: bytes = self._hid_device.read(InReportLength.DUMMY)
+        self._in_report_length: int = len(dummy_report_bytes)
         match self._in_report_length:
             case InReportLength.USB_01:
                 self._connection_type = ConnectionType.USB_01

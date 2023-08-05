@@ -4,6 +4,7 @@ from dualsense_controller.api.Properties import Properties
 from dualsense_controller.api.enum import UpdateLevel
 from dualsense_controller.api.property import ButtonProperty, JoyStickProperty, RumbleProperty, TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
+from dualsense_controller.core.enum import ConnectionType
 from dualsense_controller.core.hidapi import DeviceInfo
 from dualsense_controller.core.state.mapping.enum import StateValueMapping as Mapping
 from dualsense_controller.core.state.typedef import Number
@@ -105,11 +106,19 @@ class DualSenseController:
             self._dsc.write_states,
         )
 
+    @property
+    def connection_type(self) -> ConnectionType:
+        return self._dsc.connection_type
+
+    @property
+    def is_active(self) -> bool:
+        return self._dsc.is_initialized
+
     def on_exception(self, callback: ExceptionCallback) -> None:
         self._dsc.on_exception(callback)
 
-    def start(self) -> None:
+    def activate(self) -> None:
         self._dsc.init()
 
-    def stop(self) -> None:
+    def deactivate(self) -> None:
         self._dsc.deinit()
