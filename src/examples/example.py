@@ -13,7 +13,8 @@ class Example:
         first_device_info: DeviceInfo = device_infos[0]
         self.controller: DualSenseController = DualSenseController(
             device_index_or_device_info=first_device_info,
-            mapping=Mapping.NORMALIZED,
+            mapping=Mapping.RAW,
+            # mapping=Mapping.NORMALIZED,
             # update_level=UpdateLevel.DEFAULT,
             update_level=UpdateLevel.PAINSTAKING,
             # update_level=UpdateLevel.HAENGBLIEM,

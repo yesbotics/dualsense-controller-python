@@ -18,14 +18,14 @@ class DeviceInfoMock:
 
 
 class ConnTypeMock(Enum):
-    BT_01: Final[bytes] = bytearray()
-    BT_31: Final[bytes] = (
+    BT_01: Final[bytearray] = bytearray()
+    BT_31: Final[bytearray] = bytearray(
         b'1\x01\x80\x81\x82\x83\x00\x00\x01\x08\x00\x00\x00\xae\xab\x8b\xf2'
         b'\x02\x00\xfc\xff\x02\x00\xdc\xff\xda\x1e\x9e\x06\xc7\xb5\xe4\x00\x08'
         b'\x80\x00\x00\x00\x80\x00\x00\x00\x00\t\t\x00\x00\x00\x00\x00\xc3\xc9\xe4'
         b'\x00\t\x00\x00\xaf\xc5\x1af\xc2\xf3\x16\xbd\x00\x00\x00\x00\x00\x00\x00\x00\x00B\xd7\xd8\r'
     )
-    USB_01: Final[bytes] = (
+    USB_01: Final[bytearray] = bytearray(
         b'\x01\x80\x80\x82\x83\x00\x00\x9c\x08\x00\x00\x00\x1c\x8f\xcc '
         b'\x03\x00\xfc\xff\x03\x00\xb0\xff\xeb\x1e\x82\x06\xbf@\xb1\t\x02'
         b'\x80\x00\x00\x00\x80\x00\x00\x00\x00\t\t\x00\x00\x00\x00\x00\x03Z'
@@ -36,6 +36,8 @@ class ConnTypeMock(Enum):
 class DeviceMock:
 
     def __init__(self, conn_type: ConnTypeMock = ConnTypeMock.USB_01):
+        if conn_type == ConnTypeMock.BT_01:
+            raise NotImplementedError
         self._conn_type: ConnTypeMock = conn_type
 
     def write(self, data: bytes):
@@ -46,3 +48,13 @@ class DeviceMock:
 
     def close(self):
         pass
+
+    def set_left_stick_y_byte(self, value: int):
+
+        match self._conn_type:
+            case ConnTypeMock.USB_01:
+                self._conn_type.value[2] = value
+            case ConnTypeMock.BT_31:
+                self._conn_type.value[3] = value
+            case ConnTypeMock.BT_01:
+                self._conn_type.value[2] = value

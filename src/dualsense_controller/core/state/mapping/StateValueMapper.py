@@ -71,9 +71,6 @@ class StateValueMapper:
         if isinstance(self._mapping_data, tuple):
             self._mapping_data = self._mapping_data[0]
 
-        if self._mapping_data is None:
-            return
-
         # #################################################### DEADZONE AND THRESHOLD ###############################
         self.left_stick_deadzone_mapped_to_raw: Number = (
             left_joystick_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
