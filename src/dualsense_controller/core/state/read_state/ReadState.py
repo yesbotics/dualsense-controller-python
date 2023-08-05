@@ -44,6 +44,12 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
     def has_listened_dependencies(self) -> bool:
         return any(state.has_listeners for state in self._depends_on)
 
+    @property
+    def value_raw(self) -> StateValueType:
+        if self._change_timestamp >= self._cycle_timestamp:
+            return super().value_raw
+        return self._obtain_value()
+
     def __init__(
             self,
             name: ReadStateName,
@@ -82,6 +88,9 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
             depends_on_state.add_as_dependecy_of(self)
         for is_dependency_of_state in self._is_dependency_of:
             is_dependency_of_state.add_depends_on(self)
+
+    def _obtain_value(self) -> StateValueType:
+        return super().value_raw
 
     def set_cycle_timestamp(self, timestamp: int):
         self._cycle_timestamp = timestamp

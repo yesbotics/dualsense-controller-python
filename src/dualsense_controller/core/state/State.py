@@ -36,9 +36,6 @@ class State(Generic[StateValueType]):
 
     @property
     def value_raw(self) -> StateValueType:
-        # if self._change_timestamp >= self._cycle_timestamp:
-        #     return self._value
-        # raise Exception('no current lavue')
         return self._value
 
     @property
