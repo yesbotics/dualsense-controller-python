@@ -46,8 +46,8 @@ class DualSenseControllerCore:
             orientation_threshold: int = 0,
             state_value_mapping: StateValueMapping = StateValueMapping.DEFAULT,
             # ##### CORE #####
-            enforce_update: bool = True,
-            trigger_change_after_all_values_set: bool = True,
+            enforce_update: bool = False,
+            can_update_itself: bool = True,
     ):
 
         self._connection_state: Final[State[Connection]] = State(name=EventType.CONNECTION_CHANGE, ignore_none=False)
@@ -66,7 +66,7 @@ class DualSenseControllerCore:
         self._read_states: Final[ReadStates] = ReadStates(
             state_value_mapper=state_value_mapper,
             enforce_update=enforce_update,
-            trigger_change_after_all_values_set=trigger_change_after_all_values_set,
+            can_update_itself=can_update_itself,
         )
 
         self._write_states: Final[WriteStates] = WriteStates(

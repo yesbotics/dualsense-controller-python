@@ -4,15 +4,12 @@ from typing import Any, Final, Generic
 
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.mapping.typedef import MapFn
+from dualsense_controller.core.state.read_state.InReportWrap import InReportWrap
 from dualsense_controller.core.state.read_state.enum import ReadStateName
-from dualsense_controller.core.state.typedef import StateValueType, CompareFn
+from dualsense_controller.core.state.typedef import CompareFn, StateValue, StateValueFn
 
 
-class ReadState(Generic[StateValueType], State[StateValueType]):
-
-    @property
-    def enforce_update(self) -> bool:
-        return self._enforce_update
+class ReadState(Generic[StateValue], State[StateValue]):
 
     @property
     def has_changed_dependencies(self) -> bool:
@@ -45,21 +42,37 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
         return any(state.has_listeners for state in self._depends_on)
 
     @property
-    def value_raw(self) -> StateValueType:
-        if self._change_timestamp >= self._cycle_timestamp:
-            return super().value_raw
-        return self._obtain_value()
+    def value_raw(self) -> StateValue:
+        if self.is_self_updatable:
+            return self.calc_value()
+        return super().value_raw
+
+    @property
+    def is_self_updatable(self) -> bool:
+        return self._can_update_itself and (self._cycle_timestamp > self._change_timestamp)
+
+    @property
+    def is_updatable_from_outside(self) -> bool:
+        return (
+            self._enforce_update
+            or self.has_listeners
+            or self.has_listened_dependents
+            or self.has_changed_dependencies
+        )
 
     def __init__(
             self,
             name: ReadStateName,
-            value: StateValueType = None,
-            default_value: StateValueType = None,
+            value: StateValue = None,
+            value_calc_fn: StateValueFn = None,
+            in_report_wrap: InReportWrap = None,
+            enforce_update: bool = False,
+            can_update_itself: bool = True,
+            default_value: StateValue = None,
             ignore_none: bool = True,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn = None,
-            enforce_update: bool = False,
             depends_on: list[State[Any]] = None,
             is_dependency_of: list[State[Any]] = None,
     ):
@@ -74,11 +87,14 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
             compare_fn=compare_fn,
         )
         # CONST
-        self._depends_on: Final[list[ReadState[StateValueType]]] = depends_on if depends_on is not None else []
-        self._is_dependency_of: Final[list[ReadState[StateValueType]]] = (
+        self._depends_on: Final[list[ReadState[StateValue]]] = depends_on if depends_on is not None else []
+        self._is_dependency_of: Final[list[ReadState[StateValue]]] = (
             is_dependency_of if is_dependency_of is not None else []
         )
         self._enforce_update: Final[bool] = enforce_update
+        self._value_calc_fn: Final[StateValueFn] = value_calc_fn
+        self._in_report_wrap: Final[InReportWrap] = in_report_wrap
+        self._can_update_itself: Final[bool] = can_update_itself
 
         # VAR
         self._cycle_timestamp: int = 0
@@ -89,8 +105,13 @@ class ReadState(Generic[StateValueType], State[StateValueType]):
         for is_dependency_of_state in self._is_dependency_of:
             is_dependency_of_state.add_depends_on(self)
 
-    def _obtain_value(self) -> StateValueType:
-        return super().value_raw
+    def calc_value(self, trigger_change_on_changed: bool = True) -> StateValue:
+        value_raw: StateValue = self._value_calc_fn(
+            self._in_report_wrap.in_report,
+            *self._depends_on
+        )
+        self._set_value_raw(value_raw, trigger_change_on_changed)
+        return self._value
 
     def set_cycle_timestamp(self, timestamp: int):
         self._cycle_timestamp = timestamp

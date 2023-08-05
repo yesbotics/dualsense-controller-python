@@ -35,7 +35,7 @@ class Usb01OutReport(OutReport):
         # bit 7: ???
         out_report_bytes[2] = self.flags_lights
 
-        # DualShock 4 compatibility mode.
+        # DualShock 4 compatibility update_level.
         out_report_bytes[3] = clamp_byte(self.motor_right)
         out_report_bytes[4] = clamp_byte(self.motor_left)
 
@@ -49,7 +49,7 @@ class Usb01OutReport(OutReport):
         out_report_bytes[10] = 0x10 if self.microphone_mute else 0x00
 
         # Right trigger effect
-        # Mode
+        # UpdateLevel
         # 0x00: off
         # 0x01: mode1
         # 0x02: mode2

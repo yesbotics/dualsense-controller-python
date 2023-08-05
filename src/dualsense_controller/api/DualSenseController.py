@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dualsense_controller.api.Properties import Properties
-from dualsense_controller.api.property import ButtonProperty, RumbleProperty, TriggerProperty
+from dualsense_controller.api.enum import UpdateLevel
+from dualsense_controller.api.property import ButtonProperty, JoyStickProperty, RumbleProperty, TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
 from dualsense_controller.core.hidapi import DeviceInfo
 from dualsense_controller.core.state.mapping.enum import StateValueMapping as Mapping
@@ -11,6 +12,7 @@ from dualsense_controller.core.typedef import ExceptionCallback
 
 class DualSenseController:
 
+    # READ
     @staticmethod
     def enumerate_devices() -> list[DeviceInfo]:
         return DualSenseControllerCore.enumerate_devices()
@@ -40,6 +42,31 @@ class DualSenseController:
         return self._properties.right_trigger
 
     @property
+    def left_stick_x(self) -> JoyStickProperty:
+        return self._properties.left_stick_x
+
+    @property
+    def left_stick_y(self) -> JoyStickProperty:
+        return self._properties.left_stick_y
+
+    @property
+    def left_stick(self) -> JoyStickProperty:
+        return self._properties.left_stick
+
+    @property
+    def right_stick_x(self) -> JoyStickProperty:
+        return self._properties.right_stick_x
+
+    @property
+    def right_stick_y(self) -> JoyStickProperty:
+        return self._properties.right_stick_y
+
+    @property
+    def right_stick(self) -> JoyStickProperty:
+        return self._properties.right_stick
+
+    # WRITE
+    @property
     def left_rumble(self) -> RumbleProperty:
         return self._properties.left_rumble
 
@@ -50,16 +77,15 @@ class DualSenseController:
     def __init__(
             self,
             device_index_or_device_info: int | DeviceInfo = 0,
-            left_joystick_deadzone: Number = 2,
-            right_joystick_deadzone: Number = 2,
+            left_joystick_deadzone: Number = 0.05,
+            right_joystick_deadzone: Number = 0.05,
             l2_deadzone: Number = 0,
             r2_deadzone: Number = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
             mapping: Mapping = Mapping.NORMALIZED,
-            enforce_update: bool = False,
-            trigger_change_after_all_values_set: bool = True,
+            update_level: UpdateLevel = UpdateLevel.DEFAULT,
     ):
         self._dsc: DualSenseControllerCore = DualSenseControllerCore(
             device_index_or_device_info=device_index_or_device_info,
@@ -71,8 +97,8 @@ class DualSenseController:
             accelerometer_threshold=accelerometer_threshold,
             orientation_threshold=orientation_threshold,
             state_value_mapping=mapping,
-            enforce_update=enforce_update,
-            trigger_change_after_all_values_set=trigger_change_after_all_values_set,
+            enforce_update=update_level.value.enforce_update,
+            can_update_itself=update_level.value.can_update_itself,
         )
         self._properties: Properties = Properties(
             self._dsc.read_states,

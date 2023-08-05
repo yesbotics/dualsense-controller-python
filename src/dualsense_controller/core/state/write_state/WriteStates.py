@@ -7,7 +7,7 @@ from dualsense_controller.core.report.out_report.enum import OutBrightness, OutF
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
 from dualsense_controller.core.state.mapping.typedef import MapFn
-from dualsense_controller.core.state.typedef import StateChangeCallback, StateValueType
+from dualsense_controller.core.state.typedef import StateChangeCallback, StateValue
 from dualsense_controller.core.state.write_state.enum import WriteStateName
 
 
@@ -71,12 +71,12 @@ class WriteStates:
     def changed(self) -> bool:
         return self._changed
 
-    def set_value(self, name: WriteStateName, value: StateValueType) -> None:
-        state: State[StateValueType] = self._get_state_by_name(name)
+    def set_value(self, name: WriteStateName, value: StateValue) -> None:
+        state: State[StateValue] = self._get_state_by_name(name)
         state.value = value
 
-    def set_value_without_triggering_change(self, name: WriteStateName, value: StateValueType) -> None:
-        state: State[StateValueType] = self._get_state_by_name(name)
+    def set_value_without_triggering_change(self, name: WriteStateName, value: StateValue) -> None:
+        state: State[StateValue] = self._get_state_by_name(name)
         state.set_value_without_triggering_change(value)
 
     def set_unchanged(self):
@@ -125,14 +125,14 @@ class WriteStates:
     def _create_and_register_state(
             self,
             name: WriteStateName,
-            value: StateValueType = None,
+            value: StateValue = None,
             callback: StateChangeCallback = None,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
-    ) -> State[StateValueType]:
+    ) -> State[StateValue]:
         if callback is None:
             callback = self._on_change
-        state: State[StateValueType] = State[StateValueType](
+        state: State[StateValue] = State[StateValue](
             name=name,
             value=value,
             mapped_to_raw_fn=mapped_to_raw_fn,

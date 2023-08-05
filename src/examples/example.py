@@ -1,25 +1,42 @@
 import time
 
-from dualsense_controller import DualSenseController, Number
+from dualsense_controller import DeviceInfo, DualSenseController, Number, JoyStick, Mapping, UpdateLevel
 
 
 class Example:
 
     def __init__(self):
         self.is_running: bool = True
-        self.controller: DualSenseController = DualSenseController()
+        device_infos: list[DeviceInfo] = DualSenseController.enumerate_devices()
+        if len(device_infos) < 1:
+            raise Exception('No DualSense Controller availabe.')
+        first_device_info: DeviceInfo = device_infos[0]
+        self.controller: DualSenseController = DualSenseController(
+            device_index_or_device_info=first_device_info,
+            mapping=Mapping.NORMALIZED,
+            # update_level=UpdateLevel.DEFAULT,
+            update_level=UpdateLevel.PAINSTAKING,
+            # update_level=UpdateLevel.HAENGBLIEM,
+        )
         self.controller.on_exception(self.on_exception)
-
-        self.controller.btn_triangle.on_up(self.on_btn_triangle_up)
-        self.controller.btn_triangle.on_down(self.on_btn_triangle_down)
-        self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_1)
-        self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_2)
-        self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_3)
 
         self.controller.btn_cross.on_down(self.on_btn_cross_down)
 
-        self.controller.left_trigger.on_change(self.on_left_trigger_changed)
-        self.controller.right_trigger.on_change(self.on_right_trigger_changed)
+        # self.controller.btn_triangle.on_up(self.on_btn_triangle_up)
+        # self.controller.btn_triangle.on_down(self.on_btn_triangle_down)
+        # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_1)
+        # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_2)
+        # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_3)
+        #
+        # self.controller.left_trigger.on_change(self.on_left_trigger_changed)
+        # self.controller.right_trigger.on_change(self.on_right_trigger_changed)
+        #
+        self.controller.left_stick_x.on_change(self.on_left_stick_x_changed)
+        self.controller.left_stick_y.on_change(self.on_left_stick_y_changed)
+        self.controller.left_stick.on_change(self.on_left_stick_changed)
+        self.controller.right_stick_x.on_change(self.on_right_stick_x_changed)
+        self.controller.right_stick_y.on_change(self.on_right_stick_y_changed)
+        self.controller.right_stick.on_change(self.on_right_stick_changed)
 
     def run(self) -> None:
         self.controller.start()
@@ -30,6 +47,24 @@ class Example:
     def on_exception(self, exception: Exception) -> None:
         print(f'Exception occured:', exception)
         self.is_running = False
+
+    def on_left_stick_x_changed(self, left_stick_x: Number):
+        print(f'on_left_stick_x_changed: {left_stick_x}')
+
+    def on_left_stick_y_changed(self, left_stick_y: Number):
+        print(f'on_left_stick_y_changed: {left_stick_y}')
+
+    def on_left_stick_changed(self, left_stick: JoyStick):
+        print(f'on_left_stick_changed: {left_stick}')
+
+    def on_right_stick_x_changed(self, right_stick_x: Number):
+        print(f'on_right_stick_x_changed: {right_stick_x}')
+
+    def on_right_stick_y_changed(self, right_stick_y: Number):
+        print(f'on_right_stick_y_changed: {right_stick_y}')
+
+    def on_right_stick_changed(self, right_stick: JoyStick):
+        print(f'on_right_stick_changed: {right_stick}')
 
     def on_btn_triangle_up(self) -> None:
         print(f'Triangle button -> up')

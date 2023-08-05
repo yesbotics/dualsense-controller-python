@@ -6,8 +6,8 @@ from dualsense_controller.core.report.in_report import InReport
 from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.write_state.enum import WriteStateName
 
-StateValueType = TypeVar('StateValueType')
-MappedStateValueType = TypeVar('MappedStateValueType')
+StateValue = TypeVar('StateValue')
+MappedStateValue = TypeVar('MappedStateValue')
 StateName = ReadStateName | WriteStateName | str
 
 _StChCb0 = Callable[[], None]
@@ -18,8 +18,8 @@ _StChCb4 = Callable[[StateName, Any, Any, int | None], None]
 StateChangeCallback = _StChCb0 | _StChCb1 | _StChCb2 | _StChCb3 | _StChCb4
 
 Number = int | float
-CompareResult = tuple[bool, StateValueType]
-_WrappedCompareFn = Callable[[StateValueType, StateValueType, ...], CompareResult]
-_CompareFn = Callable[[StateValueType, StateValueType], CompareResult]
+CompareResult = tuple[bool, StateValue]
+_WrappedCompareFn = Callable[[StateValue, StateValue, ...], CompareResult]
+_CompareFn = Callable[[StateValue, StateValue], CompareResult]
 CompareFn = _WrappedCompareFn | _CompareFn
-StateValueFn = Callable[[InReport, ...], StateValueType]
+StateValueFn = Callable[[InReport, ...], StateValue]
