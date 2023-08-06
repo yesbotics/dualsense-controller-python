@@ -8,11 +8,11 @@ from typing import Callable
 import pyee
 
 from dualsense_controller.core.enum import ConnectionType
+from dualsense_controller.core.report.ReportWrap import ReportWrap
 from dualsense_controller.core.report.in_report import InReport
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
 from dualsense_controller.core.state.mapping.enum import StateValueMapping
 from dualsense_controller.core.state.mapping.typedef import MapFn
-from dualsense_controller.core.state.read_state.InReportWrap import InReportWrap
 from dualsense_controller.core.state.read_state.ReadState import ReadState
 from dualsense_controller.core.state.read_state.ValueCalc import ValueCalc
 from dualsense_controller.core.state.read_state.ValueCompare import ValueCompare
@@ -38,7 +38,7 @@ class ReadStates:
         self._states_dict: Final[dict[ReadStateName, ReadState]] = {}
         self._state_value_mapper: Final[StateValueMapper] = state_value_mapper
         self._states_to_trigger_after_all_states_set: Final[list[ReadState]] = []
-        self._in_report_wrap: Final[InReportWrap] = InReportWrap()
+        self._in_report_wrap: Final[ReportWrap] = ReportWrap()
         # VAR
         self._timestamp: int | None = None
         self._update_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
@@ -599,7 +599,7 @@ class ReadStates:
             name: ReadStateName,
             value: StateValue = None,
             value_calc_fn: StateValueFn = None,
-            in_report_wrap: InReportWrap = None,
+            in_report_wrap: ReportWrap = None,
             default_value: StateValue = None,
             enforce_update: bool = False,
             can_update_itself: bool = True,
@@ -670,7 +670,7 @@ class ReadStates:
         # print('diff_timestamp ns', diff_timestamp)
 
         self._timestamp = now_timestamp
-        self._in_report_wrap.update(in_report)
+        self._in_report_wrap.report = in_report
 
         # #### ANALOG STICKS #####
 

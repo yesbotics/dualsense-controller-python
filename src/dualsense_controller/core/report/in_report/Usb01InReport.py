@@ -1,4 +1,4 @@
-from .InReport import InReport
+from dualsense_controller.core.report.in_report.InReport import InReport
 
 
 class Usb01InReport(InReport):

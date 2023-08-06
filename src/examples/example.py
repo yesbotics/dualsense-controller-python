@@ -39,10 +39,10 @@ class Example:
         # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_1)
         # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_2)
         # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_3)
-        #
-        # self.controller.left_trigger.on_change(self.on_left_trigger_changed)
-        # self.controller.right_trigger.on_change(self.on_right_trigger_changed)
-        #
+
+        self.controller.left_trigger.on_change(self.on_left_trigger_changed)
+        self.controller.right_trigger.on_change(self.on_right_trigger_changed)
+
         self.controller.left_stick_x.on_change(self.on_left_stick_x_changed)
         self.controller.left_stick_y.on_change(self.on_left_stick_y_changed)
         self.controller.left_stick.on_change(self.on_left_stick_changed)

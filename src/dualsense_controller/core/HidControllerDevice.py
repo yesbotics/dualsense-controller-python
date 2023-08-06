@@ -8,6 +8,7 @@ from dualsense_controller.core.hidapi import Device, DeviceInfo, enumerate
 from dualsense_controller.core.enum import ConnectionType, EventType
 from dualsense_controller.core.exception import InvalidDeviceIndexException, InvalidInReportLengthException, \
     NoDeviceDetectedException
+from dualsense_controller.core.report.ReportWrap import ReportWrap
 from dualsense_controller.core.report.in_report.Bt01InReport import Bt01InReport
 from dualsense_controller.core.report.in_report.Bt31InReport import Bt31InReport
 from dualsense_controller.core.report.in_report.InReport import InReport
@@ -34,7 +35,7 @@ class HidControllerDevice:
 
     @property
     def out_report(self) -> OutReport:
-        return self._out_report
+        return self._out_report_wrap.report
 
     @property
     def is_opened(self) -> bool:
@@ -62,8 +63,8 @@ class HidControllerDevice:
         self._hid_device: Device | None = None
 
         self._in_report_length: InReportLength = InReportLength.DUMMY
-        self._in_report: InReport | None = None
-        self._out_report: OutReport | None = None
+        self._in_report_wrap: Final[ReportWrap] = ReportWrap()
+        self._out_report_wrap: Final[ReportWrap] = ReportWrap()
 
     def open(self):
         assert self._hid_device is None, "Device already opened"
@@ -102,16 +103,16 @@ class HidControllerDevice:
         match self._in_report_length:
             case InReportLength.USB_01:
                 self._connection_type = ConnectionType.USB_01
-                self._in_report = Usb01InReport()
-                self._out_report = Usb01OutReport()
+                self._in_report_wrap.report = Usb01InReport()
+                self._out_report_wrap.report = Usb01OutReport()
             case InReportLength.BT_31:
                 self._connection_type = ConnectionType.BT_31
-                self._in_report = Bt31InReport()
-                self._out_report = Bt31OutReport()
+                self._in_report_wrap.report = Bt31InReport()
+                self._out_report_wrap.report = Bt31OutReport()
             case InReportLength.BT_01:
                 self._connection_type = ConnectionType.BT_01
-                self._in_report = Bt01InReport()
-                self._out_report = Bt01OutReport()
+                self._in_report_wrap.report = Bt01InReport()
+                self._out_report_wrap.report = Bt01OutReport()
             case _:
                 raise InvalidInReportLengthException
 
@@ -133,7 +134,7 @@ class HidControllerDevice:
         try:
             while not self._stop_thread_event.is_set():
                 raw_bytes: bytes = self._hid_device.read(self._in_report_length)
-                self._in_report.update(raw_bytes)
-                self._event_emitter.emit(EventType.IN_REPORT, self._in_report)
+                self._in_report_wrap.report.update(raw_bytes)
+                self._event_emitter.emit(EventType.IN_REPORT, self._in_report_wrap.report)
         except Exception as exception:
             self._event_emitter.emit(EventType.EXCEPTION, exception)
