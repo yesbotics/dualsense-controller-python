@@ -50,17 +50,16 @@ class HidControllerDevice:
         self._thread_started_event: threading.Event | None = None
 
         device_info: DeviceInfo
-        if isinstance(device_index_or_device_info, int):
-            device_index: int = device_index_or_device_info
+        if device_index_or_device_info is None or isinstance(device_index_or_device_info, int):
+            device_index: int = device_index_or_device_info if device_index_or_device_info is not None else 0
             hid_device_infos: list[DeviceInfo] = HidControllerDevice.enumerate_devices()
             num_hid_device_infos: int = len(hid_device_infos)
-            if num_hid_device_infos < 1:
-                raise NoDeviceDetectedException
             if num_hid_device_infos < device_index + 1:
                 raise InvalidDeviceIndexException(device_index)
             device_info = hid_device_infos[device_index]
         else:
             device_info = device_index_or_device_info
+
         self._serial_number = device_info.serial_number
         self._hid_device: Device | None = None
 

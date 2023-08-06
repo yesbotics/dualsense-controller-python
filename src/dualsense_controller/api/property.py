@@ -26,6 +26,10 @@ class _Property(Generic[PropertyType], ABC):
     def _value(self, value: Number) -> None:
         self._state.value = value
 
+    @property
+    def changed(self) -> bool:
+        return self._state.has_changed
+
 
 class _GetNumberProperty(_Property[Number], ABC):
 

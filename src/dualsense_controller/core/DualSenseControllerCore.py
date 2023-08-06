@@ -14,7 +14,7 @@ from dualsense_controller.core.state.read_state.value_type import Battery, Conne
 from dualsense_controller.core.state.typedef import Number, StateChangeCallback
 from dualsense_controller.core.state.write_state.WriteStates import WriteStates
 from dualsense_controller.core.state.write_state.enum import WriteStateName
-from dualsense_controller.core.typedef import BatteryLowCallback, ExceptionCallback, SimpleCallback
+from dualsense_controller.core.typedef import BatteryLowCallback, ExceptionCallback, EmptyCallback
 from dualsense_controller.core.util import format_exception
 
 
@@ -86,8 +86,20 @@ class DualSenseControllerCore:
         self._hid_controller_device.on_exception(self._on_thread_exception)
         self._hid_controller_device.on_in_report(self._on_in_report)
 
-    def on_updated(self, callback: SimpleCallback) -> None:
+    def on_updated(self, callback: EmptyCallback) -> None:
         self._read_states.on_updated(callback)
+
+    def wait_until_updated(self) -> None:
+
+        wait: bool = True
+
+        def on_updated() -> None:
+            nonlocal wait
+            wait = False
+
+        self._read_states.once_updated(on_updated)
+        while wait:
+            pass
 
     def on_battery_low(self, level_percentage: float, callback: BatteryLowCallback):
         self.read_states.battery.on_change(partial(self._check_battery, callback, level_percentage))

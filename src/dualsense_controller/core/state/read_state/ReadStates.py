@@ -663,6 +663,9 @@ class ReadStates:
     def on_updated(self, callback: Callable[[], None]) -> None:
         self._update_emitter.on(self._EVENT_UPDATE, callback)
 
+    def once_updated(self, callback: Callable[[], None]) -> None:
+        self._update_emitter.once(self._EVENT_UPDATE, callback)
+
     def update(self, in_report: InReport, connection_type: ConnectionType) -> None:
 
         now_timestamp: int = time.perf_counter_ns()

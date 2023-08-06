@@ -8,7 +8,7 @@ from dualsense_controller.core.enum import ConnectionType
 from dualsense_controller.core.hidapi import DeviceInfo
 from dualsense_controller.core.state.mapping.enum import StateValueMapping as Mapping
 from dualsense_controller.core.state.typedef import Number
-from dualsense_controller.core.typedef import ExceptionCallback
+from dualsense_controller.core.typedef import ExceptionCallback, EmptyCallback
 
 
 class DualSenseController:
@@ -113,6 +113,12 @@ class DualSenseController:
     @property
     def is_active(self) -> bool:
         return self._dsc.is_initialized
+
+    def on_updated(self, callback: EmptyCallback) -> None:
+        return self._dsc.on_updated(callback)
+
+    def wait_until_updated(self) -> None:
+        return self._dsc.wait_until_updated()
 
     def on_exception(self, callback: ExceptionCallback) -> None:
         self._dsc.on_exception(callback)
