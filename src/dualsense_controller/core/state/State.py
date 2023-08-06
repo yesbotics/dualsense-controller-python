@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import inspect
 import time
 from typing import Final, Generic
 
-import pyee
-
+from dualsense_controller.core.state.StateValueCallbackManager import StateValueCallbackManager
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.typedef import CompareFn, CompareResult, StateChangeCallback, StateName, \
     StateValue
@@ -48,7 +46,7 @@ class State(Generic[StateValue]):
 
     @property
     def has_listeners(self) -> bool:
-        return len(self._event_emitter.event_names()) > 0
+        return self._callback_manager.has_listeners
 
     def __init__(
             self,
@@ -63,7 +61,9 @@ class State(Generic[StateValue]):
         # CONST
         self.name: Final[StateName] = name
         self._changed_since_last_update: bool = False
-        self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
+
+        self._callback_manager: Final[StateValueCallbackManager[StateValue]] = StateValueCallbackManager(name)
+
         self._compare_fn: Final[CompareFn] = compare_fn if compare_fn is not None else State._compare
         self._mapped_to_raw_fn: Final[MapFn] = mapped_to_raw_fn
         self._raw_to_mapped_fn: Final[MapFn] = raw_to_mapped_fn
@@ -74,13 +74,6 @@ class State(Generic[StateValue]):
         self._value: StateValue | None = value if value is not None else default_value
         self._change_timestamp: int = 0
         self._last_value: StateValue | None = None
-
-        # AFTER
-        self._event_name_0_args: Final[str] = f'{name}_0'
-        self._event_name_1_args: Final[str] = f'{name}_1'
-        self._event_name_2_args: Final[str] = f'{name}_2'
-        self._event_name_3_args: Final[str] = f'{name}_3'
-        self._event_name_4_args: Final[str] = f'{name}_4'
 
     def set_value_raw_without_triggering_change(self, new_value: StateValue | None):
         self._set_value_raw(new_value, trigger_change_on_changed=False)
@@ -104,22 +97,13 @@ class State(Generic[StateValue]):
             self._trigger_change()
 
     def on_change(self, callback: StateChangeCallback) -> None:
-        self._event_emitter.on(
-            self._get_event_name_by_callable(callback),
-            callback
-        )
+        self._callback_manager.on_change(callback)
 
     def remove_change_listener(self, callback: StateChangeCallback | None = None) -> None:
-        if callback is None:
-            self.remove_all_change_listeners()
-        else:
-            self._event_emitter.remove_listener(
-                self._get_event_name_by_callable(callback),
-                callback
-            )
+        self._callback_manager.remove_change_listener(callback)
 
     def remove_all_change_listeners(self) -> None:
-        self._event_emitter.remove_all_listeners()
+        self._callback_manager.remove_all_change_listeners()
 
     # ################# GETTERS AND SETTERS ###############
 
@@ -161,26 +145,4 @@ class State(Generic[StateValue]):
             self._trigger_change()
 
     def _trigger_change(self):
-        self._emit_change(self.last_value, self.value)
-
-    def _emit_change(self, old_value: StateValue, new_value: StateValue):
-        self._event_emitter.emit(self._event_name_0_args)
-        self._event_emitter.emit(self._event_name_1_args, new_value)
-        self._event_emitter.emit(self._event_name_2_args, new_value, self._change_timestamp)
-        self._event_emitter.emit(self._event_name_3_args, old_value, new_value, self._change_timestamp)
-        self._event_emitter.emit(self._event_name_4_args, self.name, old_value, new_value, self._change_timestamp)
-
-    def _get_event_name_by_callable(self, callable_: StateChangeCallback) -> str:
-        num_params: int = len(inspect.signature(callable_).parameters)
-        match num_params:
-            case 0:
-                return self._event_name_0_args
-            case 1:
-                return self._event_name_1_args
-            case 2:
-                return self._event_name_2_args
-            case 3:
-                return self._event_name_3_args
-            case 4:
-                return self._event_name_4_args
-        raise Exception(f'invalid arg count {callable_}')
+        self._callback_manager.emit_change(self.last_value, self.value, self._change_timestamp)
