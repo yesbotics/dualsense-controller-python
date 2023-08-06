@@ -1,4 +1,5 @@
 import threading
+import time
 from threading import Thread
 from typing import Any, Final
 
@@ -43,9 +44,10 @@ class HidControllerDevice:
 
     def __init__(self, device_index_or_device_info: int | DeviceInfo = 0):
         self._connection_type: ConnectionType = ConnectionType.UNDEFINED
+        self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
         self._loop_thread: Thread | None = None
         self._stop_thread_event: threading.Event | None = None
-        self._event_emitter: Final[pyee.EventEmitter] = pyee.EventEmitter()
+        self._thread_started_event: threading.Event | None = None
 
         device_info: DeviceInfo
         if isinstance(device_index_or_device_info, int):
@@ -118,19 +120,25 @@ class HidControllerDevice:
 
     def _start_loop_thread(self) -> None:
         self._stop_thread_event = threading.Event()
+        self._thread_started_event = threading.Event()
         self._loop_thread = Thread(
             target=self._loop,
             daemon=True,
         )
         self._loop_thread.start()
+        while not self._thread_started_event.is_set():
+            pass
 
     def _stop_loop_thread(self) -> None:
         self._stop_thread_event.set()
         self._loop_thread.join()
         self._loop_thread = None
         self._stop_thread_event = None
+        self._thread_started_event = None
 
     def _loop(self) -> None:
+        if not self._thread_started_event.is_set():
+            self._thread_started_event.set()
         try:
             while not self._stop_thread_event.is_set():
                 raw_bytes: bytes = self._hid_device.read(self._in_report_length)
