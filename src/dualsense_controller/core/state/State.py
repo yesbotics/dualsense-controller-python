@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from threading import Lock
 from typing import Final, Generic
 
 from dualsense_controller.core.state.StateValueCallbackManager import StateValueCallbackManager
@@ -48,6 +49,47 @@ class State(Generic[StateValue]):
     def has_listeners(self) -> bool:
         return self._callback_manager.has_listeners
 
+    # LOCKED GETTERS AND SETTERS
+    @property
+    def _changed_since_last_update(self) -> bool:
+        with self._lock:
+            return self.__changed_since_last_update
+
+    @_changed_since_last_update.setter
+    def _changed_since_last_update(self, _changed_since_last_update: bool) -> None:
+        with self._lock:
+            self.__changed_since_last_update = _changed_since_last_update
+
+    @property
+    def _value(self) -> StateValue:
+        with self._lock:
+            return self.__value
+
+    @_value.setter
+    def _value(self, _value: StateValue) -> None:
+        with self._lock:
+            self.__value = _value
+
+    @property
+    def _change_timestamp(self) -> int:
+        with self._lock:
+            return self.__change_timestamp
+
+    @_change_timestamp.setter
+    def _change_timestamp(self, _change_timestamp: int) -> None:
+        with self._lock:
+            self.__change_timestamp = _change_timestamp
+
+    @property
+    def _last_value(self) -> StateValue:
+        with self._lock:
+            return self.__last_value
+
+    @_last_value.setter
+    def _last_value(self, _last_value: StateValue) -> None:
+        with self._lock:
+            self.__last_value = _last_value
+
     def __init__(
             self,
             name: StateName,
@@ -60,10 +102,8 @@ class State(Generic[StateValue]):
     ):
         # CONST
         self.name: Final[StateName] = name
-        self._changed_since_last_update: bool = False
-
+        self._lock: Final[Lock] = Lock()
         self._callback_manager: Final[StateValueCallbackManager[StateValue]] = StateValueCallbackManager(name)
-
         self._compare_fn: Final[CompareFn] = compare_fn if compare_fn is not None else State._compare
         self._mapped_to_raw_fn: Final[MapFn] = mapped_to_raw_fn
         self._raw_to_mapped_fn: Final[MapFn] = raw_to_mapped_fn
@@ -71,9 +111,10 @@ class State(Generic[StateValue]):
         self._default_value: Final[StateValue | None] = default_value
 
         # VAR
-        self._value: StateValue | None = value if value is not None else default_value
-        self._change_timestamp: int = 0
-        self._last_value: StateValue | None = None
+        self.__changed_since_last_update: bool = False
+        self.__value: StateValue | None = value if value is not None else default_value
+        self.__change_timestamp: int = 0
+        self.__last_value: StateValue | None = None
 
     def set_value_raw_without_triggering_change(self, new_value: StateValue | None):
         self._set_value_raw(new_value, trigger_change_on_changed=False)
