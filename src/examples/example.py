@@ -1,6 +1,6 @@
 import time
 
-from dualsense_controller import DeviceInfo, DualSenseController, Number, JoyStick, Mapping, UpdateLevel
+from dualsense_controller import DeviceInfo, DualSenseController, JoyStick, Mapping, Number, UpdateLevel
 
 
 class Example:
@@ -12,12 +12,23 @@ class Example:
             raise Exception('No DualSense Controller availabe.')
         first_device_info: DeviceInfo = device_infos[0]
         self.controller: DualSenseController = DualSenseController(
+
             device_index_or_device_info=first_device_info,
+
+            left_joystick_deadzone=0.1,
+            right_joystick_deadzone=0.1,
+            l2_deadzone=0,
+            r2_deadzone=0,
+            gyroscope_threshold=0,
+            accelerometer_threshold=0,
+            orientation_threshold=0,
+
             # mapping=Mapping.RAW,
             mapping=Mapping.NORMALIZED,
-            # update_level=UpdateLevel.DEFAULT,
+
             # update_level=UpdateLevel.PAINSTAKING,
             # update_level=UpdateLevel.HAENGBLIEM,
+            update_level=UpdateLevel.DEFAULT,
         )
         self.controller.on_exception(self.on_exception)
 

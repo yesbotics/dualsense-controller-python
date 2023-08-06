@@ -1,5 +1,6 @@
 import math
 import time
+import warnings
 from functools import partial
 from typing import Any, Final
 from typing import Callable
@@ -19,8 +20,9 @@ from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
     Orientation, \
     TouchFinger
-from dualsense_controller.core.state.typedef import CompareFn, StateChangeCallback, StateValueFn, \
+from dualsense_controller.core.state.typedef import CompareFn, Number, StateChangeCallback, StateValueFn, \
     StateValue
+from dualsense_controller.core.util import check_value_restrictions
 
 
 class ReadStates:
@@ -50,7 +52,22 @@ class ReadStates:
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_joystick,
-            deadzone=self._state_value_mapper.left_stick_deadzone_mapped_to_raw,
+            deadzone_raw=self._state_value_mapper.left_stick_deadzone_mapped_to_raw,
+            deadzone=self._state_value_mapper.left_stick_deadzone_mapped,
+            mapped_min_max_values=[
+                (self._state_value_mapper.mapping_data.left_stick_x.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.left_stick_x is not None else 0),
+                (self._state_value_mapper.mapping_data.left_stick_x.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.left_stick_x is not None else 255),
+                (self._state_value_mapper.mapping_data.left_stick_y.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.left_stick_y is not None else 0),
+                (self._state_value_mapper.mapping_data.left_stick_y.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.left_stick_y is not None else 255),
+            ],
             raw_to_mapped_fn=self._state_value_mapper.left_stick_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.left_stick_mapped_to_raw,
         )
@@ -82,7 +99,22 @@ class ReadStates:
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_joystick,
-            deadzone=self._state_value_mapper.right_stick_deadzone_mapped_to_raw,
+            deadzone_raw=self._state_value_mapper.right_stick_deadzone_mapped_to_raw,
+            deadzone=self._state_value_mapper.right_stick_deadzone_mapped,
+            mapped_min_max_values=[
+                (self._state_value_mapper.mapping_data.right_stick_x.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.right_stick_x is not None else 0),
+                (self._state_value_mapper.mapping_data.right_stick_x.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.right_stick_x is not None else 255),
+                (self._state_value_mapper.mapping_data.right_stick_y.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.right_stick_y is not None else 0),
+                (self._state_value_mapper.mapping_data.right_stick_y.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.right_stick_y is not None else 255),
+            ],
             raw_to_mapped_fn=self._state_value_mapper.right_stick_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.right_stick_mapped_to_raw,
         )
@@ -116,7 +148,8 @@ class ReadStates:
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_gyroscope,
-            threshold=state_value_mapper.gyroscope_threshold,
+            threshold_raw=state_value_mapper.gyroscope_threshold_mapped_to_raw,
+            threshold=state_value_mapper.gyroscope_threshold_mapped,
         )
         self.gyroscope_x: Final[ReadState[int]] = self._create_and_register_state(
             ReadStateName.GYROSCOPE_X,
@@ -152,7 +185,8 @@ class ReadStates:
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_accelerometer,
-            threshold=state_value_mapper.accelerometer_threshold,
+            threshold_raw=state_value_mapper.accelerometer_threshold_mapped_to_raw,
+            threshold=state_value_mapper.accelerometer_threshold_mapped,
         )
         self.accelerometer_x: Final[ReadState[int]] = self._create_and_register_state(
             ReadStateName.ACCELEROMETER_X,
@@ -189,7 +223,8 @@ class ReadStates:
             can_update_itself=can_update_itself,
             depends_on=[self.accelerometer],
             compare_fn=ValueCompare.compare_orientation,
-            threshold=state_value_mapper.orientation_threshold,
+            threshold_raw=state_value_mapper.orientation_threshold_mapped_to_raw,
+            threshold=state_value_mapper.orientation_threshold_mapped,
             raw_to_mapped_fn=lambda raw: Orientation(
                 round(math.degrees(raw.pitch), 2),
                 round(math.degrees(raw.roll), 2)
@@ -204,7 +239,16 @@ class ReadStates:
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_trigger,
-            deadzone=self._state_value_mapper.left_trigger_deadzone_mapped_to_raw,
+            deadzone_raw=self._state_value_mapper.left_trigger_deadzone_mapped_to_raw,
+            deadzone=self._state_value_mapper.left_trigger_deadzone_mapped,
+            mapped_min_max_values=[
+                (self._state_value_mapper.mapping_data.l2.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.l2 is not None else 0),
+                (self._state_value_mapper.mapping_data.l2.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.l2 is not None else 255),
+            ],
             raw_to_mapped_fn=self._state_value_mapper.left_trigger_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.left_trigger_mapped_to_raw,
         )
@@ -215,7 +259,16 @@ class ReadStates:
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_trigger,
-            deadzone=self._state_value_mapper.right_trigger_deadzone_mapped_to_raw,
+            deadzone_raw=self._state_value_mapper.right_trigger_deadzone_mapped_to_raw,
+            deadzone=self._state_value_mapper.right_trigger_deadzone_mapped,
+            mapped_min_max_values=[
+                (self._state_value_mapper.mapping_data.r2.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.r2 is not None else 0),
+                (self._state_value_mapper.mapping_data.r2.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.r2 is not None else 255),
+            ],
             raw_to_mapped_fn=self._state_value_mapper.right_trigger_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.right_trigger_mapped_to_raw,
         )
@@ -556,8 +609,19 @@ class ReadStates:
             raw_to_mapped_fn: MapFn = None,
             depends_on: list[ReadState[Any]] = None,
             is_dependency_of: list[ReadState[Any]] = None,
+            mapped_min_max_values: list[Number] = None,
+            deadzone: Number = None,
+            threshold: int = None,
             **kwargs
     ) -> ReadState[StateValue]:
+
+        check_value_restrictions(
+            name=str(name),
+            mapped_min_max_values=mapped_min_max_values,
+            deadzone=deadzone,
+            threshold=threshold,
+        )
+
         state: ReadState[StateValue] = ReadState[StateValue](
             name,
             value=value,
@@ -611,12 +675,12 @@ class ReadStates:
         # #### ANALOG STICKS #####
 
         self._handle_state(self.left_stick)
-        # use values from stick because deadzone calc is done there
+        # use values from stick because deadzone_raw calc is done there
         self._handle_state(self.left_stick_x)
         self._handle_state(self.left_stick_y)
 
         self._handle_state(self.right_stick)
-        # use values from stick because deadzone calc is done there
+        # use values from stick because deadzone_raw calc is done there
         self._handle_state(self.right_stick_x)
         self._handle_state(self.right_stick_y)
 

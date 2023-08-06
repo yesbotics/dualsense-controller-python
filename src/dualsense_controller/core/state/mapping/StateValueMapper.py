@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Final
 
 from dualsense_controller.core.state.mapping.common import Float, FromTo, Integer, StateValueMappingData
 from dualsense_controller.core.state.mapping.enum import StateValueMapping
@@ -55,6 +56,10 @@ class StateValueMapper:
             y=cls._number_raw_to_mapped(from_to_y, value.y),
         )
 
+    @property
+    def mapping_data(self) -> StateValueMappingData | None:
+        return self._mapping_data
+
     def __init__(
             self,
             mapping: StateValueMapping,
@@ -66,6 +71,14 @@ class StateValueMapper:
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
     ):
+
+        self.left_stick_deadzone_mapped: Final[Number] = left_joystick_deadzone
+        self.right_stick_deadzone_mapped: Final[Number] = right_joystick_deadzone
+        self.left_trigger_deadzone_mapped: Final[Number] = l2_deadzone
+        self.right_trigger_deadzone_mapped: Final[Number] = r2_deadzone
+        self.gyroscope_threshold_mapped: Final[int] = gyroscope_threshold
+        self.accelerometer_threshold_mapped: Final[int] = accelerometer_threshold
+        self.orientation_threshold_mapped: Final[int] = orientation_threshold
 
         self._mapping_data: StateValueMappingData = mapping.value
         if isinstance(self._mapping_data, tuple):
@@ -96,19 +109,19 @@ class StateValueMapper:
                 r2_deadzone
             )
         )
-        self.gyroscope_threshold: Number = (
+        self.gyroscope_threshold_mapped_to_raw: Number = (
             gyroscope_threshold if self._mapping_data is None else self._number_mapped_to_raw(
                 self._mapping_data.r2_deadzone,
                 gyroscope_threshold
             )
         )
-        self.accelerometer_threshold: Number = (
+        self.accelerometer_threshold_mapped_to_raw: Number = (
             accelerometer_threshold if self._mapping_data is None else self._number_mapped_to_raw(
                 self._mapping_data.r2_deadzone,
                 accelerometer_threshold
             )
         )
-        self.orientation_threshold: Number = (
+        self.orientation_threshold_mapped_to_raw: Number = (
             orientation_threshold if self._mapping_data is None else self._number_mapped_to_raw(
                 self._mapping_data.r2_deadzone,
                 orientation_threshold
