@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass
 from typing import Generator
 from unittest.mock import MagicMock, Mock, patch
@@ -64,10 +63,33 @@ def controller_instance(
 
 
 @pytest.fixture
-def activated_instance(controller_instance: ControllerInstanceData):
-    controller_instance.controller.activate()
-    yield controller_instance
-    controller_instance.controller.deactivate()
+def activated_instance(
+        request: SubRequest,
+        enumerate_devices_mock: MagicMock,
+        mocker: MockerFixture
+):
+    params: tuple[ConnTypeMock, Mapping, UpdateLevel] = request.param if hasattr(request, 'param') else ()
+    param_conn_type: ConnTypeMock = params[0] if len(params) >= 1 else ConnTypeMock.USB_01
+    param_mapping: Mapping = params[1] if len(params) >= 2 else Mapping.DEFAULT
+    param_update_level: UpdateLevel = params[2] if len(params) >= 3 else UpdateLevel.DEFAULT
+
+    device_mock: DeviceMock = DeviceMock(conn_type=param_conn_type)
+    create_mock: Mock = mocker.patch(
+        'dualsense_controller.core.HidControllerDevice.HidControllerDevice._create'
+    )
+    create_mock.return_value = device_mock
+
+    controller: DualSenseController = DualSenseController(
+        device_index_or_device_info=enumerate_devices_mock,
+        mapping=param_mapping,
+        update_level=param_update_level,
+    )
+    controller.activate()
+    yield ControllerInstanceData(
+        controller=controller,
+        device=device_mock
+    )
+    controller.deactivate()
 
 
 # # @pytest.mark.skip(reason="temp disabled")
@@ -133,7 +155,7 @@ def test_instance(controller_instance: ControllerInstanceData) -> None:
     ],
     indirect=['controller_instance']
 )
-def test_instance_activate(
+def test_instance_conntype(
         controller_instance: ControllerInstanceData,
         expected_conn_type: ConnectionType
 ) -> None:
@@ -148,7 +170,7 @@ def test_instance_activate(
 
 # @pytest.mark.skip(reason="temp disabled")
 @pytest.mark.parametrize(
-    'controller_instance,left_stick_y_raw,left_stick_y_mapped',
+    'activated_instance,left_stick_y_raw,left_stick_y_mapped',
     [
         [[ConnTypeMock.USB_01, Mapping.RAW], 0, 0],
         [[ConnTypeMock.USB_01, Mapping.RAW], 127, 127],
@@ -179,20 +201,14 @@ def test_instance_activate(
         [[ConnTypeMock.USB_01, Mapping.HUNDRED], 128, 0],
         [[ConnTypeMock.USB_01, Mapping.HUNDRED], 255, -100],
     ],
-    indirect=['controller_instance']
+    indirect=['activated_instance']
 )
 def test_mapping(
-        controller_instance: ControllerInstanceData,
+        activated_instance: ControllerInstanceData,
         left_stick_y_raw: int,
         left_stick_y_mapped: Number,
 ) -> None:
-    try:
-        controller_instance.controller.activate()
-        controller_instance.device.set_left_stick_y_byte(left_stick_y_raw)
-        controller_instance.controller.wait_until_updated()
-
-        assert isinstance(controller_instance.controller, DualSenseController)
-        assert left_stick_y_mapped == pytest.approx(controller_instance.controller.left_stick_y.value, rel=1e-2)
-
-    finally:
-        controller_instance.controller.deactivate()
+    activated_instance.device.set_left_stick_y_byte(left_stick_y_raw)
+    activated_instance.controller.wait_until_updated()
+    assert isinstance(activated_instance.controller, DualSenseController)
+    assert left_stick_y_mapped == pytest.approx(activated_instance.controller.left_stick_y.value, rel=1e-2)
