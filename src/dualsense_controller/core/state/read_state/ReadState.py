@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Final, Generic
 
-from dualsense_controller.core.report.ReportWrap import ReportWrap
+from dualsense_controller.core.core.Lockable import Lockable
+from dualsense_controller.core.report.in_report.InReport import InReport
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.read_state.enum import ReadStateName
@@ -65,7 +66,7 @@ class ReadState(Generic[StateValue], State[StateValue]):
             name: ReadStateName,
             value: StateValue = None,
             value_calc_fn: StateValueFn = None,
-            in_report_wrap: ReportWrap = None,
+            in_report_lockable: Lockable[InReport] = None,
             enforce_update: bool = False,
             can_update_itself: bool = True,
             default_value: StateValue = None,
@@ -93,7 +94,7 @@ class ReadState(Generic[StateValue], State[StateValue]):
         )
         self._enforce_update: Final[bool] = enforce_update
         self._value_calc_fn: Final[StateValueFn] = value_calc_fn
-        self._in_report_wrap: Final[ReportWrap] = in_report_wrap
+        self._in_report_lockable: Final[Lockable[InReport]] = in_report_lockable
         self._can_update_itself: Final[bool] = can_update_itself
 
         # VAR
@@ -107,7 +108,7 @@ class ReadState(Generic[StateValue], State[StateValue]):
 
     def calc_value(self, trigger_change_on_changed: bool = True) -> StateValue:
         value_raw: StateValue = self._value_calc_fn(
-            self._in_report_wrap.report,
+            self._in_report_lockable.value,
             *self._depends_on
         )
         self._set_value_raw(value_raw, trigger_change_on_changed)
