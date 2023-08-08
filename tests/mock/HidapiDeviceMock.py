@@ -18,7 +18,7 @@ class _BaseDeviceMock:
         pass
 
 
-class DeviceMock(_BaseDeviceMock):
+class MockedHidapiDevice(_BaseDeviceMock):
 
     def set_left_stick_y_byte(self, value: int):
 

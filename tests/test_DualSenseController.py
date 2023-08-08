@@ -50,80 +50,82 @@ def test_device_index(
 
 # @pytest.mark.skip(reason="temp disabled")
 @pytest.mark.parametrize(
-    'fixture_controller_instance',
+    'fixture_params_for_mocked_hidapi_device',
     [
-        ControllerInstanceParams(ConnTypeMock.USB_01),
-        ControllerInstanceParams(ConnTypeMock.BT_31),
+        ConnTypeMock.USB_01,
+        ConnTypeMock.BT_31,
     ],
-    indirect=['fixture_controller_instance']
+    indirect=['fixture_params_for_mocked_hidapi_device']
 )
-def test_instance(fixture_controller_instance: ControllerInstanceData) -> None:
+def test_instance(
+        fixture_params_for_mocked_hidapi_device: ConnTypeMock,
+        fixture_controller_instance: ControllerInstanceData
+) -> None:
     assert isinstance(fixture_controller_instance.controller, DualSenseController)
 
 
 # @pytest.mark.skip(reason="temp disabled")
 @pytest.mark.parametrize(
-    'fixture_controller_instance,expected_conn_type',
+    'fixture_params_for_mocked_hidapi_device,expected_conn_type',
     [
-        [ControllerInstanceParams(ConnTypeMock.USB_01), ConnectionType.USB_01],
-        [ControllerInstanceParams(ConnTypeMock.BT_31), ConnectionType.BT_31],
+        [ConnTypeMock.USB_01, ConnectionType.USB_01],
+        [ConnTypeMock.BT_31, ConnectionType.BT_31],
     ],
-    indirect=['fixture_controller_instance']
+    indirect=['fixture_params_for_mocked_hidapi_device']
 )
 def test_instance_conntype(
-        fixture_controller_instance: ControllerInstanceData,
-        expected_conn_type: ConnectionType
+        fixture_params_for_mocked_hidapi_device: ConnTypeMock,
+        fixture_activated_instance: ControllerInstanceData,
+        expected_conn_type: ConnectionType,
 ) -> None:
-    try:
-        fixture_controller_instance.controller.activate()
-        assert isinstance(fixture_controller_instance.controller, DualSenseController)
-        assert fixture_controller_instance.controller.is_active
-        assert fixture_controller_instance.controller.connection_type.name == expected_conn_type.name
-    finally:
-        fixture_controller_instance.controller.deactivate()
+    assert isinstance(fixture_activated_instance.controller, DualSenseController)
+    assert fixture_activated_instance.controller.is_active
+    assert fixture_activated_instance.controller.connection_type.name == expected_conn_type.name
 
 
 # @pytest.mark.skip(reason="temp disabled")
 @pytest.mark.parametrize(
-    'fixture_activated_instance,left_stick_y_raw,left_stick_y_mapped',
+    'fixture_params_for_mocked_hidapi_device,fixture_params_for_controller_instance,left_stick_y_raw,left_stick_y_mapped',
     [
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW), 0, 0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW), 127, 127],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW), 128, 128],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW), 255, 255],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW_INVERTED), 0, 255],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW_INVERTED), 127, 128],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW_INVERTED), 128, 127],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.RAW_INVERTED), 255, 0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT), 0, 127],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT), 127, 0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT), 128, -1],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT), 255, -128],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT_INVERTED), 0, -128],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT_INVERTED), 127, -1],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT_INVERTED), 128, 0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.DEFAULT_INVERTED), 255, 127],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED), 0, 1.0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED), 127, 0.0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED), 128, 0.0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED), 255, -1.0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED_INVERTED), 0, -1.0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED_INVERTED), 127, 0.0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED_INVERTED), 128, 0.0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.NORMALIZED_INVERTED), 255, 1.00],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.HUNDRED), 0, 100],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.HUNDRED), 127, 0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.HUNDRED), 128, 0],
-        [ControllerInstanceParams(ConnTypeMock.USB_01, Mapping.HUNDRED), 255, -100],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW), 0, 0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW), 127, 127],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW), 128, 128],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW), 255, 255],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW_INVERTED), 0, 255],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW_INVERTED), 127, 128],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW_INVERTED), 128, 127],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.RAW_INVERTED), 255, 0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT), 0, 127],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT), 127, 0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT), 128, -1],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT), 255, -128],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT_INVERTED), 0, -128],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT_INVERTED), 127, -1],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT_INVERTED), 128, 0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.DEFAULT_INVERTED), 255, 127],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED), 0, 1.0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED), 127, 0.0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED), 128, 0.0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED), 255, -1.0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED_INVERTED), 0, -1.0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED_INVERTED), 127, 0.0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED_INVERTED), 128, 0.0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.NORMALIZED_INVERTED), 255, 1.00],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.HUNDRED), 0, 100],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.HUNDRED), 127, 0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.HUNDRED), 128, 0],
+        [ConnTypeMock.USB_01, ControllerInstanceParams(Mapping.HUNDRED), 255, -100],
     ],
-    indirect=['fixture_activated_instance']
+    indirect=['fixture_params_for_mocked_hidapi_device', 'fixture_params_for_controller_instance']
 )
 def test_mapping(
+        fixture_params_for_mocked_hidapi_device: ConnTypeMock,
+        fixture_params_for_controller_instance: ControllerInstanceParams,
         fixture_activated_instance: ControllerInstanceData,
         left_stick_y_raw: int,
         left_stick_y_mapped: Number,
 ) -> None:
-    fixture_activated_instance.hidapi_device.set_left_stick_y_byte(left_stick_y_raw)
+    fixture_activated_instance.mocked_hidapi_device.set_left_stick_y_byte(left_stick_y_raw)
     fixture_activated_instance.controller.wait_until_updated()
     assert isinstance(fixture_activated_instance.controller, DualSenseController)
     assert left_stick_y_mapped == pytest.approx(fixture_activated_instance.controller.left_stick_y.value, rel=1e-2)
