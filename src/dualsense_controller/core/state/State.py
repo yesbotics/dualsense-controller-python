@@ -4,6 +4,7 @@ import time
 from threading import Lock
 from typing import Final, Generic
 
+from dualsense_controller.core.core.Lockable import Lockable
 from dualsense_controller.core.state.StateValueCallbackManager import StateValueCallbackManager
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.typedef import CompareFn, CompareResult, StateChangeCallback, StateName, \
@@ -52,43 +53,35 @@ class State(Generic[StateValue]):
     # LOCKED GETTERS AND SETTERS
     @property
     def _changed_since_last_update(self) -> bool:
-        with self._lock:
-            return self.__changed_since_last_update
+        return self.__changed_since_last_update.value
 
     @_changed_since_last_update.setter
     def _changed_since_last_update(self, _changed_since_last_update: bool) -> None:
-        with self._lock:
-            self.__changed_since_last_update = _changed_since_last_update
+        self.__changed_since_last_update.value = _changed_since_last_update
 
     @property
     def _value(self) -> StateValue:
-        with self._lock:
-            return self.__value
+        return self.__value.value
 
     @_value.setter
     def _value(self, _value: StateValue) -> None:
-        with self._lock:
-            self.__value = _value
+        self.__value.value = _value
 
     @property
     def _change_timestamp(self) -> int:
-        with self._lock:
-            return self.__change_timestamp
+        return self.__change_timestamp.value
 
     @_change_timestamp.setter
     def _change_timestamp(self, _change_timestamp: int) -> None:
-        with self._lock:
-            self.__change_timestamp = _change_timestamp
+        self.__change_timestamp.value = _change_timestamp
 
     @property
     def _last_value(self) -> StateValue:
-        with self._lock:
-            return self.__last_value
+        return self.__last_value.value
 
     @_last_value.setter
     def _last_value(self, _last_value: StateValue) -> None:
-        with self._lock:
-            self.__last_value = _last_value
+        self.__last_value.value = _last_value
 
     def __init__(
             self,
@@ -111,10 +104,22 @@ class State(Generic[StateValue]):
         self._default_value: Final[StateValue | None] = default_value
 
         # VAR
-        self.__changed_since_last_update: bool = False
-        self.__value: StateValue | None = value if value is not None else default_value
-        self.__change_timestamp: int = 0
-        self.__last_value: StateValue | None = None
+        self.__value: Lockable[StateValue | None] = Lockable(
+            lock=self._lock,
+            value=value if value is not None else default_value
+        )
+        self.__last_value: Lockable[StateValue | None] = Lockable(
+            lock=self._lock,
+            value=None
+        )
+        self.__change_timestamp: Lockable[int] = Lockable(
+            lock=self._lock,
+            value=0
+        )
+        self.__changed_since_last_update: Lockable[bool] = Lockable(
+            lock=self._lock,
+            value=False
+        )
 
     def set_value_raw_without_triggering_change(self, new_value: StateValue | None):
         self._set_value_raw(new_value, trigger_change_on_changed=False)
