@@ -7,8 +7,7 @@ from pytest_mock import MockerFixture
 
 from dualsense_controller import DualSenseController
 from tests.common import ControllerInstanceData, ControllerInstanceParams
-from tests.mock.HidapiDeviceMock import MockedHidapiDevice
-from tests.mock.common import ConnTypeMock, DeviceInfoMock
+from tests.mock.common import DeviceInfoMock, ConnTypeMock, MockedHidapiDevice
 
 
 @pytest.fixture

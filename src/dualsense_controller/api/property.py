@@ -17,7 +17,7 @@ class _Property(Generic[PropertyType], ABC):
 
     def on_change(self, callback: PropertyChangeCallback):
         self._state.on_change(callback)
-        
+
     def once_change(self, callback: PropertyChangeCallback):
         self._state.once_change(callback)
 

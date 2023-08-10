@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Final
+
+from tests.mock.in_rep.InRep import InRep
+from tests.mock.in_rep.InRepBt01 import InRepBt01
+from tests.mock.in_rep.InRepBt31 import InRepBt31
+from tests.mock.in_rep.InRepUsb01 import InRepUsb01
 
 
 @dataclass
@@ -18,17 +22,37 @@ class DeviceInfoMock:
 
 
 class ConnTypeMock(Enum):
-    BT_01: Final[bytearray] = bytearray()
-    BT_31: Final[bytearray] = bytearray(
-        b'1\x01\x80\x81\x82\x83\x00\x00\x01\x08\x00\x00\x00\xae\xab\x8b\xf2'
-        b'\x02\x00\xfc\xff\x02\x00\xdc\xff\xda\x1e\x9e\x06\xc7\xb5\xe4\x00\x08'
-        b'\x80\x00\x00\x00\x80\x00\x00\x00\x00\t\t\x00\x00\x00\x00\x00\xc3\xc9\xe4'
-        b'\x00\t\x00\x00\xaf\xc5\x1af\xc2\xf3\x16\xbd\x00\x00\x00\x00\x00\x00\x00\x00\x00B\xd7\xd8\r'
-    )
-    USB_01: Final[bytearray] = bytearray(
-        b'\x01\x80\x80\x82\x83\x00\x00\x9c\x08\x00\x00\x00\x1c\x8f\xcc '
-        b'\x03\x00\xfc\xff\x03\x00\xb0\xff\xeb\x1e\x82\x06\xbf@\xb1\t\x02'
-        b'\x80\x00\x00\x00\x80\x00\x00\x00\x00\t\t\x00\x00\x00\x00\x00\x03Z'
-        b'\xb1\t)\x08\x00\xdd\xedU\xeb%{\x97\xc3'
-    )
+    BT_01 = 0
+    BT_31 = 1
+    USB_01 = 2
 
+
+class _BaseDeviceMock:
+
+    def __init__(self, conn_type: ConnTypeMock = ConnTypeMock.USB_01):
+        self._in_rep: InRep | None = None
+        match conn_type:
+            case ConnTypeMock.USB_01:
+                self._in_rep = InRepUsb01()
+            case ConnTypeMock.BT_31:
+                self._in_rep = InRepBt31()
+            case ConnTypeMock.BT_01:
+                self._in_rep = InRepBt01()
+
+    def write(self, data: bytes):
+        pass
+
+    def read(self, _: int, **kwargs) -> bytes:
+        return self._in_rep.raw_bytes
+
+    def close(self):
+        pass
+
+
+class MockedHidapiDevice(_BaseDeviceMock):
+
+    def set_left_stick_x_byte(self, value: int):
+        self._in_rep.set_axes_0(value)
+
+    def set_left_stick_y_byte(self, value: int):
+        self._in_rep.set_axes_1(value)
