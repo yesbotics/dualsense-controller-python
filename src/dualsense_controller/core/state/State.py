@@ -145,6 +145,9 @@ class State(Generic[StateValue]):
     def on_change(self, callback: StateChangeCallback) -> None:
         self._callback_manager.on_change(callback)
 
+    def once_change(self, callback: StateChangeCallback) -> None:
+        self._callback_manager.once_change(callback)
+
     def remove_change_listener(self, callback: StateChangeCallback | None = None) -> None:
         self._callback_manager.remove_change_listener(callback)
 

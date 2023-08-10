@@ -23,10 +23,10 @@ class StateValueCallbackManager(Generic[StateValue]):
         self._event_name_4_args: Final[str] = f'{name}_4'
 
     def on_change(self, callback: StateChangeCallback) -> None:
-        self._event_emitter.on(
-            self._get_event_name_by_callable(callback),
-            callback
-        )
+        self._event_emitter.on(self._get_event_name_by_callable(callback), callback)
+
+    def once_change(self, callback: StateChangeCallback) -> None:
+        self._event_emitter.once(self._get_event_name_by_callable(callback), callback)
 
     def remove_change_listener(self, callback: StateChangeCallback | None = None) -> None:
         if callback is None:

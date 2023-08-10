@@ -89,6 +89,9 @@ class DualSenseControllerCore:
     def on_updated(self, callback: EmptyCallback) -> None:
         self._read_states.on_updated(callback)
 
+    def once_updated(self, callback: EmptyCallback) -> None:
+        self._read_states.once_updated(callback)
+
     def wait_until_updated(self) -> None:
 
         wait: bool = True
@@ -107,14 +110,23 @@ class DualSenseControllerCore:
     def on_connection_change(self, callback: StateChangeCallback):
         self._connection_state.on_change(callback)
 
+    def once_connection_change(self, callback: StateChangeCallback):
+        self._connection_state.once_change(callback)
+
     def on_exception(self, callback: ExceptionCallback):
         self._hid_controller_device.on_exception(callback)
 
     def on_state_change(self, state_name: ReadStateName | StateChangeCallback, callback: StateChangeCallback = None):
         self._read_states.on_change(state_name, callback)
 
+    def once_state_change(self, state_name: ReadStateName | StateChangeCallback, callback: StateChangeCallback = None):
+        self._read_states.once_change(state_name, callback)
+
     def on_any_state_change(self, callback: StateChangeCallback):
         self._read_states.on_any_change(callback)
+
+    def once_any_state_change(self, callback: StateChangeCallback):
+        self._read_states.once_any_change(callback)
 
     def set_state(self, state_name: WriteStateName, value: Number):
         self._write_states.set_value(state_name, value)

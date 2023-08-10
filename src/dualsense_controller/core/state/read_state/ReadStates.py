@@ -770,9 +770,21 @@ class ReadStates:
         else:
             self._get_state_by_name(name_or_callback).on_change(callback)
 
+    def once_change(
+            self, name_or_callback: ReadStateName | StateChangeCallback, callback: StateChangeCallback | None = None
+    ):
+        if callback is None:
+            self.once_any_change(name_or_callback)
+        else:
+            self._get_state_by_name(name_or_callback).once_change(callback)
+
     def on_any_change(self, callback: StateChangeCallback):
         for state_name, state in self._states_dict.items():
             state.on_change(callback)
+
+    def once_any_change(self, callback: StateChangeCallback):
+        for state_name, state in self._states_dict.items():
+            state.once_change(callback)
 
     def remove_change_listener(
             self, name_or_callback: ReadStateName | StateChangeCallback, callback: StateChangeCallback | None = None
