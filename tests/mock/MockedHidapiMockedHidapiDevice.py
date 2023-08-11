@@ -61,14 +61,8 @@ class MockedHidapiMockedHidapiDevice(_BaseMockedHidapiDevice):
     def set_right_trigger_raw(self, value: int):
         ValueCalc.set_right_trigger(self._in_report, value)
 
-    # def set_btn_square(self, value: bool):
-    #
-    #     if value:
-    #         return value | 0x10  # Set the 5th bit to 1
-    #     else:
-    #         return value & 0xEF  # Set the 5th bit to 0
-    #     self._in_report.get_buttons_0()
+    def set_btn_square(self, value: bool):
+        ValueCalc.set_btn_square(self._in_report, value)
 
-    # def set_btn_cross(self, value: bool):
-    #     self._in_report.set_buttons_0()
-    #     return bool(in_report.buttons_0 & 0x20)
+    def set_btn_cross(self, value: bool):
+        ValueCalc.set_btn_cross(self._in_report, value)

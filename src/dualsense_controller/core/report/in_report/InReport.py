@@ -151,22 +151,6 @@ class InReport(ABC):
         return self._get_uint8('sensor_timestamp_3')
 
     @property
-    def touch_0_0(self) -> int:
-        return self._get_uint8('touch_0_0')
-
-    @property
-    def touch_0_1(self) -> int:
-        return self._get_uint8('touch_0_1')
-
-    @property
-    def touch_0_2(self) -> int:
-        return self._get_uint8('touch_0_2')
-
-    @property
-    def touch_0_3(self) -> int:
-        return self._get_uint8('touch_0_3')
-
-    @property
     def touch_1_0(self) -> int:
         return self._get_uint8('touch_1_0')
 
@@ -181,6 +165,22 @@ class InReport(ABC):
     @property
     def touch_1_3(self) -> int:
         return self._get_uint8('touch_1_3')
+
+    @property
+    def touch_2_0(self) -> int:
+        return self._get_uint8('touch_2_0')
+
+    @property
+    def touch_2_1(self) -> int:
+        return self._get_uint8('touch_2_1')
+
+    @property
+    def touch_2_2(self) -> int:
+        return self._get_uint8('touch_2_2')
+
+    @property
+    def touch_2_3(self) -> int:
+        return self._get_uint8('touch_2_3')
 
     @property
     def r2_feedback(self) -> int:
@@ -324,22 +324,6 @@ class InReport(ABC):
     def sensor_timestamp_3(self, sensor_timestamp_3: int) -> None:
         self._set_uint8('sensor_timestamp_3', sensor_timestamp_3)
 
-    @touch_0_0.setter
-    def touch_0_0(self, touch_0_0: int) -> None:
-        self._set_uint8('touch_0_0', touch_0_0)
-
-    @touch_0_1.setter
-    def touch_0_1(self, touch_0_1: int) -> None:
-        self._set_uint8('touch_0_1', touch_0_1)
-
-    @touch_0_2.setter
-    def touch_0_2(self, touch_0_2: int) -> None:
-        self._set_uint8('touch_0_2', touch_0_2)
-
-    @touch_0_3.setter
-    def touch_0_3(self, touch_0_3: int) -> None:
-        self._set_uint8('touch_0_3', touch_0_3)
-
     @touch_1_0.setter
     def touch_1_0(self, touch_1_0: int) -> None:
         self._set_uint8('touch_1_0', touch_1_0)
@@ -355,6 +339,22 @@ class InReport(ABC):
     @touch_1_3.setter
     def touch_1_3(self, touch_1_3: int) -> None:
         self._set_uint8('touch_1_3', touch_1_3)
+
+    @touch_2_0.setter
+    def touch_2_0(self, touch_2_0: int) -> None:
+        self._set_uint8('touch_2_0', touch_2_0)
+
+    @touch_2_1.setter
+    def touch_2_1(self, touch_2_1: int) -> None:
+        self._set_uint8('touch_2_1', touch_2_1)
+
+    @touch_2_2.setter
+    def touch_2_2(self, touch_2_2: int) -> None:
+        self._set_uint8('touch_2_2', touch_2_2)
+
+    @touch_2_3.setter
+    def touch_2_3(self, touch_2_3: int) -> None:
+        self._set_uint8('touch_2_3', touch_2_3)
 
     @r2_feedback.setter
     def r2_feedback(self, r2_feedback: int) -> None:

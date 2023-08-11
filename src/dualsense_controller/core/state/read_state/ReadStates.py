@@ -652,10 +652,10 @@ class ReadStates:
             self._states_to_trigger_after_all_states_set.append(state)
 
     def _post_update(self):
+        self._update_emitter.emit(self._EVENT_UPDATE)
         for state in self._states_to_trigger_after_all_states_set:
             state.trigger_change_if_changed()
         self._states_to_trigger_after_all_states_set.clear()
-        self._update_emitter.emit(self._EVENT_UPDATE)
 
     # #################### PUBLIC #######################
 

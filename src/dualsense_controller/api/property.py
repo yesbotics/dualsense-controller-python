@@ -22,34 +22,32 @@ class _Property(Generic[PropertyType], ABC):
         self._state.once_change(callback)
 
     @property
-    def _value(self) -> PropertyType:
-        return self._state.value
-
-    @_value.setter
-    def _value(self, value: Number) -> None:
-        self._state.value = value
-
-    @property
     def changed(self) -> bool:
         return self._state.has_changed
+
+    def _get_value(self) -> PropertyType:
+        return self._state.value
+
+    def _set_value(self, value: Number) -> None:
+        self._state.value = value
 
 
 class _GetNumberProperty(_Property[Number], ABC):
 
     @property
     def value(self) -> Number:
-        return self._value
+        return self._get_value()
 
 
 class _GetSetNumberProperty(_Property[Number], ABC):
 
     @property
     def value(self) -> Number:
-        return self._value
+        return self._get_value()
 
     @value.setter
     def value(self, value: Number) -> None:
-        self._value = value
+        self._set_value(value)
 
 
 class _BoolProperty(_Property[bool], ABC):
@@ -78,7 +76,7 @@ class ButtonProperty(_BoolProperty):
 
     @property
     def pressed(self) -> bool:
-        return self._value
+        return self._get_value()
 
 
 class TriggerProperty(_GetNumberProperty):
@@ -97,4 +95,4 @@ class JoyStickProperty(_Property[JoyStick]):
 
     @property
     def value(self) -> JoyStick:
-        return self._value
+        return self._get_value()

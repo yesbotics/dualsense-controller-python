@@ -280,11 +280,11 @@ class ValueCalc:
 
     @classmethod
     def get_left_trigger_feedback_active(cls, in_report: InReport) -> bool:
-        return cls._get_trigger_feedback_active(in_report.get_left_trigger_feedback)
+        return cls._get_trigger_feedback_active(in_report.l2_feedback)
 
     @classmethod
     def get_left_trigger_feedback_value(cls, in_report: InReport) -> int:
-        return cls._get_trigger_feedback_value(in_report.get_left_trigger_feedback)
+        return cls._get_trigger_feedback_value(in_report.l2_feedback)
 
     @classmethod
     def get_left_trigger_feedback(cls, _: InReport, l2_feedback_active: State[bool],
@@ -296,11 +296,11 @@ class ValueCalc:
 
     @classmethod
     def get_right_trigger_feedback_active(cls, in_report: InReport) -> bool:
-        return cls._get_trigger_feedback_active(in_report.get_right_trigger_feedback)
+        return cls._get_trigger_feedback_active(in_report.r2_feedback)
 
     @classmethod
     def get_right_trigger_feedback_value(cls, in_report: InReport) -> int:
-        return cls._get_trigger_feedback_value(in_report.get_right_trigger_feedback)
+        return cls._get_trigger_feedback_value(in_report.r2_feedback)
 
     @classmethod
     def get_right_trigger_feedback(cls, _: InReport, r2_feedback_active: State[bool],

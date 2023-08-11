@@ -17,8 +17,8 @@ class Bt31InReport(InReport):
             "timestamp_0": 12, "timestamp_1": 13, "timestamp_2": 14, "timestamp_3": 15,
             "gyro_x_0": 16, "gyro_x_1": 17, "gyro_y_0": 18, "gyro_y_1": 19, "gyro_z_0": 20, "gyro_z_1": 21,
             "accel_x_0": 22, "accel_x_1": 23, "accel_y_0": 24, "accel_y_1": 25, "accel_z_0": 26, "accel_z_1": 27,
-            "touch_0_0": 33, "touch_0_1": 34, "touch_0_2": 35, "touch_0_3": 36,
-            "touch_1_0": 37, "touch_1_1": 38, "touch_1_2": 39, "touch_1_3": 40,
+            "touch_1_0": 33, "touch_1_1": 34, "touch_1_2": 35, "touch_1_3": 36,
+            "touch_2_0": 37, "touch_2_1": 38, "touch_2_2": 39, "touch_2_3": 40,
             "r2_feedback": 42, "l2_feedback": 43,
             "battery_0": 53, "battery_1": 54,
         }, raw_bytes=raw_bytes)
