@@ -51,7 +51,7 @@ class Battery:
 
 
 @dataclass(frozen=True, slots=True)
-class Feedback:
+class TriggerFeedback:
     active: bool = False
     value: int = _DEFAULT_NUMBER
 
