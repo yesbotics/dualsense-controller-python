@@ -10,9 +10,50 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
 
 class ValueCalc:
 
-    def __init__(self):
-        pass
+    # ########################################## SET ONLY NEEDED FOR TESTING ##########################################
+    @classmethod
+    def set_left_stick(cls, in_report: InReport, value: JoyStick) -> None:
+        cls.set_left_stick_x(in_report, value.x)
+        cls.set_left_stick_y(in_report, value.y)
 
+    @classmethod
+    def set_left_stick_x(cls, in_report: InReport, value: int) -> None:
+        in_report.axes_0 = value
+
+    @classmethod
+    def set_left_stick_y(cls, in_report: InReport, value: int) -> None:
+        in_report.axes_1 = value
+
+    @classmethod
+    def set_right_stick(cls, in_report: InReport, value: JoyStick) -> None:
+        cls.set_right_stick_x(in_report, value.x)
+        cls.set_right_stick_y(in_report, value.y)
+
+    @classmethod
+    def set_right_stick_x(cls, in_report: InReport, value: int) -> None:
+        in_report.axes_2 = value
+
+    @classmethod
+    def set_right_stick_y(cls, in_report: InReport, value: int) -> None:
+        in_report.axes_3 = value
+
+    @classmethod
+    def set_left_trigger(cls, in_report: InReport, value: int) -> None:
+        in_report.axes_4 = value
+
+    @classmethod
+    def set_right_trigger(cls, in_report: InReport, value: int) -> None:
+        in_report.axes_5 = value
+
+    @classmethod
+    def set_btn_cross(cls, in_report: InReport, value: bool) -> None:
+        in_report.buttons_0 = in_report.buttons_0 | 0x10 if value else in_report.buttons_0 & 0xEF
+
+    @classmethod
+    def set_btn_square(cls, in_report: InReport, value: bool) -> None:
+        in_report.buttons_0 = in_report.buttons_0 | 0x20 if value else in_report.buttons_0 & 0xDF
+
+    # ########################################## GET ###############################################
     @classmethod
     def get_left_stick(cls, in_report: InReport) -> JoyStick:
         return JoyStick(x=in_report.axes_0, y=in_report.axes_1)
@@ -128,9 +169,9 @@ class ValueCalc:
     @classmethod
     def get_gyroscope(cls, in_report: InReport) -> Gyroscope:
         return Gyroscope(
-            x=cls._sensor_axis(in_report.gyro_x_1, in_report.gyro_x_0),
-            y=cls._sensor_axis(in_report.gyro_y_1, in_report.gyro_y_0),
-            z=cls._sensor_axis(in_report.gyro_z_1, in_report.gyro_z_0),
+            x=cls._get_sensor_axis(in_report.gyro_x_1, in_report.gyro_x_0),
+            y=cls._get_sensor_axis(in_report.gyro_y_1, in_report.gyro_y_0),
+            z=cls._get_sensor_axis(in_report.gyro_z_1, in_report.gyro_z_0),
         )
 
     @classmethod
@@ -148,9 +189,9 @@ class ValueCalc:
     @classmethod
     def get_accelerometer(cls, in_report: InReport) -> Accelerometer:
         return Accelerometer(
-            x=cls._sensor_axis(in_report.accel_x_1, in_report.accel_x_0),
-            y=cls._sensor_axis(in_report.accel_y_1, in_report.accel_y_0),
-            z=cls._sensor_axis(in_report.accel_z_1, in_report.accel_z_0),
+            x=cls._get_sensor_axis(in_report.accel_x_1, in_report.accel_x_0),
+            y=cls._get_sensor_axis(in_report.accel_y_1, in_report.accel_y_0),
+            z=cls._get_sensor_axis(in_report.accel_z_1, in_report.accel_z_0),
         )
 
     @classmethod
@@ -175,19 +216,19 @@ class ValueCalc:
 
     @classmethod
     def get_touch_finger_1_active(cls, in_report: InReport) -> bool:
-        return cls._touch_active(in_report.touch_1_0)
+        return cls._get_touch_active(in_report.touch_1_0)
 
     @classmethod
     def get_touch_finger_1_id(cls, in_report: InReport) -> int:
-        return cls._touch_id(in_report.touch_1_0)
+        return cls._get_touch_id(in_report.touch_1_0)
 
     @classmethod
     def get_touch_finger_1_x(cls, in_report: InReport) -> int:
-        return cls._touch_x(in_report.touch_1_2, in_report.touch_1_1)
+        return cls._get_touch_x(in_report.touch_1_2, in_report.touch_1_1)
 
     @classmethod
     def get_touch_finger_1_y(cls, in_report: InReport) -> int:
-        return cls._touch_y(in_report.touch_1_3, in_report.touch_1_2)
+        return cls._get_touch_y(in_report.touch_1_3, in_report.touch_1_2)
 
     @classmethod
     def get_touch_finger_1(
@@ -207,19 +248,19 @@ class ValueCalc:
 
     @classmethod
     def get_touch_finger_2_active(cls, in_report: InReport) -> bool:
-        return cls._touch_active(in_report.touch_2_0)
+        return cls._get_touch_active(in_report.touch_2_0)
 
     @classmethod
     def get_touch_finger_2_id(cls, in_report: InReport) -> int:
-        return cls._touch_id(in_report.touch_2_0)
+        return cls._get_touch_id(in_report.touch_2_0)
 
     @classmethod
     def get_touch_finger_2_x(cls, in_report: InReport) -> int:
-        return cls._touch_x(in_report.touch_2_2, in_report.touch_2_1)
+        return cls._get_touch_x(in_report.touch_2_2, in_report.touch_2_1)
 
     @classmethod
     def get_touch_finger_2_y(cls, in_report: InReport) -> int:
-        return cls._touch_y(in_report.touch_2_3, in_report.touch_2_2)
+        return cls._get_touch_y(in_report.touch_2_3, in_report.touch_2_2)
 
     @classmethod
     def get_touch_finger_2(
@@ -239,11 +280,11 @@ class ValueCalc:
 
     @classmethod
     def get_left_trigger_feedback_active(cls, in_report: InReport) -> bool:
-        return cls._trigger_feedback_active(in_report.get_left_trigger_feedback)
+        return cls._get_trigger_feedback_active(in_report.get_left_trigger_feedback)
 
     @classmethod
     def get_left_trigger_feedback_value(cls, in_report: InReport) -> int:
-        return cls._trigger_feedback_value(in_report.get_left_trigger_feedback)
+        return cls._get_trigger_feedback_value(in_report.get_left_trigger_feedback)
 
     @classmethod
     def get_left_trigger_feedback(cls, _: InReport, l2_feedback_active: State[bool],
@@ -255,11 +296,11 @@ class ValueCalc:
 
     @classmethod
     def get_right_trigger_feedback_active(cls, in_report: InReport) -> bool:
-        return cls._trigger_feedback_active(in_report.get_right_trigger_feedback)
+        return cls._get_trigger_feedback_active(in_report.get_right_trigger_feedback)
 
     @classmethod
     def get_right_trigger_feedback_value(cls, in_report: InReport) -> int:
-        return cls._trigger_feedback_value(in_report.get_right_trigger_feedback)
+        return cls._get_trigger_feedback_value(in_report.get_right_trigger_feedback)
 
     @classmethod
     def get_right_trigger_feedback(cls, _: InReport, r2_feedback_active: State[bool],
@@ -302,32 +343,32 @@ class ValueCalc:
     # ######### HELPERS #############
 
     @classmethod
-    def _trigger_feedback_active(cls, feedback: int) -> bool:
+    def _get_trigger_feedback_active(cls, feedback: int) -> bool:
         return bool(feedback & 0x10)
 
     @classmethod
-    def _trigger_feedback_value(cls, feedback: int) -> int:
+    def _get_trigger_feedback_value(cls, feedback: int) -> int:
         return feedback & 0xff
 
     @classmethod
-    def _sensor_axis(cls, v1: int, v0: int) -> int:
+    def _get_sensor_axis(cls, v1: int, v0: int) -> int:
         res: int = ((v1 << 8) | v0)
         if res > 0x7FFF:
             res -= 0x10000
         return res
 
     @classmethod
-    def _touch_active(cls, t_0: int) -> bool:
+    def _get_touch_active(cls, t_0: int) -> bool:
         return not (t_0 & 0x80)
 
     @classmethod
-    def _touch_id(cls, t_0: int) -> int:
+    def _get_touch_id(cls, t_0: int) -> int:
         return t_0 & 0x7F
 
     @classmethod
-    def _touch_x(cls, t_2: int, t_1: int) -> int:
+    def _get_touch_x(cls, t_2: int, t_1: int) -> int:
         return ((t_2 & 0x0F) << 8) | t_1
 
     @classmethod
-    def _touch_y(cls, t_3: int, t_2: int) -> int:
+    def _get_touch_y(cls, t_3: int, t_2: int) -> int:
         return (t_3 << 4) | ((t_2 & 0xF0) >> 4)

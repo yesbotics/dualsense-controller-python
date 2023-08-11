@@ -2,14 +2,9 @@ from dualsense_controller.core.report.in_report.InReport import InReport
 
 
 class Bt01InReport(InReport):
-
-    def _update(self) -> None:
-        self._axes_0 = self._get_uint8(0)
-        self._axes_1 = self._get_uint8(1)
-        self._axes_2 = self._get_uint8(2)
-        self._axes_3 = self._get_uint8(3)
-        self._buttons_0 = self._get_uint8(4)
-        self._buttons_1 = self._get_uint8(5)
-        self._buttons_2 = self._get_uint8(6)
-        self._axes_4 = self._get_uint8(7)
-        self._axes_5 = self._get_uint8(8)
+    def __init__(self, raw_bytes: bytearray = None):
+        super().__init__({
+            "axes_0": 0, "axes_1": 1, "axes_2": 2, "axes_3": 3,
+            "buttons_0": 4, "buttons_1": 5, "buttons_2": 6,
+            "axes_4": 7, "axes_5": 8
+        }, raw_bytes=raw_bytes)
