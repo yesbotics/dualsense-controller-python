@@ -69,7 +69,15 @@ def fixture_controller_instance(
             device_index_or_device_info=fixture_enumerate_devices_mock,
             mapping=params.mapping,
             update_level=params.update_level,
+            left_joystick_deadzone=params.left_joystick_deadzone,
+            right_joystick_deadzone=params.right_joystick_deadzone,
+            left_trigger_deadzone=params.left_trigger_deadzone,
+            right_trigger_deadzone=params.right_trigger_deadzone,
+            gyroscope_threshold=params.gyroscope_threshold,
+            orientation_threshold=params.orientation_threshold,
+            accelerometer_threshold=params.accelerometer_threshold,
         ),
+
         mocked_hidapi_device=fixture_mocked_hidapi_device
     )
 

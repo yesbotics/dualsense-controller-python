@@ -21,8 +21,8 @@ class CoreExample:
             # ##### FEELING  #####
             left_joystick_deadzone=.1,
             right_joystick_deadzone=.1,
-            l2_deadzone=.1,
-            r2_deadzone=.1,
+            left_trigger_deadzone=.1,
+            right_trigger_deadzone=.1,
             gyroscope_threshold=0,
             accelerometer_threshold=0,
             orientation_threshold=0,
@@ -54,8 +54,8 @@ class CoreExample:
 
         self._dualsense_controller.read_states.btn_l1.on_change(self._on_btn_l1)
         self._dualsense_controller.read_states.btn_r1.on_change(self._on_btn_r1)
-        self._dualsense_controller.read_states.l2.on_change(self._on_l2)
-        self._dualsense_controller.read_states.r2.on_change(self._on_r2)
+        self._dualsense_controller.read_states.left_trigger.on_change(self._on_l2)
+        self._dualsense_controller.read_states.right_trigger.on_change(self._on_r2)
 
         self._dualsense_controller.read_states.btn_cross.on_change(self._on_btn_cross)
         self._dualsense_controller.read_states.btn_square.on_change(self._on_btn_square)
@@ -142,7 +142,7 @@ class CoreExample:
         )
 
     #
-    # L2 / R2 -> rumble
+    # LEFT_TRIGGER / RIGHT_TRIGGER -> rumble
     #
     def _on_l2(self, value: int) -> None:
         print(f'L2 Analog Button: {value}')

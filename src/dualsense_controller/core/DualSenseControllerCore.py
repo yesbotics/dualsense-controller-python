@@ -47,8 +47,8 @@ class DualSenseControllerCore:
             # ##### FEELING  #####
             left_joystick_deadzone: Number = 0,
             right_joystick_deadzone: Number = 0,
-            l2_deadzone: Number = 0,
-            r2_deadzone: Number = 0,
+            left_trigger_deadzone: Number = 0,
+            right_trigger_deadzone: Number = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
@@ -58,14 +58,17 @@ class DualSenseControllerCore:
             can_update_itself: bool = True,
     ):
 
+        # Hardware
+        self._hid_controller_device: HidControllerDevice = HidControllerDevice(device_index_or_device_info)
+
         self._connection_state: Final[State[Connection]] = State(name=EventType.CONNECTION_CHANGE, ignore_none=False)
 
         state_value_mapper: StateValueMapper = StateValueMapper(
             mapping=state_value_mapping,
             left_joystick_deadzone=left_joystick_deadzone,
             right_joystick_deadzone=right_joystick_deadzone,
-            l2_deadzone=l2_deadzone,
-            r2_deadzone=r2_deadzone,
+            left_trigger_deadzone=left_trigger_deadzone,
+            right_trigger_deadzone=right_trigger_deadzone,
             gyroscope_threshold=gyroscope_threshold,
             accelerometer_threshold=accelerometer_threshold,
             orientation_threshold=orientation_threshold,
@@ -81,8 +84,6 @@ class DualSenseControllerCore:
             state_value_mapper=state_value_mapper,
         )
 
-        # Hardware
-        self._hid_controller_device: HidControllerDevice = HidControllerDevice(device_index_or_device_info)
         self._hid_controller_device.on_exception(self._on_thread_exception)
         self._hid_controller_device.on_in_report(self._on_in_report)
 

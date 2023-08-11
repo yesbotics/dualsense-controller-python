@@ -1,4 +1,4 @@
-from dualsense_controller import ConnectionType
+from dualsense_controller import ConnectionType, JoyStick
 from dualsense_controller.core.report.in_report.InReport import InReport
 from dualsense_controller.core.report.in_report.Bt01InReport import Bt01InReport
 from dualsense_controller.core.report.in_report.Bt31InReport import Bt31InReport
@@ -42,12 +42,17 @@ class _BaseMockedHidapiDevice:
 
 class MockedHidapiMockedHidapiDevice(_BaseMockedHidapiDevice):
 
+    def set_left_stick_raw(self, value: JoyStick):
+        ValueCalc.set_left_stick(self._in_report, value)
+
     def set_left_stick_x_raw(self, value: int):
         ValueCalc.set_left_stick_x(self._in_report, value)
 
     def set_left_stick_y_raw(self, value: int):
         ValueCalc.set_left_stick_y(self._in_report, value)
-        self._in_report.axes_1 = value
+
+    def set_right_stick_raw(self, value: JoyStick):
+        ValueCalc.set_right_stick(self._in_report, value)
 
     def set_right_stick_x_raw(self, value: int):
         ValueCalc.set_right_stick_x(self._in_report, value)

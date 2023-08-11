@@ -17,8 +17,8 @@ class Properties:
         self.btn_triangle: Final[ButtonProperty] = ButtonProperty(read_states.btn_triangle)
         self.btn_circle: Final[ButtonProperty] = ButtonProperty(read_states.btn_circle)
 
-        self.left_trigger: Final[TriggerProperty] = TriggerProperty(read_states.l2)
-        self.right_trigger: Final[TriggerProperty] = TriggerProperty(read_states.r2)
+        self.left_trigger: Final[TriggerProperty] = TriggerProperty(read_states.left_trigger)
+        self.right_trigger: Final[TriggerProperty] = TriggerProperty(read_states.right_trigger)
 
         self.left_stick_x: Final[JoyStickProperty] = JoyStickProperty(read_states.left_stick_x)
         self.left_stick_y: Final[JoyStickProperty] = JoyStickProperty(read_states.left_stick_y)

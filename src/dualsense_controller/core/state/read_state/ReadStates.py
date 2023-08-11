@@ -16,7 +16,8 @@ from dualsense_controller.core.state.read_state.ReadState import ReadState
 from dualsense_controller.core.state.read_state.ValueCalc import ValueCalc
 from dualsense_controller.core.state.read_state.ValueCompare import ValueCompare
 from dualsense_controller.core.state.read_state.enum import ReadStateName
-from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, TriggerFeedback, Gyroscope, JoyStick, \
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, TriggerFeedback, Gyroscope, \
+    JoyStick, \
     Orientation, \
     TouchFinger
 from dualsense_controller.core.state.typedef import CompareFn, Number, StateChangeCallback, StateValueFn, \
@@ -52,7 +53,7 @@ class ReadStates:
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_joystick,
             deadzone_raw=self._state_value_mapper.left_stick_deadzone_mapped_to_raw,
-            deadzone=self._state_value_mapper.left_stick_deadzone_mapped,
+            middle_deadzone=self._state_value_mapper.left_stick_deadzone_mapped,
             mapped_min_max_values=[
                 (self._state_value_mapper.mapping_data.left_stick_x.to_min
                  if self._state_value_mapper.mapping_data is not None
@@ -99,7 +100,7 @@ class ReadStates:
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_joystick,
             deadzone_raw=self._state_value_mapper.right_stick_deadzone_mapped_to_raw,
-            deadzone=self._state_value_mapper.right_stick_deadzone_mapped,
+            middle_deadzone=self._state_value_mapper.right_stick_deadzone_mapped,
             mapped_min_max_values=[
                 (self._state_value_mapper.mapping_data.right_stick_x.to_min
                  if self._state_value_mapper.mapping_data is not None
@@ -231,8 +232,8 @@ class ReadStates:
         )
 
         # INIT TRIGGERS
-        self.l2: Final[ReadState[int]] = self._create_and_register_state(
-            ReadStateName.L2,
+        self.left_trigger: Final[ReadState[int]] = self._create_and_register_state(
+            ReadStateName.LEFT_TRIGGER,
             value_calc_fn=ValueCalc.get_left_trigger,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
@@ -241,18 +242,18 @@ class ReadStates:
             deadzone_raw=self._state_value_mapper.left_trigger_deadzone_mapped_to_raw,
             deadzone=self._state_value_mapper.left_trigger_deadzone_mapped,
             mapped_min_max_values=[
-                (self._state_value_mapper.mapping_data.l2.to_min
+                (self._state_value_mapper.mapping_data.left_trigger.to_min
                  if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.l2 is not None else 0),
-                (self._state_value_mapper.mapping_data.l2.to_max
+                    and self._state_value_mapper.mapping_data.left_trigger is not None else 0),
+                (self._state_value_mapper.mapping_data.left_trigger.to_max
                  if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.l2 is not None else 255),
+                    and self._state_value_mapper.mapping_data.left_trigger is not None else 255),
             ],
             raw_to_mapped_fn=self._state_value_mapper.left_trigger_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.left_trigger_mapped_to_raw,
         )
-        self.r2: Final[ReadState[int]] = self._create_and_register_state(
-            ReadStateName.R2,
+        self.right_trigger: Final[ReadState[int]] = self._create_and_register_state(
+            ReadStateName.RIGHT_TRIGGER,
             value_calc_fn=ValueCalc.get_right_trigger,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
@@ -261,12 +262,12 @@ class ReadStates:
             deadzone_raw=self._state_value_mapper.right_trigger_deadzone_mapped_to_raw,
             deadzone=self._state_value_mapper.right_trigger_deadzone_mapped,
             mapped_min_max_values=[
-                (self._state_value_mapper.mapping_data.r2.to_min
+                (self._state_value_mapper.mapping_data.right_trigger.to_min
                  if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.r2 is not None else 0),
-                (self._state_value_mapper.mapping_data.r2.to_max
+                    and self._state_value_mapper.mapping_data.right_trigger is not None else 0),
+                (self._state_value_mapper.mapping_data.right_trigger.to_max
                  if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.r2 is not None else 255),
+                    and self._state_value_mapper.mapping_data.right_trigger is not None else 255),
             ],
             raw_to_mapped_fn=self._state_value_mapper.right_trigger_raw_to_mapped,
             mapped_to_raw_fn=self._state_value_mapper.right_trigger_mapped_to_raw,
@@ -609,6 +610,7 @@ class ReadStates:
             depends_on: list[ReadState[Any]] = None,
             is_dependency_of: list[ReadState[Any]] = None,
             mapped_min_max_values: list[Number] = None,
+            middle_deadzone: Number = None,
             deadzone: Number = None,
             threshold: int = None,
             **kwargs
@@ -617,6 +619,7 @@ class ReadStates:
         check_value_restrictions(
             name=str(name),
             mapped_min_max_values=mapped_min_max_values,
+            middle_deadzone=middle_deadzone,
             deadzone=deadzone,
             threshold=threshold,
         )
@@ -687,8 +690,8 @@ class ReadStates:
         self._handle_state(self.right_stick_y)
 
         # # ##### TRIGGERS #####
-        self._handle_state(self.l2)
-        self._handle_state(self.r2)
+        self._handle_state(self.left_trigger)
+        self._handle_state(self.right_trigger)
         #
         # # ##### BUTTONS #####
         self._handle_state(self.dpad)

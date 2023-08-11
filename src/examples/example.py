@@ -17,8 +17,8 @@ class Example:
 
             left_joystick_deadzone=0.1,
             right_joystick_deadzone=0.1,
-            l2_deadzone=0,
-            r2_deadzone=0,
+            left_trigger_deadzone=0,
+            right_trigger_deadzone=0,
             gyroscope_threshold=0,
             accelerometer_threshold=0,
             orientation_threshold=0,

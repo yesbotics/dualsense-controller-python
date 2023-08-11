@@ -65,8 +65,8 @@ class StateValueMapper:
             mapping: StateValueMapping,
             left_joystick_deadzone: Number = 0,
             right_joystick_deadzone: Number = 0,
-            l2_deadzone: Number = 0,
-            r2_deadzone: Number = 0,
+            left_trigger_deadzone: Number = 0,
+            right_trigger_deadzone: Number = 0,
             gyroscope_threshold: int = 0,
             accelerometer_threshold: int = 0,
             orientation_threshold: int = 0,
@@ -74,8 +74,8 @@ class StateValueMapper:
 
         self.left_stick_deadzone_mapped: Final[Number] = left_joystick_deadzone
         self.right_stick_deadzone_mapped: Final[Number] = right_joystick_deadzone
-        self.left_trigger_deadzone_mapped: Final[Number] = l2_deadzone
-        self.right_trigger_deadzone_mapped: Final[Number] = r2_deadzone
+        self.left_trigger_deadzone_mapped: Final[Number] = left_trigger_deadzone
+        self.right_trigger_deadzone_mapped: Final[Number] = right_trigger_deadzone
         self.gyroscope_threshold_mapped: Final[int] = gyroscope_threshold
         self.accelerometer_threshold_mapped: Final[int] = accelerometer_threshold
         self.orientation_threshold_mapped: Final[int] = orientation_threshold
@@ -98,32 +98,32 @@ class StateValueMapper:
             )
         )
         self.left_trigger_deadzone_mapped_to_raw: Number = (
-            l2_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.l2_deadzone,
-                l2_deadzone
+            left_trigger_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
+                self._mapping_data.left_trigger_deadzone,
+                left_trigger_deadzone
             )
         )
         self.right_trigger_deadzone_mapped_to_raw: Number = (
-            r2_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.r2_deadzone,
-                r2_deadzone
+            right_trigger_deadzone if self._mapping_data is None else self._number_mapped_to_raw(
+                self._mapping_data.right_trigger_deadzone,
+                right_trigger_deadzone
             )
         )
         self.gyroscope_threshold_mapped_to_raw: Number = (
             gyroscope_threshold if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.r2_deadzone,
+                self._mapping_data.right_trigger_deadzone,
                 gyroscope_threshold
             )
         )
         self.accelerometer_threshold_mapped_to_raw: Number = (
             accelerometer_threshold if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.r2_deadzone,
+                self._mapping_data.right_trigger_deadzone,
                 accelerometer_threshold
             )
         )
         self.orientation_threshold_mapped_to_raw: Number = (
             orientation_threshold if self._mapping_data is None else self._number_mapped_to_raw(
-                self._mapping_data.r2_deadzone,
+                self._mapping_data.right_trigger_deadzone,
                 orientation_threshold
             )
         )
@@ -185,19 +185,19 @@ class StateValueMapper:
         # #################################################### TRIGGERS ###############################
         self.left_trigger_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
             self._number_raw_to_mapped,
-            self._mapping_data.l2
+            self._mapping_data.left_trigger
         )
         self.left_trigger_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
             self._number_mapped_to_raw,
-            self._mapping_data.l2
+            self._mapping_data.left_trigger
         )
         self.right_trigger_raw_to_mapped: MapFn | None = None if self._mapping_data is None else partial(
             self._number_raw_to_mapped,
-            self._mapping_data.r2
+            self._mapping_data.right_trigger
         )
         self.right_trigger_mapped_to_raw: MapFn | None = None if self._mapping_data is None else partial(
             self._number_mapped_to_raw,
-            self._mapping_data.r2
+            self._mapping_data.right_trigger
         )
 
         # #################################################### MOTORS ###############################
