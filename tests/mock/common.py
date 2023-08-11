@@ -1,11 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from tests.mock.in_rep.InRep import InRep
-from tests.mock.in_rep.InRepBt01 import InRepBt01
-from tests.mock.in_rep.InRepBt31 import InRepBt31
-from tests.mock.in_rep.InRepUsb01 import InRepUsb01
-
 
 @dataclass
 class DeviceInfoMock:
@@ -27,32 +22,4 @@ class ConnTypeMock(Enum):
     USB_01 = 2
 
 
-class _BaseDeviceMock:
 
-    def __init__(self, conn_type: ConnTypeMock = ConnTypeMock.USB_01):
-        self._in_rep: InRep | None = None
-        match conn_type:
-            case ConnTypeMock.USB_01:
-                self._in_rep = InRepUsb01()
-            case ConnTypeMock.BT_31:
-                self._in_rep = InRepBt31()
-            case ConnTypeMock.BT_01:
-                self._in_rep = InRepBt01()
-
-    def write(self, data: bytes):
-        pass
-
-    def read(self, _: int, **kwargs) -> bytes:
-        return self._in_rep.raw_bytes
-
-    def close(self):
-        pass
-
-
-class MockedHidapiDevice(_BaseDeviceMock):
-
-    def set_left_stick_x_byte(self, value: int):
-        self._in_rep.set_axes_0(value)
-
-    def set_left_stick_y_byte(self, value: int):
-        self._in_rep.set_axes_1(value)

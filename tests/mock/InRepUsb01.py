@@ -1,4 +1,4 @@
-from tests.mock.in_rep.InRep import InRep
+from tests.mock.InRep import InRep
 
 
 class InRepUsb01(InRep):

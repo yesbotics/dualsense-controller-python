@@ -7,7 +7,8 @@ from pytest_mock import MockerFixture
 
 from dualsense_controller import DualSenseController
 from tests.common import ControllerInstanceData, ControllerInstanceParams
-from tests.mock.common import DeviceInfoMock, ConnTypeMock, MockedHidapiDevice
+from tests.mock.MockedHidapiMockedHidapiDevice import MockedHidapiMockedHidapiDevice
+from tests.mock.common import DeviceInfoMock, ConnTypeMock
 
 
 @pytest.fixture
@@ -38,9 +39,9 @@ def fixture_mocked_hidapi_device(
         fixture_params_for_mocked_hidapi_device,
         request: SubRequest,
         mocker: MockerFixture
-) -> MockedHidapiDevice:
+) -> MockedHidapiMockedHidapiDevice:
     conn_type: ConnTypeMock = request.param if hasattr(request, 'param') else fixture_params_for_mocked_hidapi_device
-    mocked_hidapi_device: MockedHidapiDevice = MockedHidapiDevice(conn_type=conn_type)
+    mocked_hidapi_device: MockedHidapiMockedHidapiDevice = MockedHidapiMockedHidapiDevice(conn_type=conn_type)
     create_mock: Mock = mocker.patch('dualsense_controller.core.HidControllerDevice.HidControllerDevice._create')
     create_mock.return_value = mocked_hidapi_device
     return mocked_hidapi_device
@@ -56,7 +57,7 @@ def fixture_controller_instance(
         fixture_params_for_controller_instance: ControllerInstanceParams,
         request: SubRequest,
         fixture_enumerate_devices_mock: MagicMock,
-        fixture_mocked_hidapi_device: MockedHidapiDevice
+        fixture_mocked_hidapi_device: MockedHidapiMockedHidapiDevice
 ) -> Generator[ControllerInstanceData, None, None]:
     # prepare
     params: ControllerInstanceParams = (

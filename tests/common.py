@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from dualsense_controller import DualSenseController, Mapping, UpdateLevel
-from tests.mock.common import MockedHidapiDevice
+from tests.mock.MockedHidapiMockedHidapiDevice import MockedHidapiMockedHidapiDevice
 
 
 @dataclass
@@ -13,4 +13,4 @@ class ControllerInstanceParams:
 @dataclass
 class ControllerInstanceData:
     controller: DualSenseController
-    mocked_hidapi_device: MockedHidapiDevice
+    mocked_hidapi_device: MockedHidapiMockedHidapiDevice
