@@ -287,7 +287,7 @@ def test_mapping_bt31(
     assert right_trigger_mapped == pytest.approx(fixture_activated_instance.controller.right_trigger.value, rel=1e-4)
 
 
-@pytest.mark.skip(reason="temp disabled")
+# @pytest.mark.skip(reason="temp disabled")
 @pytest.mark.parametrize(
     'fixture_params_for_mocked_hidapi_device,fixture_params_for_controller_instance'
     ',left_stick_x_raw,left_stick_x_mapped'

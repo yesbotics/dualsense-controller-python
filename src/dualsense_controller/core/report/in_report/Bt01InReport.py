@@ -2,6 +2,7 @@ from dualsense_controller.core.report.in_report.InReport import InReport
 
 
 class Bt01InReport(InReport):
+
     def _update(self) -> None:
         self._axes_0 = self._get_uint8(0)
         self._axes_1 = self._get_uint8(1)
