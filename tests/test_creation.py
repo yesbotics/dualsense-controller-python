@@ -4,7 +4,6 @@ import pytest as pytest
 
 from dualsense_controller import ConnectionType, DualSenseController, InvalidDeviceIndexException
 from tests.common import ControllerInstanceData
-from tests.mock.common import ConnTypeMock
 
 
 # # @pytest.mark.skip(reason="temp disabled")
@@ -52,14 +51,14 @@ def test_device_index(
 @pytest.mark.parametrize(
     'fixture_params_for_mocked_hidapi_device',
     [
-        ConnTypeMock.USB_01,
-        ConnTypeMock.BT_31,
-        ConnTypeMock.BT_01,
+        ConnectionType.USB_01,
+        ConnectionType.BT_31,
+        ConnectionType.BT_01,
     ],
     indirect=['fixture_params_for_mocked_hidapi_device']
 )
 def test_instance(
-        fixture_params_for_mocked_hidapi_device: ConnTypeMock,
+        fixture_params_for_mocked_hidapi_device: ConnectionType,
         fixture_controller_instance: ControllerInstanceData
 ) -> None:
     assert isinstance(fixture_controller_instance.controller, DualSenseController)
@@ -69,14 +68,14 @@ def test_instance(
 @pytest.mark.parametrize(
     'fixture_params_for_mocked_hidapi_device,expected_conn_type',
     [
-        [ConnTypeMock.USB_01, ConnectionType.USB_01],
-        [ConnTypeMock.BT_31, ConnectionType.BT_31],
-        [ConnTypeMock.BT_01, ConnectionType.BT_01],
+        [ConnectionType.USB_01, ConnectionType.USB_01],
+        [ConnectionType.BT_31, ConnectionType.BT_31],
+        [ConnectionType.BT_01, ConnectionType.BT_01],
     ],
     indirect=['fixture_params_for_mocked_hidapi_device']
 )
 def test_instance_conntype(
-        fixture_params_for_mocked_hidapi_device: ConnTypeMock,
+        fixture_params_for_mocked_hidapi_device: ConnectionType,
         fixture_activated_instance: ControllerInstanceData,
         expected_conn_type: ConnectionType,
 ) -> None:

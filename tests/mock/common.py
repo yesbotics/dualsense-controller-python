@@ -14,12 +14,3 @@ class DeviceInfoMock:
     usage_page: int = 1
     usage: int = 5
     interface_number: int = 3
-
-
-class ConnTypeMock(Enum):
-    BT_01 = 0
-    BT_31 = 1
-    USB_01 = 2
-
-
-
