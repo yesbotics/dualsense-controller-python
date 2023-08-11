@@ -39,8 +39,8 @@ class CoreExample:
         self._dualsense_controller.on_battery_low(75, self._on_battery_low)
         self._dualsense_controller.read_states.battery.on_change(lambda batt: print(f'battery: {batt}'))
 
-        self._dualsense_controller.read_states.l2_feedback.on_change(lambda fb: print(f'L2 Feedback: {fb}'))
-        self._dualsense_controller.read_states.r2_feedback.on_change(lambda fb: print(f'R2 Feedback: {fb}'))
+        self._dualsense_controller.read_states.l2_feedback.on_change(lambda fb: print(f'L2 TriggerFeedback: {fb}'))
+        self._dualsense_controller.read_states.r2_feedback.on_change(lambda fb: print(f'R2 TriggerFeedback: {fb}'))
 
         # sticks
         self._dualsense_controller.read_states.left_stick.on_change(self._on_left_stick)

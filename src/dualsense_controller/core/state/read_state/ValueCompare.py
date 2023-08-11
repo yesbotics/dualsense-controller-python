@@ -1,6 +1,6 @@
 from typing import Final
 
-from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Feedback, Gyroscope, JoyStick, \
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, TriggerFeedback, Gyroscope, JoyStick, \
     Orientation, TouchFinger
 from dualsense_controller.core.state.typedef import CompareResult, Number
 
@@ -95,8 +95,8 @@ class ValueCompare:
 
     @staticmethod
     def compare_feedback(
-            before: Feedback,
-            after: Feedback
+            before: TriggerFeedback,
+            after: TriggerFeedback
     ) -> CompareResult:
         if before is None:
             return True, after
