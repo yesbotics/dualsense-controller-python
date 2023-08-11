@@ -34,3 +34,15 @@ class MockedHidapiMockedHidapiDevice(_BaseMockedHidapiDevice):
 
     def set_left_stick_y_raw(self, value: int):
         self._in_rep.set_axes_1(value)
+
+    def set_right_stick_x_raw(self, value: int):
+        self._in_rep.set_axes_2(value)
+
+    def set_right_stick_y_raw(self, value: int):
+        self._in_rep.set_axes_3(value)
+
+    def set_left_trigger_raw(self, value: int):
+        self._in_rep.set_axes_4(value)
+
+    def set_right_trigger_raw(self, value: int):
+        self._in_rep.set_axes_5(value)
