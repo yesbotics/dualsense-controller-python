@@ -5,7 +5,7 @@ from typing import Final
 
 
 @dataclass
-class UpdateBenchmarkResult:
+class Benchmark:
     duration: float
     per_second: int
 
@@ -13,12 +13,12 @@ class UpdateBenchmarkResult:
 _ONE_SECOND_NS: Final[float] = 1e+9
 
 
-class UpdateBenchmark:
+class Benchmarker:
     def __init__(self, maxsize: int = 50):
         self._durations_queue: Final[deque] = deque(maxlen=maxsize)
         self._last_time: int | None = None
 
-    def update(self) -> UpdateBenchmarkResult | None:
+    def update(self) -> Benchmark | None:
         current: int = perf_counter_ns()
         if self._last_time is None:
             self._last_time = current
@@ -32,7 +32,7 @@ class UpdateBenchmark:
             sum_dur += dur
 
         duration_mean: float = sum_dur / len(self._durations_queue)
-        return UpdateBenchmarkResult(
+        return Benchmark(
             duration=duration_mean,
             per_second=int(_ONE_SECOND_NS / duration_mean)
         )

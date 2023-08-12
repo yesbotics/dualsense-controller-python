@@ -2,8 +2,9 @@ from abc import ABC
 from functools import partial
 from typing import Final, Generic
 
-from dualsense_controller.core.UpdateBenchmark import UpdateBenchmarkResult
-from dualsense_controller.core.state.read_state.value_type import Battery, Connection, JoyStick
+from dualsense_controller.core.Benchmarker import Benchmark
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
+    JoyStick, Orientation, TouchFinger
 from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.typedef import Number
@@ -120,10 +121,10 @@ class ConnectionProperty(_Property[Connection]):
             callback(actual_value.connection_type)
 
 
-class BenchmarkProperty(_Property[UpdateBenchmarkResult]):
+class BenchmarkProperty(_Property[Benchmark]):
 
     @property
-    def value(self) -> UpdateBenchmarkResult:
+    def value(self) -> Benchmark:
         return self._get_value()
 
 
@@ -164,3 +165,19 @@ class BatteryProperty(_Property[Battery]):
                      or actual_value.charging != self._get_last_value().charging)
         ):
             callback(actual_value.level_percentage)
+
+
+class TouchFingerProperty(_Property[TouchFinger]):
+    pass
+
+
+class GyroscopeProperty(_Property[Gyroscope]):
+    pass
+
+
+class AccelerometerProperty(_Property[Accelerometer]):
+    pass
+
+
+class OrientationProperty(_Property[Orientation]):
+    pass

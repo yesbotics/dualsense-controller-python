@@ -40,48 +40,41 @@ class CoreExample:
         #
         # self._dualsense_controller.read_states.l2_feedback.on_change(lambda fb: print(f'L2 TriggerFeedback: {fb}'))
         # self._dualsense_controller.read_states.r2_feedback.on_change(lambda fb: print(f'R2 TriggerFeedback: {fb}'))
+        #
+        # self._dualsense_controller.read_states.btn_ps.on_change(self._on_btn_ps)
+        # self._dualsense_controller.read_states.btn_options.on_change(self._on_btn_options)
+        # self._dualsense_controller.read_states.btn_create.on_change(self._on_btn_create)
+        # self._dualsense_controller.read_states.btn_mute.on_change(self._on_btn_mute)
 
-        self._dualsense_controller.read_states.btn_ps.on_change(self._on_btn_ps)
-        self._dualsense_controller.read_states.btn_options.on_change(self._on_btn_options)
-        self._dualsense_controller.read_states.btn_create.on_change(self._on_btn_create)
-        self._dualsense_controller.read_states.btn_mute.on_change(self._on_btn_mute)
-
-        self._dualsense_controller.read_states.btn_l1.on_change(self._on_btn_l1)
-        self._dualsense_controller.read_states.btn_r1.on_change(self._on_btn_r1)
-        self._dualsense_controller.read_states.left_trigger.on_change(self._on_l2)
-        self._dualsense_controller.read_states.right_trigger.on_change(self._on_r2)
-
-        self._dualsense_controller.read_states.btn_cross.on_change(self._on_btn_cross)
-        self._dualsense_controller.read_states.btn_square.on_change(self._on_btn_square)
-        self._dualsense_controller.read_states.btn_triangle.on_change(self._on_btn_triangle)
-        self._dualsense_controller.read_states.btn_circle.on_change(self._on_btn_circle)
-
-        self._dualsense_controller.read_states.btn_left.on_change(self._on_btn_left)
-        self._dualsense_controller.read_states.btn_up.on_change(self._on_btn_up)
-        self._dualsense_controller.read_states.btn_right.on_change(self._on_btn_right)
-        self._dualsense_controller.read_states.btn_down.on_change(self._on_btn_down)
-
-        self._dualsense_controller.read_states.btn_r3.on_change(self._on_btn_r3)
-        self._dualsense_controller.read_states.btn_l3.on_change(self._on_btn_l3)
-
-        # 4 methods to get all state changes
-        self._dualsense_controller.on_any_state_change(self._on_any_state)
-        self._dualsense_controller.read_states.on_any_change(self._on_any_state_3)
-        self._dualsense_controller.on_state_change(self._on_any_state_2)
-        self._dualsense_controller.read_states.on_change(self._on_any_state_4)
-
-        # 3 methods to get state changes of specific property
-        self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
-        self._dualsense_controller.read_states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
-        self._dualsense_controller.read_states.btn_mute.on_change(self._on_btn_mute_3)
-
-        # blubb
-        self._dualsense_controller.read_states.btn_options.on_change(self._on_btn_options)
-
-        # touch
-        self._dualsense_controller.read_states.touch_finger_1.on_change(self._on_touch_finger_1)
-        self._dualsense_controller.read_states.touch_finger_2.on_change(self._on_touch_finger_2)
-
+        # # 3 methods to get state changes of specific property
+        # self._dualsense_controller.on_state_change(ReadStateName.BTN_MUTE, self._on_btn_mute_1)
+        # self._dualsense_controller.read_states.on_change(ReadStateName.BTN_MUTE, self._on_btn_mute_2)
+        # self._dualsense_controller.read_states.btn_mute.on_change(self._on_btn_mute_3)
+        #
+        # self._dualsense_controller.read_states.btn_cross.on_change(self._on_btn_cross)
+        # self._dualsense_controller.read_states.btn_square.on_change(self._on_btn_square)
+        # self._dualsense_controller.read_states.btn_triangle.on_change(self._on_btn_triangle)
+        # self._dualsense_controller.read_states.btn_circle.on_change(self._on_btn_circle)
+        #
+        # self._dualsense_controller.read_states.btn_left.on_change(self._on_btn_left)
+        # self._dualsense_controller.read_states.btn_up.on_change(self._on_btn_up)
+        # self._dualsense_controller.read_states.btn_right.on_change(self._on_btn_right)
+        # self._dualsense_controller.read_states.btn_down.on_change(self._on_btn_down)
+        #
+        # self._dualsense_controller.read_states.btn_l1.on_change(self._on_btn_l1)
+        # self._dualsense_controller.read_states.btn_r1.on_change(self._on_btn_r1)
+        # self._dualsense_controller.read_states.btn_l3.on_change(self._on_btn_l3)
+        # self._dualsense_controller.read_states.btn_r3.on_change(self._on_btn_r3)
+        #
+        # self._dualsense_controller.read_states.left_trigger.on_change(self._on_l2)
+        # self._dualsense_controller.read_states.right_trigger.on_change(self._on_r2)
+        #
+        # # 4 methods to get all state changes
+        # self._dualsense_controller.on_any_state_change(self._on_any_state)
+        # self._dualsense_controller.read_states.on_any_change(self._on_any_state_3)
+        # self._dualsense_controller.on_state_change(self._on_any_state_2)
+        # self._dualsense_controller.read_states.on_change(self._on_any_state_4)
+        #
         # # sticks
         # self._dualsense_controller.read_states.left_stick_x.on_change(self._on_left_stick_x)
         # self._dualsense_controller.read_states.left_stick_y.on_change(self._on_left_stick_y)
@@ -90,6 +83,10 @@ class CoreExample:
         # self._dualsense_controller.read_states.right_stick_x.on_change(self._on_right_stick_x)
         # self._dualsense_controller.read_states.right_stick_y.on_change(self._on_right_stick_y)
         # self._dualsense_controller.read_states.right_stick.on_change(self._on_right_stick)
+
+        # touch
+        self._dualsense_controller.read_states.touch_finger_1.on_change(self._on_touch_finger_1)
+        self._dualsense_controller.read_states.touch_finger_2.on_change(self._on_touch_finger_2)
 
         # other complex
         self._dualsense_controller.read_states.gyroscope.on_change(self._on_gyroscope)

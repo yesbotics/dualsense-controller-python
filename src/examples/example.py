@@ -1,6 +1,13 @@
 import time
 
-from dualsense_controller import DeviceInfo, DualSenseController, JoyStick, Mapping, Number, UpdateLevel
+from dualsense_controller.api.DualSenseController import DualSenseController, Mapping
+from dualsense_controller.api.enum import UpdateLevel
+from dualsense_controller.core.Benchmarker import Benchmark
+from dualsense_controller.core.enum import ConnectionType
+from dualsense_controller.core.hidapi import DeviceInfo
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
+    JoyStick, Orientation, TouchFinger
+from dualsense_controller.core.state.typedef import Number
 
 
 class Example:
@@ -30,45 +37,56 @@ class Example:
             # update_level=UpdateLevel.HAENGBLIEM,
             update_level=UpdateLevel.DEFAULT,
         )
-        self.controller.exceptions.on_change(
-            self.on_exception
-        )
-        # self.controller.benchmark.on_change(
-        #     lambda res: print(f'on_update_benchmark: {res}')
-        # )
-        self.controller.connection.on_change(
-            lambda res: print(f'on connection change: {res}')
-        )
-        self.controller.connection.on_connected(
-            lambda conn_type: print(f'on connection connect: {conn_type}')
-        )
-        self.controller.connection.on_disconnected(
-            lambda conn_type: print(f'on connection disconnect: {conn_type}')
-        )
-        self.controller.battery.on_change(
-            lambda batt: print(f'on battery change: {batt}')
-        )
-        self.controller.battery.on_lower_than(
-            100, lambda level: print(f'on battery low: {level}')
-        )
-        self.controller.battery.on_charging(
-            lambda level: print(f'on battery charging: {level}')
-        )
-        self.controller.battery.on_discharging(
-            lambda level: print(f'on battery discharging: {level}')
-        )
 
+        # MAIN
+        self.controller.exceptions.on_change(self.on_exception)
+        self.controller.benchmark.on_change(self.on_benchmark)
+
+        self.controller.connection.on_change(self.on_connection_change)
+        self.controller.connection.on_connected(self.on_connection_connected)
+        self.controller.connection.on_disconnected(self.on_connection_disconnected)
+
+        self.controller.battery.on_change(self.on_battery_change)
+        self.controller.battery.on_lower_than(75, self.on_battery_lower_than)
+        self.controller.battery.on_charging(self.on_battery_charging)
+        self.controller.battery.on_discharging(self.on_battery_discharging)
+
+        # BTN MISC
+        self.controller.btn_ps.on_down(self.on_btn_ps_down)
+        self.controller.btn_options.on_down(self.on_btn_options_down)
+        self.controller.btn_create.on_down(self.on_btn_create_down)
+        self.controller.btn_mute.on_down(self.on_btn_mute_down)
+        self.controller.btn_touchpad.on_down(self.on_btn_touchpad_down)
+
+        # BTN SYMBOL
+        self.controller.btn_triangle.on_up(self.on_btn_triangle_up)
+        self.controller.btn_triangle.on_down(self.on_btn_triangle_down)
+        self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_1)
+        self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_2)
+        self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_3)
         self.controller.btn_cross.on_down(self.on_btn_cross_down)
+        self.controller.btn_circle.on_down(self.on_btn_circle_down)
+        self.controller.btn_square.on_down(self.on_btn_square_down)
 
-        # self.controller.btn_triangle.on_up(self.on_btn_triangle_up)
-        # self.controller.btn_triangle.on_down(self.on_btn_triangle_down)
-        # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_1)
-        # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_2)
-        # self.controller.btn_triangle.on_change(self.on_btn_triangle_changed_3)
+        # BTN DPAD
+        self.controller.btn_left.on_down(self.on_btn_left_down)
+        self.controller.btn_up.on_down(self.on_btn_up_down)
+        self.controller.btn_right.on_down(self.on_btn_right_down)
+        self.controller.btn_down.on_down(self.on_btn_down_down)
 
+        # BTN L and R
+        self.controller.btn_l1.on_down(self.on_btn_l1_down)
+        self.controller.btn_r1.on_down(self.on_btn_r1_down)
+        self.controller.btn_l2.on_down(self.on_btn_l2_down)
+        self.controller.btn_r2.on_down(self.on_btn_r3_down)
+        self.controller.btn_r3.on_down(self.on_btn_r3_down)
+        self.controller.btn_l3.on_down(self.on_btn_l3_down)
+
+        # TRIGGERS
         self.controller.left_trigger.on_change(self.on_left_trigger_changed)
         self.controller.right_trigger.on_change(self.on_right_trigger_changed)
 
+        # STICKS
         self.controller.left_stick_x.on_change(self.on_left_stick_x_changed)
         self.controller.left_stick_y.on_change(self.on_left_stick_y_changed)
         self.controller.left_stick.on_change(self.on_left_stick_changed)
@@ -76,15 +94,182 @@ class Example:
         self.controller.right_stick_y.on_change(self.on_right_stick_y_changed)
         self.controller.right_stick.on_change(self.on_right_stick_changed)
 
+        # TOUCH
+        self.controller.touch_finger_1.on_change(self.on_touch_finger_1_change)
+        self.controller.touch_finger_2.on_change(self.on_touch_finger_2_change)
+
+        # IMU
+        self.controller.gyroscope.on_change(self.on_gyroscope_change)
+        self.controller.accelerometer.on_change(self.on_accelerometer_change)
+        self.controller.orientation.on_change(self.on_orientation_change)
+
     def run(self) -> None:
         self.controller.activate()
         while self.is_running:
             time.sleep(1)
         self.controller.deactivate()
 
+    # ############################################# MAIN ##################################################
     def on_exception(self, exception: Exception) -> None:
         print(f'Exception occured:', exception)
         self.is_running = False
+
+    def on_benchmark(self, benchmark_result: Benchmark) -> None:
+        # print(f'Benchmark: {benchmark_result}')
+        pass
+
+    def on_connection_change(self, connection: Connection) -> None:
+        print(f'on connection change: {connection}')
+
+    def on_connection_connected(self, connection_type: ConnectionType) -> None:
+        print(f'on connection connect: {connection_type}')
+
+    def on_connection_disconnected(self, connection_type: ConnectionType) -> None:
+        print(f'on connection disconnect: {connection_type}')
+
+    def on_battery_change(self, battery: Battery) -> None:
+        print(f'on battery change: {battery}')
+
+    def on_battery_lower_than(self, battery_level) -> None:
+        print(f'on battery low: {battery_level}')
+
+    def on_battery_charging(self, battery_level) -> None:
+        print(f'on battery charging: {battery_level}')
+
+    def on_battery_discharging(self, battery_level) -> None:
+        print(f'on battery discharging: {battery_level}')
+
+    # ############################################# BTN MISC ##################################################
+    def on_btn_ps_down(self) -> None:
+        print(f'PS button down -> stop')
+        self.is_running = False
+
+    def on_btn_options_down(self) -> None:
+        print(f"on_btn_options_down -> player led off")
+        # self.controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OFF)
+        # self.controller.set_state(WriteStateName.MICROPHONE_LED, state)
+
+    # Btn Create -> Lightbar off + Micro Mute
+    def on_btn_create_down(self) -> None:
+        print(f"on_btn_create_down -> lightbar false")
+        # self.controller.set_state(WriteStateName.LIGHTBAR, state)
+        # self.controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
+
+    def on_btn_mute_down(self) -> None:
+        print(f"mute")
+        print(f'Mute Button pressed')
+        print("batt lvl:", self.controller.battery.value.level_percentage)
+        print("batt is full:", self.controller.battery.value.full)
+        print("batt is charging", self.controller.battery.value.charging)
+        # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
+        # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
+
+    def on_btn_touchpad_down(self) -> None:
+        print(f"on_btn_touchpad_down")
+
+    # ########################################### BTN DPAD -> LIGHTBAR COLOR ####################################
+
+    def on_btn_left_down(self) -> None:
+        print(f"btn_left_down -> lightbar red")
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
+
+    def on_btn_up_down(self) -> None:
+        print(f"btn_up_down -> lightbar green")
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
+
+    def on_btn_right_down(self) -> None:
+        print(f"btn_right_down -> lightbar blue")
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
+
+    def on_btn_down_down(self) -> None:
+        print(f"btn_down_down -> lightbar white")
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
+
+    # ########################################### BTN SYMBOL -> PLAYED LED ####################################
+
+    def on_btn_triangle_up(self) -> None:
+        print(f'Triangle button -> up')
+
+    def on_btn_triangle_changed_1(self, pressed: bool) -> None:
+        print(f'Triangle button: pressed: {pressed}')
+
+    def on_btn_triangle_changed_2(self, pressed: bool, timestamp: int) -> None:
+        print(f'Triangle button: pressed: {pressed}, timestamp: {timestamp}')
+
+    def on_btn_triangle_changed_3(self, last_pressed: bool, pressed: bool, timestamp: int) -> None:
+        print(f'Triangle button: last_pressed: {last_pressed}, pressed: {pressed}, timestamp: {timestamp}')
+
+    def on_btn_triangle_down(self) -> None:
+        print(f'Triangle button down -> player led inner')
+        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.INNER)
+
+    def on_btn_cross_down(self) -> None:
+        print(f'Cross button down -> player led all')
+        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.ALL)
+
+    def on_btn_circle_down(self) -> None:
+        print(f'btn circle down -> player led outer')
+        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OUTER)
+
+    def on_btn_square_down(self) -> None:
+        print(f'btn square down -> player led center + outer')
+        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.CENTER | OutPlayerLed.OUTER)
+
+    # ################################ BTN L and R -> brightness, nothing and led pulse modes ####################
+    def on_btn_l1_down(self) -> None:
+        print(f'on_btn_l1_down -> ')
+        # print(f'L1 Button pressed: {state} -> brightness ')
+        # self._dualsense_controller.set_state(
+        #     WriteStateName.BRIGHTNESS,
+        #     OutBrightness.LOW if state else OutBrightness.HIGH
+        # )
+
+    def on_btn_r1_down(self) -> None:
+        print(f'on_btn_r1_down -> ')
+        # print(f'R1 Button pressed: {state}')
+        # self._dualsense_controller.set_state(
+        #     WriteStateName.BRIGHTNESS,
+        #     OutBrightness.MEDIUM if state else OutBrightness.HIGH
+        # )
+
+    def on_btn_l2_down(self) -> None:
+        print(f'on_btn_l2_down -> ')
+
+    def on_btn_r2_down(self) -> None:
+        print(f'on_btn_r3_down -> ')
+
+    def on_btn_l3_down(self) -> None:
+        print(f'on_btn_l3_down -> ')
+        # if state is False:
+        #     print(f"L3 -> pulse FADE_BLUE")
+        #     self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
+
+    def on_btn_r3_down(self) -> None:
+        print(f'on_btn_r3_down -> ')
+        # if state is False:
+        #     print(f"R3 -> pulse FADE_OUT")
+        #     self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT)
+
+    # ########################################### TRIGGERS -> RUMBLE ##############################################
+    def on_left_trigger_changed(self, value: Number) -> None:
+        print(f'L2 trigger: {value}')
+        self.controller.left_rumble.value = value
+        print(f'Left Rumble: {self.controller.left_rumble.value}')
+
+    def on_right_trigger_changed(self, value: Number) -> None:
+        print(f'L2 trigger: {value}')
+        self.controller.right_rumble.value = value
+        print(f'Right Rumble: {self.controller.right_rumble.value}')
+
+    # ############################################# STICKS ##################################################
 
     def on_left_stick_x_changed(self, left_stick_x: Number):
         print(f'on_left_stick_x_changed: {left_stick_x}')
@@ -104,35 +289,42 @@ class Example:
     def on_right_stick_changed(self, right_stick: JoyStick):
         print(f'on_right_stick_changed: {right_stick}')
 
-    def on_btn_triangle_up(self) -> None:
-        print(f'Triangle button -> up')
+    # ############################################# TOUCH ##################################################
 
-    def on_btn_triangle_down(self) -> None:
-        print(f'Triangle button -> down')
+    def on_touch_finger_1_change(self, touch_finger_1: TouchFinger):
+        print(f'on_touch_finger_1_change: {touch_finger_1} -> rgb-color')
+        x_max = 1920
+        y_max = 1080
+        x = min(x_max, max(0, touch_finger_1.x))
+        y = min(y_max, max(0, touch_finger_1.y))
+        color = int(0xffffff * x / x_max)
+        red = (color >> 16) & 0xff
+        green = (color >> 8) & 0xff
+        blue = color & 0xff
+        # print(f"Touch {x}-{y} -> color {hex(color)} {red}-{green}-{blue}")
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, red)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, green)
+        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, blue)
 
-    def on_btn_triangle_changed_1(self, pressed: bool) -> None:
-        print(f'Triangle button -> pressed: {pressed}')
+    def on_touch_finger_2_change(self, touch_finger_1: TouchFinger):
+        print(f'on_touch_finger_2_change -> {touch_finger_1}')
 
-    def on_btn_triangle_changed_2(self, pressed: bool, timestamp: int) -> None:
-        print(f'Triangle button -> pressed: {pressed}, timestamp: {timestamp}')
+    # ############################################# IMU ##################################################
 
-    def on_btn_triangle_changed_3(self, last_pressed: bool, pressed: bool, timestamp: int) -> None:
-        print(f'Triangle button -> last_pressed: {last_pressed}, pressed: {pressed}, timestamp: {timestamp}')
+    def on_gyroscope_change(self, gyroscope: Gyroscope):
+        # print(f'on_gyroscope_change: {gyroscope} -> ')
+        pass
 
-    def on_btn_cross_down(self) -> None:
-        print(f'Cross button down')
-        print(f'Get Square button. It is {self.controller.btn_square.pressed}')
+    def on_accelerometer_change(self, accelerometer: Accelerometer):
+        # print(f'on_accelerometer_change: {accelerometer} -> ')
+        pass
 
-    def on_left_trigger_changed(self, value: Number) -> None:
-        print(f'L2 trigger: {value}')
-        self.controller.left_rumble.value = value
-        print(f'Left Rumble: {self.controller.left_rumble.value}')
+    def on_orientation_change(self, orientation: Orientation):
+        # print(f'on_orientation_change: {orientation} -> ')
+        pass
 
-    def on_right_trigger_changed(self, value: Number) -> None:
-        print(f'L2 trigger: {value}')
-        self.controller.right_rumble.value = value
-        print(f'Right Rumble: {self.controller.right_rumble.value}')
 
+# ############################################# RUN EXAMPLE ##################################################
 
 def main():
     Example().run()

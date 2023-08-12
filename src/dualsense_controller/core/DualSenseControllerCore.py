@@ -1,9 +1,7 @@
-from functools import partial
-from queue import Queue
 from typing import Final
 
+from dualsense_controller.core.Benchmarker import Benchmark, Benchmarker
 from dualsense_controller.core.HidControllerDevice import HidControllerDevice
-from dualsense_controller.core.UpdateBenchmark import UpdateBenchmark, UpdateBenchmarkResult
 from dualsense_controller.core.enum import ConnectionType, EventType
 from dualsense_controller.core.hidapi.hidapi import DeviceInfo
 from dualsense_controller.core.report.in_report.InReport import InReport
@@ -12,11 +10,11 @@ from dualsense_controller.core.state.mapping.StateValueMapper import StateValueM
 from dualsense_controller.core.state.mapping.enum import StateValueMapping
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates
 from dualsense_controller.core.state.read_state.enum import ReadStateName
-from dualsense_controller.core.state.read_state.value_type import Battery, Connection
+from dualsense_controller.core.state.read_state.value_type import Connection
 from dualsense_controller.core.state.typedef import Number, StateChangeCallback
 from dualsense_controller.core.state.write_state.WriteStates import WriteStates
 from dualsense_controller.core.state.write_state.enum import WriteStateName
-from dualsense_controller.core.typedef import BatteryLowCallback, ExceptionCallback, EmptyCallback
+from dualsense_controller.core.typedef import EmptyCallback
 from dualsense_controller.core.util import format_exception
 
 
@@ -51,7 +49,7 @@ class DualSenseControllerCore:
         return self._connection_state
 
     @property
-    def update_benchmark_state(self) -> State[UpdateBenchmarkResult]:
+    def update_benchmark_state(self) -> State[Benchmark]:
         return self._update_benchmark_state
 
     @property
@@ -85,7 +83,7 @@ class DualSenseControllerCore:
             name=EventType.CONNECTION_CHANGE, ignore_none=False
         )
 
-        self._update_benchmark_state: Final[State[UpdateBenchmarkResult]] = State(
+        self._update_benchmark_state: Final[State[Benchmark]] = State(
             name=EventType.UPDATE_BENCHMARK, ignore_none=True
         )
 
@@ -94,7 +92,7 @@ class DualSenseControllerCore:
         )
 
         # MAIN
-        self._update_benchmark: Final[UpdateBenchmark] = UpdateBenchmark()
+        self._update_benchmark: Final[Benchmarker] = Benchmarker()
 
         state_value_mapper: StateValueMapper = StateValueMapper(
             mapping=state_value_mapping,
