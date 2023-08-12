@@ -6,7 +6,7 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     ConnectionProperty, \
     ExceptionProperty, \
     GyroscopeProperty, JoyStickProperty, \
-    OrientationProperty, PlayerLedsProperty, RumbleProperty, \
+    MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
     TouchFingerProperty, TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
 from dualsense_controller.core.enum import ConnectionType
@@ -27,11 +27,11 @@ class DualSenseController:
 
     @property
     def connection_type(self) -> ConnectionType:
-        return self._dsc.connection_type
+        return self._core.connection_type
 
     @property
     def is_active(self) -> bool:
-        return self._dsc.is_initialized
+        return self._core.is_initialized
 
     # ############################################# GETTERS READ PROPS ##############################################
 
@@ -202,6 +202,10 @@ class DualSenseController:
     def player_leds(self) -> PlayerLedsProperty:
         return self._properties.player_leds
 
+    @property
+    def microphone(self) -> MicrophoneProperty:
+        return self._properties.microphone
+
     # ################################################# MAIN #################################################
 
     def __init__(
@@ -217,7 +221,7 @@ class DualSenseController:
             mapping: Mapping = Mapping.NORMALIZED,
             update_level: UpdateLevel = UpdateLevel.DEFAULT,
     ):
-        self._dsc: DualSenseControllerCore = DualSenseControllerCore(
+        self._core: DualSenseControllerCore = DualSenseControllerCore(
             device_index_or_device_info=device_index_or_device_info,
             left_joystick_deadzone=left_joystick_deadzone,
             right_joystick_deadzone=right_joystick_deadzone,
@@ -232,18 +236,19 @@ class DualSenseController:
         )
 
         self._properties: Properties = Properties(
-            self._dsc.connection_state,
-            self._dsc.update_benchmark_state,
-            self._dsc.exception_state,
-            self._dsc.read_states,
-            self._dsc.write_states,
+            self._core.connection_state,
+            self._core.update_benchmark_state,
+            self._core.exception_state,
+            self._core.read_states,
+            self._core.write_states,
         )
 
     def wait_until_updated(self) -> None:
-        return self._dsc.wait_until_updated()
+        return self._core.wait_until_updated()
 
     def activate(self) -> None:
-        self._dsc.init()
+        self._core.init()
+        self._properties.microphone.mute()
 
     def deactivate(self) -> None:
-        self._dsc.deinit()
+        self._core.deinit()

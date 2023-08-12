@@ -4,13 +4,14 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     ConnectionProperty, \
     ExceptionProperty, \
     GyroscopeProperty, JoyStickProperty, \
-    OrientationProperty, PlayerLedsProperty, RumbleProperty, \
+    MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
     TouchFingerProperty, TriggerProperty
 from dualsense_controller.core.Benchmarker import Benchmark
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates
 from dualsense_controller.core.state.read_state.value_type import Connection
 from dualsense_controller.core.state.write_state.WriteStates import WriteStates
+from dualsense_controller.core.state.write_state.enum import WriteStateName
 
 
 class Properties:
@@ -79,3 +80,7 @@ class Properties:
         self.right_rumble: Final[RumbleProperty] = RumbleProperty(write_states.right_motor)
         self.player_leds: Final[PlayerLedsProperty] = PlayerLedsProperty(write_states.player_leds)
 
+        self.microphone: Final[MicrophoneProperty] = MicrophoneProperty(State(
+            name=WriteStateName.MICROPHONE,
+            value=(write_states.microphone_mute, write_states.microphone_led)
+        ))

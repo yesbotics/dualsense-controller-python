@@ -147,13 +147,11 @@ class Example:
     def on_btn_options_down(self) -> None:
         print(f"on_btn_options_down -> player led off")
         self.controller.player_leds.set_off()
-        # self.controller.set_state(WriteStateName.MICROPHONE_LED, state)
 
     # Btn Create -> Lightbar off + Micro Mute
     def on_btn_create_down(self) -> None:
         print(f"on_btn_create_down -> lightbar false")
         # self.controller.set_state(WriteStateName.LIGHTBAR, state)
-        # self.controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
 
     def on_btn_mute_down(self) -> None:
         print(f"mute")
@@ -161,8 +159,8 @@ class Example:
         print("batt lvl:", self.controller.battery.value.level_percentage)
         print("batt is full:", self.controller.battery.value.full)
         print("batt is charging", self.controller.battery.value.charging)
-        # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
-        # self._dualsense_controller.set_state(WriteStateName.MICROPHONE_MUTE, state)
+        self.controller.microphone.toggle_mute()
+        print('self.controller.microphone, muted:', self.controller.microphone.is_muted)
 
     def on_btn_touchpad_down(self) -> None:
         print(f"on_btn_touchpad_down")

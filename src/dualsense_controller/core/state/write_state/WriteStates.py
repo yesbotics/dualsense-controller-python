@@ -2,8 +2,7 @@ from typing import Final
 
 from dualsense_controller.core.report.out_report.OutReport import OutReport
 from dualsense_controller.core.report.out_report.enum import OutBrightness, OutFlagsLights, OutFlagsPhysics, \
-    OutLedOptions, \
-    PlayerLeds, OutPulseOptions
+    OutLedOptions, OutPulseOptions, PlayerLeds
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
 from dualsense_controller.core.state.mapping.typedef import MapFn
@@ -20,7 +19,7 @@ class WriteStates:
         self._states_dict: Final[dict[WriteStateName, State]] = {}
         self._state_value_mapper: Final[StateValueMapper] = state_value_mapper
 
-        self._changed = False
+        self._has_changed = False
 
         self.left_motor: Final[State[int]] = self._create_and_register_state(
             WriteStateName.MOTOR_LEFT,
@@ -60,21 +59,25 @@ class WriteStates:
         self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM7, value=0x00)
 
         self._create_and_register_state(WriteStateName.LIGHTBAR, value=True)
-        self._create_and_register_state(WriteStateName.MICROPHONE_LED, value=False, callback=self._on_change_mute_led)
-        self._create_and_register_state(WriteStateName.MICROPHONE_MUTE, value=True)
         self._create_and_register_state(WriteStateName.LED_OPTIONS, value=OutLedOptions.ALL)
         self._create_and_register_state(WriteStateName.PULSE_OPTIONS, value=OutPulseOptions.FADE_OUT)
         self._create_and_register_state(WriteStateName.BRIGHTNESS, value=OutBrightness.HIGH)
-        self._create_and_register_state(WriteStateName.PLAYER_LEDS, value=0x00)
 
         self.player_leds: Final[State[PlayerLeds]] = self._create_and_register_state(
             WriteStateName.PLAYER_LEDS,
             value=PlayerLeds.OFF,
         )
+        self.microphone_led: Final[State[bool]] = self._create_and_register_state(
+            WriteStateName.MICROPHONE_LED,
+            callback=self._on_change_mute_led
+        )
+        self.microphone_mute: Final[State[bool]] = self._create_and_register_state(
+            WriteStateName.MICROPHONE_MUTE,
+        )
 
     @property
-    def changed(self) -> bool:
-        return self._changed
+    def has_changed(self) -> bool:
+        return self._has_changed
 
     def set_value(self, name: WriteStateName, value: StateValue) -> None:
         state: State[StateValue] = self._get_state_by_name(name)
@@ -88,7 +91,7 @@ class WriteStates:
         self._get_state_by_name(WriteStateName.FLAGS_LIGHTS).set_value_without_triggering_change(
             OutFlagsLights.ALL_BUT_MUTE_LED
         )
-        self._changed = False
+        self._has_changed = False
 
     def update_out_report(self, out_report: OutReport):
         out_report.flags_physics = self._get_state_by_name(WriteStateName.FLAGS_PHYSICS).value_raw
@@ -142,15 +145,16 @@ class WriteStates:
             value=value,
             mapped_to_raw_fn=mapped_to_raw_fn,
             raw_to_mapped_fn=raw_to_mapped_fn,
+            ignore_none=False
         )
         self._states_dict[name] = state
         state.on_change(callback)
         return state
 
     def _on_change(self, _, __):
-        self._changed = True
+        self._has_changed = True
 
     def _on_change_mute_led(self):
         # Remove mic control flag to allow setting brightness
         self.set_value_without_triggering_change(WriteStateName.FLAGS_LIGHTS, OutFlagsLights.ALL)
-        self._changed = True
+        self._has_changed = True

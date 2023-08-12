@@ -1,6 +1,6 @@
 from abc import ABC
 from functools import partial
-from typing import Final, Generic
+from typing import Any, Final, Generic
 
 from dualsense_controller.core.Benchmarker import Benchmark
 from dualsense_controller.core.report.out_report.enum import PlayerLeds
@@ -12,6 +12,7 @@ from dualsense_controller.core.state.typedef import Number
 
 
 # BASE
+
 
 class _Property(Generic[PropertyType], ABC):
 
@@ -202,3 +203,41 @@ class PlayerLedsProperty(_Property[PlayerLeds]):
 
     def set_center_and_outer(self) -> None:
         self._set_value(PlayerLeds.CENTER | PlayerLeds.OUTER)
+
+
+_MicPropValue = tuple[State[bool], State[bool]]
+
+
+class MicrophoneProperty(_Property[_MicPropValue]):
+
+    # 0 = mute
+    # 1 = led
+
+    def __init__(self, state: State[_MicPropValue]):
+        super().__init__(state)
+        self._invert_led: bool = True
+        self.mute()
+
+    def toggle_mute(self) -> None:
+        if self.is_muted:
+            self.unmute()
+        else:
+            self.mute()
+
+    def set_led_off_when_muted(self, val: bool) -> None:
+        self._invert_led = val
+        self._get_value()[1].value = (
+            self._get_value()[0].value if not self._invert_led else not self._get_value()[0].value
+        )
+
+    def mute(self) -> None:
+        self._get_value()[0].value = True
+        self._get_value()[1].value = True if not self._invert_led else False
+
+    def unmute(self) -> None:
+        self._get_value()[0].value = False
+        self._get_value()[1].value = False if not self._invert_led else True
+
+    @property
+    def is_muted(self) -> bool:
+        return self._get_value()[0].value

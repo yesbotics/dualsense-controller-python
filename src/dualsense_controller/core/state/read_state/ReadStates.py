@@ -16,12 +16,9 @@ from dualsense_controller.core.state.read_state.ReadState import ReadState
 from dualsense_controller.core.state.read_state.ValueCalc import ValueCalc
 from dualsense_controller.core.state.read_state.ValueCompare import ValueCompare
 from dualsense_controller.core.state.read_state.enum import ReadStateName
-from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, TriggerFeedback, Gyroscope, \
-    JoyStick, \
-    Orientation, \
-    TouchFinger
-from dualsense_controller.core.state.typedef import CompareFn, Number, StateChangeCallback, StateValueFn, \
-    StateValue
+from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Gyroscope, JoyStick, \
+    Orientation, TouchFinger, TriggerFeedback
+from dualsense_controller.core.state.typedef import CompareFn, Number, StateChangeCallback, StateValue, StateValueFn
 from dualsense_controller.core.util import check_value_restrictions
 
 
