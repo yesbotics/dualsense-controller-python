@@ -22,10 +22,12 @@ from dualsense_controller.core.util import format_exception
 
 class DualSenseControllerCore:
 
+    # ######################################### STATIC  ##########################################v
     @staticmethod
     def enumerate_devices() -> list[DeviceInfo]:
         return HidControllerDevice.enumerate_devices()
 
+    # ######################################### BASE  ##########################################v
     @property
     def is_initialized(self) -> bool:
         return self._hid_controller_device.is_opened
@@ -42,6 +44,21 @@ class DualSenseControllerCore:
     def connection_type(self) -> ConnectionType:
         return self._hid_controller_device.connection_type
 
+    # ######################################### SPECIAL STATES  ##########################################v
+
+    @property
+    def connection_state(self) -> State[Connection]:
+        return self._connection_state
+
+    @property
+    def update_benchmark_state(self) -> State[UpdateBenchmarkResult]:
+        return self._update_benchmark_state
+
+    @property
+    def exception_state(self) -> State[Exception]:
+        return self._exception_state
+
+    # ######################################### MAIN  ##########################################v
     def __init__(
             self,
             # ##### BASE  #####
@@ -60,15 +77,23 @@ class DualSenseControllerCore:
             can_update_itself: bool = True,
     ):
 
-        # Hardware
+        # HARDWARE
         self._hid_controller_device: HidControllerDevice = HidControllerDevice(device_index_or_device_info)
 
-        self._connection_state: Final[State[Connection]] = State(name=EventType.CONNECTION_CHANGE, ignore_none=False)
+        # SPECIAL STATES
+        self._connection_state: Final[State[Connection]] = State(
+            name=EventType.CONNECTION_CHANGE, ignore_none=False
+        )
 
         self._update_benchmark_state: Final[State[UpdateBenchmarkResult]] = State(
-            name=EventType.UPDATE_BENCHMARK,
-            ignore_none=True
+            name=EventType.UPDATE_BENCHMARK, ignore_none=True
         )
+
+        self._exception_state: Final[State[Exception]] = State(
+            name=EventType.EXCEPTION, ignore_none=False
+        )
+
+        # MAIN
         self._update_benchmark: Final[UpdateBenchmark] = UpdateBenchmark()
 
         state_value_mapper: StateValueMapper = StateValueMapper(
@@ -113,20 +138,11 @@ class DualSenseControllerCore:
         while wait:
             pass
 
-    def on_battery_low(self, level_percentage: float, callback: BatteryLowCallback):
-        self.read_states.battery.on_change(partial(self._check_battery, callback, level_percentage))
-
-    def on_update_benchmark(self, callback: StateChangeCallback):
-        self._update_benchmark_state.on_change(callback)
-
     def on_connection_change(self, callback: StateChangeCallback):
         self._connection_state.on_change(callback)
 
     def once_connection_change(self, callback: StateChangeCallback):
         self._connection_state.once_change(callback)
-
-    def on_exception(self, callback: ExceptionCallback):
-        self._hid_controller_device.on_exception(callback)
 
     def on_state_change(self, state_name: ReadStateName | StateChangeCallback, callback: StateChangeCallback = None):
         self._read_states.on_change(state_name, callback)
@@ -153,10 +169,6 @@ class DualSenseControllerCore:
         self._hid_controller_device.close()
         self._connection_state.value = Connection(False, self._hid_controller_device.connection_type)
 
-    def _check_battery(self, callback: BatteryLowCallback, level_percentage: float, battery: Battery) -> None:
-        if battery.level_percentage <= level_percentage:
-            callback(battery.level_percentage)
-
     def _on_in_report(self, in_report: InReport) -> None:
 
         self._read_states.update(in_report, self._hid_controller_device.connection_type)
@@ -170,4 +182,5 @@ class DualSenseControllerCore:
             self._update_benchmark_state.value = self._update_benchmark.update()
 
     def _on_thread_exception(self, exception: Exception) -> None:
+        self._exception_state.value = exception
         print('An Exception in the loop thread occured:', format_exception(exception))

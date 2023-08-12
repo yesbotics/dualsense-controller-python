@@ -1,17 +1,35 @@
 from typing import Final
 
-from dualsense_controller.api.property import ButtonProperty, JoyStickProperty, RumbleProperty, TriggerProperty
+from dualsense_controller.api.property import BatteryProperty, BenchmarkProperty, ButtonProperty, ConnectionProperty, \
+    ExceptionProperty, \
+    JoyStickProperty, \
+    RumbleProperty, \
+    TriggerProperty
+from dualsense_controller.core.UpdateBenchmark import UpdateBenchmarkResult
+from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates
+from dualsense_controller.core.state.read_state.value_type import Connection
 from dualsense_controller.core.state.write_state.WriteStates import WriteStates
 
 
 class Properties:
     def __init__(
             self,
+            connection_state: State[Connection],
+            update_benchmark_state: State[UpdateBenchmarkResult],
+            exception_state: State[Exception],
             read_states: ReadStates,
             write_states: WriteStates,
     ):
+        # SPECIAL
+        self.connection: Final[ConnectionProperty] = ConnectionProperty(connection_state)
+        self.benchmark: Final[BenchmarkProperty] = BenchmarkProperty(update_benchmark_state)
+        self.exceptions: Final[ExceptionProperty] = ExceptionProperty(exception_state)
+
         # READ
+
+        self.battery: Final[BatteryProperty] = BatteryProperty(read_states.battery)
+
         self.btn_cross: Final[ButtonProperty] = ButtonProperty(read_states.btn_cross)
         self.btn_square: Final[ButtonProperty] = ButtonProperty(read_states.btn_square)
         self.btn_triangle: Final[ButtonProperty] = ButtonProperty(read_states.btn_triangle)

@@ -1,25 +1,40 @@
 from __future__ import annotations
 
-from typing import Callable
+from typing import Final
 
 from dualsense_controller.api.Properties import Properties
 from dualsense_controller.api.enum import UpdateLevel
-from dualsense_controller.api.property import ButtonProperty, JoyStickProperty, RumbleProperty, TriggerProperty
+from dualsense_controller.api.property import BatteryProperty, BenchmarkProperty, ButtonProperty, ConnectionProperty, \
+    ExceptionProperty, \
+    JoyStickProperty, \
+    RumbleProperty, \
+    TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
-from dualsense_controller.core.UpdateBenchmark import UpdateBenchmarkResult
 from dualsense_controller.core.enum import ConnectionType
 from dualsense_controller.core.hidapi import DeviceInfo
 from dualsense_controller.core.state.mapping.enum import StateValueMapping as Mapping
 from dualsense_controller.core.state.typedef import Number
-from dualsense_controller.core.typedef import ExceptionCallback, EmptyCallback
+from dualsense_controller.core.typedef import EmptyCallback, ExceptionCallback, UpdateBenchmarkCallback
 
 
 class DualSenseController:
+    # ################################################# STATIC STUFF ##################################################
 
-    # READ
     @staticmethod
     def enumerate_devices() -> list[DeviceInfo]:
         return DualSenseControllerCore.enumerate_devices()
+
+    # ################################################# GETTERS  MISC ##################################################
+
+    @property
+    def connection_type(self) -> ConnectionType:
+        return self._dsc.connection_type
+
+    @property
+    def is_active(self) -> bool:
+        return self._dsc.is_initialized
+
+    # ############################################# GETTERS READ PROPS ##############################################
 
     @property
     def btn_cross(self) -> ButtonProperty:
@@ -69,7 +84,11 @@ class DualSenseController:
     def right_stick(self) -> JoyStickProperty:
         return self._properties.right_stick
 
-    # WRITE
+    @property
+    def battery(self) -> BatteryProperty:
+        return self._properties.battery
+
+    # ############################################## GETTERS WRITE PROPS ##############################################
     @property
     def left_rumble(self) -> RumbleProperty:
         return self._properties.left_rumble
@@ -77,6 +96,21 @@ class DualSenseController:
     @property
     def right_rumble(self) -> RumbleProperty:
         return self._properties.right_rumble
+
+    # ############################################ GETTERS SPECIAL PROPS ############################################
+    @property
+    def connection(self) -> ConnectionProperty:
+        return self._properties.connection
+
+    @property
+    def benchmark(self) -> BenchmarkProperty:
+        return self._properties.benchmark
+
+    @property
+    def exceptions(self) -> ExceptionProperty:
+        return self._properties.exceptions
+
+    # ################################################# MAIN #################################################
 
     def __init__(
             self,
@@ -104,30 +138,17 @@ class DualSenseController:
             enforce_update=update_level.value.enforce_update,
             can_update_itself=update_level.value.can_update_itself,
         )
+
         self._properties: Properties = Properties(
+            self._dsc.connection_state,
+            self._dsc.update_benchmark_state,
+            self._dsc.exception_state,
             self._dsc.read_states,
             self._dsc.write_states,
         )
 
-    @property
-    def connection_type(self) -> ConnectionType:
-        return self._dsc.connection_type
-
-    @property
-    def is_active(self) -> bool:
-        return self._dsc.is_initialized
-
-    def on_update_benchmark(self, callback: Callable[[UpdateBenchmarkResult], None]) -> None:
-        return self._dsc.on_update_benchmark(callback)
-
-    def on_updated(self, callback: EmptyCallback) -> None:
-        return self._dsc.on_updated(callback)
-
     def wait_until_updated(self) -> None:
         return self._dsc.wait_until_updated()
-
-    def on_exception(self, callback: ExceptionCallback) -> None:
-        self._dsc.on_exception(callback)
 
     def activate(self) -> None:
         self._dsc.init()

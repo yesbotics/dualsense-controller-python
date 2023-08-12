@@ -30,8 +30,33 @@ class Example:
             # update_level=UpdateLevel.HAENGBLIEM,
             update_level=UpdateLevel.DEFAULT,
         )
-        self.controller.on_exception(self.on_exception)
-        # self.controller.on_update_benchmark(lambda res: print(res))
+        self.controller.exceptions.on_change(
+            self.on_exception
+        )
+        # self.controller.benchmark.on_change(
+        #     lambda res: print(f'on_update_benchmark: {res}')
+        # )
+        self.controller.connection.on_change(
+            lambda res: print(f'on connection change: {res}')
+        )
+        self.controller.connection.on_connected(
+            lambda conn_type: print(f'on connection connect: {conn_type}')
+        )
+        self.controller.connection.on_disconnected(
+            lambda conn_type: print(f'on connection disconnect: {conn_type}')
+        )
+        self.controller.battery.on_change(
+            lambda batt: print(f'on battery change: {batt}')
+        )
+        self.controller.battery.on_lower_than(
+            100, lambda level: print(f'on battery low: {level}')
+        )
+        self.controller.battery.on_charging(
+            lambda level: print(f'on battery charging: {level}')
+        )
+        self.controller.battery.on_discharging(
+            lambda level: print(f'on battery discharging: {level}')
+        )
 
         self.controller.btn_cross.on_down(self.on_btn_cross_down)
 

@@ -29,23 +29,17 @@ class CoreExample:
             state_value_mapping=StateValueMapping.NORMALIZED,
             # ##### CORE #####
             enforce_update=False,
-            trigger_change_after_all_values_set=True,  # trigger change of state after all other states has been updated
+            can_update_itself=True,
         )
 
-        self._dualsense_controller.on_exception(self._on_exception)
-        self._dualsense_controller.on_connection_change(self._on_connection_change)
-
-        # batt
-        self._dualsense_controller.on_battery_low(75, self._on_battery_low)
-        self._dualsense_controller.read_states.battery.on_change(lambda batt: print(f'battery: {batt}'))
-
-        self._dualsense_controller.read_states.l2_feedback.on_change(lambda fb: print(f'L2 TriggerFeedback: {fb}'))
-        self._dualsense_controller.read_states.r2_feedback.on_change(lambda fb: print(f'R2 TriggerFeedback: {fb}'))
-
-        # sticks
-        self._dualsense_controller.read_states.left_stick.on_change(self._on_left_stick)
-        self._dualsense_controller.read_states.left_stick_x.on_change(self._on_left_stick_x)
-        self._dualsense_controller.read_states.left_stick_y.on_change(self._on_left_stick_y)
+        # self._dualsense_controller.exception_state.on_change(self._on_exception)
+        # self._dualsense_controller.connection_state.on_change(self._on_connection_change)
+        #
+        # # batt
+        # self._dualsense_controller.read_states.battery.on_change(lambda batt: print(f'battery: {batt}'))
+        #
+        # self._dualsense_controller.read_states.l2_feedback.on_change(lambda fb: print(f'L2 TriggerFeedback: {fb}'))
+        # self._dualsense_controller.read_states.r2_feedback.on_change(lambda fb: print(f'R2 TriggerFeedback: {fb}'))
 
         self._dualsense_controller.read_states.btn_ps.on_change(self._on_btn_ps)
         self._dualsense_controller.read_states.btn_options.on_change(self._on_btn_options)
@@ -88,19 +82,19 @@ class CoreExample:
         self._dualsense_controller.read_states.touch_finger_1.on_change(self._on_touch_finger_1)
         self._dualsense_controller.read_states.touch_finger_2.on_change(self._on_touch_finger_2)
 
-        # sticks
-        self._dualsense_controller.read_states.left_stick_x.on_change(self._on_left_stick_x)
-        self._dualsense_controller.read_states.left_stick_y.on_change(self._on_left_stick_y)
-        self._dualsense_controller.read_states.left_stick.on_change(self._on_left_stick)
-
-        self._dualsense_controller.read_states.right_stick_x.on_change(self._on_right_stick_x)
-        self._dualsense_controller.read_states.right_stick_y.on_change(self._on_right_stick_y)
-        self._dualsense_controller.read_states.right_stick.on_change(self._on_right_stick)
+        # # sticks
+        # self._dualsense_controller.read_states.left_stick_x.on_change(self._on_left_stick_x)
+        # self._dualsense_controller.read_states.left_stick_y.on_change(self._on_left_stick_y)
+        # self._dualsense_controller.read_states.left_stick.on_change(self._on_left_stick)
         #
-        # # other complex
-        # self._dualsense_controller.read_states.gyroscope.on_change(self._on_gyroscope)
-        # self._dualsense_controller.read_states.accelerometer.on_change(self._on_accelerometer)
-        # self._dualsense_controller.read_states.orientation.on_change(self._on_orientation)
+        # self._dualsense_controller.read_states.right_stick_x.on_change(self._on_right_stick_x)
+        # self._dualsense_controller.read_states.right_stick_y.on_change(self._on_right_stick_y)
+        # self._dualsense_controller.read_states.right_stick.on_change(self._on_right_stick)
+
+        # other complex
+        self._dualsense_controller.read_states.gyroscope.on_change(self._on_gyroscope)
+        self._dualsense_controller.read_states.accelerometer.on_change(self._on_accelerometer)
+        self._dualsense_controller.read_states.orientation.on_change(self._on_orientation)
 
     def run(self) -> None:
         self._stay_alive = True
