@@ -6,7 +6,7 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     ConnectionProperty, \
     ExceptionProperty, \
     GyroscopeProperty, JoyStickProperty, \
-    OrientationProperty, RumbleProperty, \
+    OrientationProperty, PlayerLedsProperty, RumbleProperty, \
     TouchFingerProperty, TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
 from dualsense_controller.core.enum import ConnectionType
@@ -197,6 +197,10 @@ class DualSenseController:
     @property
     def right_rumble(self) -> RumbleProperty:
         return self._properties.right_rumble
+
+    @property
+    def player_leds(self) -> PlayerLedsProperty:
+        return self._properties.player_leds
 
     # ################################################# MAIN #################################################
 

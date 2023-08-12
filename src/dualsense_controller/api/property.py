@@ -3,6 +3,7 @@ from functools import partial
 from typing import Final, Generic
 
 from dualsense_controller.core.Benchmarker import Benchmark
+from dualsense_controller.core.report.out_report.enum import PlayerLeds
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
     JoyStick, Orientation, TouchFinger
 from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
@@ -50,8 +51,7 @@ class _GetSetNumberProperty(_Property[Number], ABC):
     def value(self) -> Number:
         return self._get_value()
 
-    @value.setter
-    def value(self, value: Number) -> None:
+    def set(self, value: Number):
         self._set_value(value)
 
 
@@ -181,3 +181,24 @@ class AccelerometerProperty(_Property[Accelerometer]):
 
 class OrientationProperty(_Property[Orientation]):
     pass
+
+
+class PlayerLedsProperty(_Property[PlayerLeds]):
+
+    def set_off(self) -> None:
+        self._set_value(PlayerLeds.OFF)
+
+    def set_center(self) -> None:
+        self._set_value(PlayerLeds.CENTER)
+
+    def set_inner(self) -> None:
+        self._set_value(PlayerLeds.INNER)
+
+    def set_outer(self) -> None:
+        self._set_value(PlayerLeds.OUTER)
+
+    def set_all(self) -> None:
+        self._set_value(PlayerLeds.ALL)
+
+    def set_center_and_outer(self) -> None:
+        self._set_value(PlayerLeds.CENTER | PlayerLeds.OUTER)

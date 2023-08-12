@@ -3,7 +3,7 @@ from typing import Final
 from dualsense_controller.core.report.out_report.OutReport import OutReport
 from dualsense_controller.core.report.out_report.enum import OutBrightness, OutFlagsLights, OutFlagsPhysics, \
     OutLedOptions, \
-    OutPulseOptions
+    PlayerLeds, OutPulseOptions
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
 from dualsense_controller.core.state.mapping.typedef import MapFn
@@ -65,7 +65,12 @@ class WriteStates:
         self._create_and_register_state(WriteStateName.LED_OPTIONS, value=OutLedOptions.ALL)
         self._create_and_register_state(WriteStateName.PULSE_OPTIONS, value=OutPulseOptions.FADE_OUT)
         self._create_and_register_state(WriteStateName.BRIGHTNESS, value=OutBrightness.HIGH)
-        self._create_and_register_state(WriteStateName.PLAYER_LED, value=0x00)
+        self._create_and_register_state(WriteStateName.PLAYER_LEDS, value=0x00)
+
+        self.player_leds: Final[State[PlayerLeds]] = self._create_and_register_state(
+            WriteStateName.PLAYER_LEDS,
+            value=PlayerLeds.OFF,
+        )
 
     @property
     def changed(self) -> bool:
@@ -117,7 +122,7 @@ class WriteStates:
         out_report.led_options = self._get_state_by_name(WriteStateName.LED_OPTIONS).value_raw
         out_report.pulse_options = self._get_state_by_name(WriteStateName.PULSE_OPTIONS).value_raw
         out_report.brightness = self._get_state_by_name(WriteStateName.BRIGHTNESS).value_raw
-        out_report.player_led = self._get_state_by_name(WriteStateName.PLAYER_LED).value_raw
+        out_report.player_led = self._get_state_by_name(WriteStateName.PLAYER_LEDS).value_raw
 
     def _get_state_by_name(self, name: WriteStateName) -> State:
         return self._states_dict[name]

@@ -4,7 +4,7 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     ConnectionProperty, \
     ExceptionProperty, \
     GyroscopeProperty, JoyStickProperty, \
-    OrientationProperty, RumbleProperty, \
+    OrientationProperty, PlayerLedsProperty, RumbleProperty, \
     TouchFingerProperty, TriggerProperty
 from dualsense_controller.core.Benchmarker import Benchmark
 from dualsense_controller.core.state.State import State
@@ -77,3 +77,5 @@ class Properties:
         # WRITE
         self.left_rumble: Final[RumbleProperty] = RumbleProperty(write_states.left_motor)
         self.right_rumble: Final[RumbleProperty] = RumbleProperty(write_states.right_motor)
+        self.player_leds: Final[PlayerLedsProperty] = PlayerLedsProperty(write_states.player_leds)
+

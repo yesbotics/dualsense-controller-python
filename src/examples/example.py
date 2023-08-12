@@ -146,7 +146,7 @@ class Example:
 
     def on_btn_options_down(self) -> None:
         print(f"on_btn_options_down -> player led off")
-        # self.controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OFF)
+        self.controller.player_leds.set_off()
         # self.controller.set_state(WriteStateName.MICROPHONE_LED, state)
 
     # Btn Create -> Lightbar off + Micro Mute
@@ -209,19 +209,19 @@ class Example:
 
     def on_btn_triangle_down(self) -> None:
         print(f'Triangle button down -> player led inner')
-        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.INNER)
+        self.controller.player_leds.set_inner()
 
     def on_btn_cross_down(self) -> None:
         print(f'Cross button down -> player led all')
-        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.ALL)
+        self.controller.player_leds.set_all()
 
     def on_btn_circle_down(self) -> None:
         print(f'btn circle down -> player led outer')
-        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.OUTER)
+        self.controller.player_leds.set_outer()
 
     def on_btn_square_down(self) -> None:
         print(f'btn square down -> player led center + outer')
-        # self._dualsense_controller.set_state(WriteStateName.PLAYER_LED, OutPlayerLed.CENTER | OutPlayerLed.OUTER)
+        self.controller.player_leds.set_center_and_outer()
 
     # ################################ BTN L and R -> brightness, nothing and led pulse modes ####################
     def on_btn_l1_down(self) -> None:
@@ -261,12 +261,12 @@ class Example:
     # ########################################### TRIGGERS -> RUMBLE ##############################################
     def on_left_trigger_changed(self, value: Number) -> None:
         print(f'L2 trigger: {value}')
-        self.controller.left_rumble.value = value
+        self.controller.left_rumble.set(value)
         print(f'Left Rumble: {self.controller.left_rumble.value}')
 
     def on_right_trigger_changed(self, value: Number) -> None:
         print(f'L2 trigger: {value}')
-        self.controller.right_rumble.value = value
+        self.controller.right_rumble.set(value)
         print(f'Right Rumble: {self.controller.right_rumble.value}')
 
     # ############################################# STICKS ##################################################

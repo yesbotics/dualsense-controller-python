@@ -53,7 +53,7 @@ class OutFlagsLights(int, Enum):
     ALL_FORCE = 0xff
 
 
-class OutPlayerLed(int, Enum):
+class PlayerLeds(int, Enum):
     OFF = 0
 
     # Enables the single, center LED
