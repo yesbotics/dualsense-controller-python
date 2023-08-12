@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class EventType(str, Enum):
+    UPDATE_BENCHMARK = "UPDATE_BENCHMARK"
     EXCEPTION = 'EXCEPTION'
     CONNECTION_CHANGE = 'CONNECTION_CHANGE'
     IN_REPORT = 'IN_REPORT'

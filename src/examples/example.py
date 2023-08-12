@@ -31,6 +31,7 @@ class Example:
             update_level=UpdateLevel.DEFAULT,
         )
         self.controller.on_exception(self.on_exception)
+        # self.controller.on_update_benchmark(lambda res: print(res))
 
         self.controller.btn_cross.on_down(self.on_btn_cross_down)
 

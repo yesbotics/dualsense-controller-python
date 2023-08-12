@@ -1,7 +1,9 @@
 from functools import partial
+from queue import Queue
 from typing import Final
 
 from dualsense_controller.core.HidControllerDevice import HidControllerDevice
+from dualsense_controller.core.UpdateBenchmark import UpdateBenchmark, UpdateBenchmarkResult
 from dualsense_controller.core.enum import ConnectionType, EventType
 from dualsense_controller.core.hidapi.hidapi import DeviceInfo
 from dualsense_controller.core.report.in_report.InReport import InReport
@@ -63,6 +65,12 @@ class DualSenseControllerCore:
 
         self._connection_state: Final[State[Connection]] = State(name=EventType.CONNECTION_CHANGE, ignore_none=False)
 
+        self._update_benchmark_state: Final[State[UpdateBenchmarkResult]] = State(
+            name=EventType.UPDATE_BENCHMARK,
+            ignore_none=True
+        )
+        self._update_benchmark: Final[UpdateBenchmark] = UpdateBenchmark()
+
         state_value_mapper: StateValueMapper = StateValueMapper(
             mapping=state_value_mapping,
             left_joystick_deadzone=left_joystick_deadzone,
@@ -108,6 +116,9 @@ class DualSenseControllerCore:
     def on_battery_low(self, level_percentage: float, callback: BatteryLowCallback):
         self.read_states.battery.on_change(partial(self._check_battery, callback, level_percentage))
 
+    def on_update_benchmark(self, callback: StateChangeCallback):
+        self._update_benchmark_state.on_change(callback)
+
     def on_connection_change(self, callback: StateChangeCallback):
         self._connection_state.on_change(callback)
 
@@ -147,12 +158,16 @@ class DualSenseControllerCore:
             callback(battery.level_percentage)
 
     def _on_in_report(self, in_report: InReport) -> None:
+
         self._read_states.update(in_report, self._hid_controller_device.connection_type)
         if self._write_states.changed:
             # print(f'Sending report.')
             self._write_states.update_out_report(self._hid_controller_device.out_report)
             self._write_states.set_unchanged()
             self._hid_controller_device.write()
+
+        if self._update_benchmark_state.has_listeners:
+            self._update_benchmark_state.value = self._update_benchmark.update()
 
     def _on_thread_exception(self, exception: Exception) -> None:
         print('An Exception in the loop thread occured:', format_exception(exception))

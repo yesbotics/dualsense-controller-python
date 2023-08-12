@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from typing import Callable
+
 from dualsense_controller.api.Properties import Properties
 from dualsense_controller.api.enum import UpdateLevel
 from dualsense_controller.api.property import ButtonProperty, JoyStickProperty, RumbleProperty, TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
+from dualsense_controller.core.UpdateBenchmark import UpdateBenchmarkResult
 from dualsense_controller.core.enum import ConnectionType
 from dualsense_controller.core.hidapi import DeviceInfo
 from dualsense_controller.core.state.mapping.enum import StateValueMapping as Mapping
@@ -113,6 +116,9 @@ class DualSenseController:
     @property
     def is_active(self) -> bool:
         return self._dsc.is_initialized
+
+    def on_update_benchmark(self, callback: Callable[[UpdateBenchmarkResult], None]) -> None:
+        return self._dsc.on_update_benchmark(callback)
 
     def on_updated(self, callback: EmptyCallback) -> None:
         return self._dsc.on_updated(callback)
