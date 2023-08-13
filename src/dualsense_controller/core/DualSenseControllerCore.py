@@ -170,6 +170,7 @@ class DualSenseControllerCore:
     def _on_in_report(self, in_report: InReport) -> None:
 
         self._read_states.update(in_report, self._hid_controller_device.connection_type)
+
         if self._write_states.has_changed:
             # print(f'Sending report.')
             self._write_states.update_out_report(self._hid_controller_device.out_report)

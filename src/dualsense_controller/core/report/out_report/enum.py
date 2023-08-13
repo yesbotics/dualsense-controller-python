@@ -25,7 +25,7 @@ class OutReportLength(int, Enum):
     # BT_01 = 77  # ??
 
 
-class OutFlagsLights(int, Enum):
+class FlagsLights(int, Enum):
     MIC_MUTE_LED_CONTROL_ENABLE = 1 << 0
     POWER_SAVE_CONTROL_ENABLE = 1 << 1
     LIGHTBAR_CONTROL_ENABLE = 1 << 2

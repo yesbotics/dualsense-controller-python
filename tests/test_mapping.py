@@ -1,6 +1,8 @@
 import pytest as pytest
 
-from dualsense_controller import ConnectionType, Mapping, Number
+from dualsense_controller.core.enum import ConnectionType
+from dualsense_controller.api.DualSenseController import Mapping
+from dualsense_controller.core.state.typedef import Number
 from tests.common import ControllerInstanceData, ControllerInstanceParams
 
 

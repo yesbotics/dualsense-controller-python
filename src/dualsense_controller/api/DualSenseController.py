@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Final
+
 from dualsense_controller.api.Properties import Properties
 from dualsense_controller.api.enum import UpdateLevel
 from dualsense_controller.api.property import AccelerometerProperty, BatteryProperty, BenchmarkProperty, ButtonProperty, \
@@ -210,6 +212,7 @@ class DualSenseController:
 
     def __init__(
             self,
+            # CORE
             device_index_or_device_info: int | DeviceInfo = 0,
             left_joystick_deadzone: Number = 0.05,
             right_joystick_deadzone: Number = 0.05,
@@ -220,7 +223,11 @@ class DualSenseController:
             orientation_threshold: int = 0,
             mapping: Mapping = Mapping.NORMALIZED,
             update_level: UpdateLevel = UpdateLevel.DEFAULT,
+            # OPTS
+            microphone_initially_muted: bool = True,
+            microphone_invert_led: bool = False,
     ):
+
         self._core: DualSenseControllerCore = DualSenseControllerCore(
             device_index_or_device_info=device_index_or_device_info,
             left_joystick_deadzone=left_joystick_deadzone,
@@ -236,19 +243,28 @@ class DualSenseController:
         )
 
         self._properties: Properties = Properties(
+            # STATES
             self._core.connection_state,
             self._core.update_benchmark_state,
             self._core.exception_state,
             self._core.read_states,
             self._core.write_states,
+            # OPTS
+            microphone_invert_led=microphone_invert_led,
         )
+
+        self._microphone_initially_muted: Final[bool] = microphone_initially_muted
 
     def wait_until_updated(self) -> None:
         return self._core.wait_until_updated()
 
     def activate(self) -> None:
         self._core.init()
-        self._properties.microphone.mute()
+        if self._microphone_initially_muted:
+            self._properties.microphone.mute()
+        else:
+            self._properties.microphone.unmute()
+        self._properties.microphone.refresh()
 
     def deactivate(self) -> None:
         self._core.deinit()

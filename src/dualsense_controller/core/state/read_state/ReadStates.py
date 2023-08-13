@@ -9,8 +9,8 @@ import pyee
 from dualsense_controller.core.core.Lockable import Lockable
 from dualsense_controller.core.enum import ConnectionType
 from dualsense_controller.core.report.in_report import InReport
+from dualsense_controller.core.state.BaseStates import BaseStates
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
-from dualsense_controller.core.state.mapping.enum import StateValueMapping
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.read_state.ReadState import ReadState
 from dualsense_controller.core.state.read_state.ValueCalc import ValueCalc
@@ -18,22 +18,21 @@ from dualsense_controller.core.state.read_state.ValueCompare import ValueCompare
 from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Gyroscope, JoyStick, \
     Orientation, TouchFinger, TriggerFeedback
-from dualsense_controller.core.state.typedef import CompareFn, Number, StateChangeCallback, StateValue, StateValueFn
+from dualsense_controller.core.state.typedef import CompareFn, Number, StateValue, StateValueFn
 from dualsense_controller.core.util import check_value_restrictions
 
 
-class ReadStates:
+class ReadStates(BaseStates):
     _EVENT_UPDATE: Final[str] = '_EVENT_UPDATE'
 
     def __init__(
             self,
-            state_value_mapper: StateValueMapper = StateValueMapping.DEFAULT,
+            state_value_mapper: StateValueMapper,
             enforce_update: bool = False,
             can_update_itself: bool = True,
     ):
+        super().__init__(state_value_mapper)
         # CONST
-        self._states_dict: Final[dict[ReadStateName, ReadState]] = {}
-        self._state_value_mapper: Final[StateValueMapper] = state_value_mapper
         self._states_to_trigger_after_all_states_set: Final[list[ReadState]] = []
         self._in_report_lockable: Final[Lockable[InReport]] = Lockable()
         # VAR
@@ -43,7 +42,6 @@ class ReadStates:
         # INIT STICKS
         self.left_stick: Final[ReadState[JoyStick]] = self._create_and_register_state(
             ReadStateName.LEFT_STICK,
-            default_value=JoyStick(),
             in_report_lockable=self._in_report_lockable,
             value_calc_fn=ValueCalc.get_left_stick,
             enforce_update=enforce_update,
@@ -92,7 +90,6 @@ class ReadStates:
             ReadStateName.RIGHT_STICK,
             value_calc_fn=ValueCalc.get_right_stick,
             in_report_lockable=self._in_report_lockable,
-            default_value=JoyStick(),
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
             compare_fn=ValueCompare.compare_joystick,
@@ -593,17 +590,21 @@ class ReadStates:
 
     def _create_and_register_state(
             self,
+
+            # BASE
             name: ReadStateName,
             value: StateValue = None,
-            value_calc_fn: StateValueFn = None,
-            in_report_lockable: Lockable[InReport] = None,
             default_value: StateValue = None,
-            enforce_update: bool = False,
-            can_update_itself: bool = True,
             ignore_none: bool = True,
-            compare_fn: CompareFn[StateValue] = None,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
+            compare_fn: CompareFn[StateValue] = None,
+
+            # READ STATES
+            value_calc_fn: StateValueFn = None,
+            in_report_lockable: Lockable[InReport] = None,
+            enforce_update: bool = False,
+            can_update_itself: bool = True,
             depends_on: list[ReadState[Any]] = None,
             is_dependency_of: list[ReadState[Any]] = None,
             mapped_min_max_values: list[Number] = None,
@@ -622,25 +623,24 @@ class ReadStates:
         )
 
         state: ReadState[StateValue] = ReadState[StateValue](
-            name,
+            # BASE
+            name=name,
             value=value,
-            value_calc_fn=value_calc_fn,
-            in_report_lockable=in_report_lockable,
             default_value=default_value,
-            enforce_update=enforce_update,
-            can_update_itself=can_update_itself,
+            ignore_none=ignore_none,
             mapped_to_raw_fn=mapped_to_raw_fn,
             raw_to_mapped_fn=raw_to_mapped_fn,
             compare_fn=partial(compare_fn, **kwargs) if compare_fn is not None else None,
-            ignore_none=ignore_none,
+            # READ STATE
+            enforce_update=enforce_update,
+            value_calc_fn=value_calc_fn,
+            can_update_itself=can_update_itself,
+            in_report_lockable=in_report_lockable,
             depends_on=depends_on,
             is_dependency_of=is_dependency_of,
         )
-        self._states_dict[name] = state
+        self._register_state(name, state)
         return state
-
-    def _get_state_by_name(self, name: ReadStateName) -> ReadState:
-        return self._states_dict[name]
 
     def _handle_state(
             self,
@@ -761,45 +761,3 @@ class ReadStates:
         self._handle_state(self.battery_charging)
         self._handle_state(self.battery)
         self._post_update()
-
-    def on_change(
-            self, name_or_callback: ReadStateName | StateChangeCallback, callback: StateChangeCallback | None = None
-    ):
-        if callback is None:
-            self.on_any_change(name_or_callback)
-        else:
-            self._get_state_by_name(name_or_callback).on_change(callback)
-
-    def once_change(
-            self, name_or_callback: ReadStateName | StateChangeCallback, callback: StateChangeCallback | None = None
-    ):
-        if callback is None:
-            self.once_any_change(name_or_callback)
-        else:
-            self._get_state_by_name(name_or_callback).once_change(callback)
-
-    def on_any_change(self, callback: StateChangeCallback):
-        for state_name, state in self._states_dict.items():
-            state.on_change(callback)
-
-    def once_any_change(self, callback: StateChangeCallback):
-        for state_name, state in self._states_dict.items():
-            state.once_change(callback)
-
-    def remove_change_listener(
-            self, name_or_callback: ReadStateName | StateChangeCallback, callback: StateChangeCallback | None = None
-    ) -> None:
-        if isinstance(name_or_callback, ReadStateName):
-            self._get_state_by_name(name_or_callback).remove_change_listener(callback)
-        elif callable(name_or_callback):
-            self.remove_any_change_listener(name_or_callback)
-        else:
-            self.remove_all_change_listeners()
-
-    def remove_all_change_listeners(self) -> None:
-        for state_name, state in self._states_dict.items():
-            state.remove_all_change_listeners()
-
-    def remove_any_change_listener(self, callback: StateChangeCallback) -> None:
-        for state_name, state in self._states_dict.items():
-            state.remove_change_listener(callback)

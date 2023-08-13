@@ -2,7 +2,9 @@ from unittest.mock import MagicMock
 
 import pytest as pytest
 
-from dualsense_controller import ConnectionType, DualSenseController, InvalidDeviceIndexException
+from dualsense_controller.api.DualSenseController import DualSenseController
+from dualsense_controller.core.enum import ConnectionType
+from dualsense_controller.core.exception import InvalidDeviceIndexException
 from tests.common import ControllerInstanceData
 
 

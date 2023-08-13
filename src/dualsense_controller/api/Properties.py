@@ -11,17 +11,19 @@ from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates
 from dualsense_controller.core.state.read_state.value_type import Connection
 from dualsense_controller.core.state.write_state.WriteStates import WriteStates
-from dualsense_controller.core.state.write_state.enum import WriteStateName
 
 
 class Properties:
     def __init__(
             self,
+            # STATES
             connection_state: State[Connection],
             update_benchmark_state: State[Benchmark],
             exception_state: State[Exception],
             read_states: ReadStates,
             write_states: WriteStates,
+            # OPTS
+            microphone_invert_led: bool = False,
     ):
         # MAIN
         self.exceptions: Final[ExceptionProperty] = ExceptionProperty(exception_state)
@@ -79,8 +81,7 @@ class Properties:
         self.left_rumble: Final[RumbleProperty] = RumbleProperty(write_states.left_motor)
         self.right_rumble: Final[RumbleProperty] = RumbleProperty(write_states.right_motor)
         self.player_leds: Final[PlayerLedsProperty] = PlayerLedsProperty(write_states.player_leds)
-
-        self.microphone: Final[MicrophoneProperty] = MicrophoneProperty(State(
-            name=WriteStateName.MICROPHONE,
-            value=(write_states.microphone_mute, write_states.microphone_led)
-        ))
+        self.microphone: Final[MicrophoneProperty] = MicrophoneProperty(
+            write_states.microphone,
+            invert_led=microphone_invert_led,
+        )

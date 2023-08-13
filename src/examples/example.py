@@ -22,10 +22,10 @@ class Example:
 
             device_index_or_device_info=first_device_info,
 
-            left_joystick_deadzone=0.1,
-            right_joystick_deadzone=0.1,
-            left_trigger_deadzone=0,
-            right_trigger_deadzone=0,
+            left_joystick_deadzone=0.2,
+            right_joystick_deadzone=0.2,
+            left_trigger_deadzone=0.05,
+            right_trigger_deadzone=0.05,
             gyroscope_threshold=0,
             accelerometer_threshold=0,
             orientation_threshold=0,
@@ -36,6 +36,9 @@ class Example:
             # update_level=UpdateLevel.PAINSTAKING,
             # update_level=UpdateLevel.HAENGBLIEM,
             update_level=UpdateLevel.DEFAULT,
+
+            microphone_initially_muted=True,
+            microphone_invert_led=True,
         )
 
         # MAIN

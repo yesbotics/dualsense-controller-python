@@ -1,4 +1,5 @@
 from abc import ABC
+from dataclasses import dataclass
 from functools import partial
 from typing import Any, Final, Generic
 
@@ -9,6 +10,7 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
 from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.typedef import Number
+from dualsense_controller.core.state.write_state.value_type import Microphone
 
 
 # BASE
@@ -27,7 +29,7 @@ class _Property(Generic[PropertyType], ABC):
 
     @property
     def changed(self) -> bool:
-        return self._state.has_changed
+        return self._state.has_changed_since_last_set_value
 
     def _get_value(self) -> PropertyType:
         return self._state.value
@@ -205,18 +207,15 @@ class PlayerLedsProperty(_Property[PlayerLeds]):
         self._set_value(PlayerLeds.CENTER | PlayerLeds.OUTER)
 
 
-_MicPropValue = tuple[State[bool], State[bool]]
+class MicrophoneProperty(_Property[Microphone]):
 
-
-class MicrophoneProperty(_Property[_MicPropValue]):
-
-    # 0 = mute
-    # 1 = led
-
-    def __init__(self, state: State[_MicPropValue]):
+    def __init__(
+            self,
+            state: State[Microphone],
+            invert_led: bool = False
+    ):
         super().__init__(state)
-        self._invert_led: bool = True
-        self.mute()
+        self._invert_led: Final[bool] = invert_led
 
     def toggle_mute(self) -> None:
         if self.is_muted:
@@ -224,20 +223,22 @@ class MicrophoneProperty(_Property[_MicPropValue]):
         else:
             self.mute()
 
-    def set_led_off_when_muted(self, val: bool) -> None:
-        self._invert_led = val
-        self._get_value()[1].value = (
-            self._get_value()[0].value if not self._invert_led else not self._get_value()[0].value
-        )
-
     def mute(self) -> None:
-        self._get_value()[0].value = True
-        self._get_value()[1].value = True if not self._invert_led else False
+        self._set_mute(True)
 
     def unmute(self) -> None:
-        self._get_value()[0].value = False
-        self._get_value()[1].value = False if not self._invert_led else True
+        self._set_mute(False)
+
+    def refresh(self) -> None:
+        self.toggle_mute()
+        self.toggle_mute()
+
+    def _set_mute(self, mute: bool):
+        self._set_value(Microphone(
+            mute=mute,
+            led=(mute if not self._invert_led else not mute)
+        ))
 
     @property
     def is_muted(self) -> bool:
-        return self._get_value()[0].value
+        return self._get_value().mute

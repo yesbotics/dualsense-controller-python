@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-from dualsense_controller import DualSenseController, Mapping, Number, UpdateLevel
+from dualsense_controller.api.DualSenseController import DualSenseController, Mapping
+from dualsense_controller.api.enum import UpdateLevel
+from dualsense_controller.core.state.typedef import Number
 from tests.mock.MockedHidapiMockedHidapiDevice import MockedHidapiMockedHidapiDevice
 
 

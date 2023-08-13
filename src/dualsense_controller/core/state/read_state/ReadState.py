@@ -14,17 +14,17 @@ class ReadState(Generic[StateValue], State[StateValue]):
 
     @property
     def has_changed_dependencies(self) -> bool:
-        return any(state.has_changed for state in self._depends_on)
+        return any(state.has_changed_since_last_set_value for state in self._depends_on)
 
     @property
     def has_changed_dependents(self) -> bool:
-        return any(state.has_changed for state in self._is_dependency_of)
+        return any(state.has_changed_since_last_set_value for state in self._is_dependency_of)
 
     @property
     def has_changed_dependencies_or_dependents(self) -> bool:
         return (
-                any(state.has_changed for state in self._is_dependency_of)
-                or any(state.has_changed for state in self._depends_on)
+                any(state.has_changed_since_last_set_value for state in self._is_dependency_of)
+                or any(state.has_changed_since_last_set_value for state in self._depends_on)
         )
 
     @property
@@ -63,17 +63,20 @@ class ReadState(Generic[StateValue], State[StateValue]):
 
     def __init__(
             self,
+            # BASE
             name: ReadStateName,
             value: StateValue = None,
-            value_calc_fn: StateValueFn = None,
-            in_report_lockable: Lockable[InReport] = None,
-            enforce_update: bool = False,
-            can_update_itself: bool = True,
             default_value: StateValue = None,
             ignore_none: bool = True,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
             compare_fn: CompareFn = None,
+
+            # READ STATE
+            value_calc_fn: StateValueFn = None,
+            in_report_lockable: Lockable[InReport] = None,
+            enforce_update: bool = False,
+            can_update_itself: bool = True,
             depends_on: list[State[Any]] = None,
             is_dependency_of: list[State[Any]] = None,
     ):
@@ -112,7 +115,7 @@ class ReadState(Generic[StateValue], State[StateValue]):
             *self._depends_on
         )
         self._set_value_raw(value_raw, trigger_change_on_changed)
-        return self._value
+        return self._value_raw
 
     def set_cycle_timestamp(self, timestamp: int):
         self._cycle_timestamp = timestamp

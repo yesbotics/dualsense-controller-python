@@ -5,7 +5,8 @@ import pytest as pytest
 from _pytest.fixtures import SubRequest
 from pytest_mock import MockerFixture
 
-from dualsense_controller import ConnectionType, DualSenseController
+from dualsense_controller.api.DualSenseController import DualSenseController
+from dualsense_controller.core.enum import ConnectionType
 from tests.common import ControllerInstanceData, ControllerInstanceParams
 from tests.mock.MockedHidapiMockedHidapiDevice import MockedHidapiMockedHidapiDevice
 from tests.mock.common import DeviceInfoMock

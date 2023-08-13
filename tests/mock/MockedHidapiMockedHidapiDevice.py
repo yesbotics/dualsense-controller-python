@@ -1,9 +1,10 @@
-from dualsense_controller import ConnectionType, JoyStick
+from dualsense_controller.core.enum import ConnectionType
 from dualsense_controller.core.report.in_report.InReport import InReport
 from dualsense_controller.core.report.in_report.Bt01InReport import Bt01InReport
 from dualsense_controller.core.report.in_report.Bt31InReport import Bt31InReport
 from dualsense_controller.core.report.in_report.Usb01InReport import Usb01InReport
 from dualsense_controller.core.state.read_state.ValueCalc import ValueCalc
+from dualsense_controller.core.state.read_state.value_type import JoyStick
 
 
 class _BaseMockedHidapiDevice:

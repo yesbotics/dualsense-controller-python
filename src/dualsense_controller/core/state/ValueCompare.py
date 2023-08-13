@@ -4,6 +4,7 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
     JoyStick, \
     Orientation, TouchFinger
 from dualsense_controller.core.state.typedef import CompareResult, Number
+from dualsense_controller.core.state.write_state.value_type import Microphone
 
 _HALF_255: Final[Number] = 127.5
 
@@ -16,13 +17,8 @@ class ValueCompare:
             after: JoyStick,
             deadzone_raw: Number = 0,
     ) -> CompareResult:
-
         if before is None:
             return True, after
-
-        if deadzone_raw > 0 and (((before.x - _HALF_255) ** 2) + ((before.y - _HALF_255) ** 2)) <= (deadzone_raw ** 2):
-            before = JoyStick(_HALF_255, _HALF_255)
-
         if deadzone_raw > 0 and (((after.x - _HALF_255) ** 2) + ((after.y - _HALF_255) ** 2)) <= (deadzone_raw ** 2):
             after = JoyStick(_HALF_255, _HALF_255)
 
@@ -37,8 +33,6 @@ class ValueCompare:
     ) -> CompareResult:
         if before is None:
             return True, after
-        if deadzone_raw > 0 and before <= deadzone_raw:
-            before = 0
         if deadzone_raw > 0 and after <= deadzone_raw:
             after = 0
         changed: bool = after != before
@@ -125,4 +119,14 @@ class ValueCompare:
                     and abs(after.roll - before.roll) < threshold_raw:
                 after = Orientation(before.yaw, before.pitch, before.roll)
         changed: bool = after.yaw != before.yaw or after.pitch != before.pitch or after.roll != before.roll
+        return changed, after
+
+    @staticmethod
+    def compare_microphone(
+            before: Microphone,
+            after: Microphone,
+    ) -> CompareResult:
+        if before is None:
+            return True, after
+        changed: bool = after.mute != before.mute or after.led != before.led
         return changed, after

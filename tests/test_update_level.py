@@ -1,6 +1,7 @@
 import pytest
 
-from dualsense_controller import ConnectionType, UpdateLevel
+from dualsense_controller.api.enum import UpdateLevel
+from dualsense_controller.core.enum import ConnectionType
 from tests.common import ControllerInstanceData, ControllerInstanceParams
 
 

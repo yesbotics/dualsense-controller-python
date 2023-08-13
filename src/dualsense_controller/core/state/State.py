@@ -18,7 +18,7 @@ class State(Generic[StateValue]):
         return (True, after) if before != after else (False, after)
 
     def __repr__(self) -> str:
-        return f'State[{type(self._value).__name__}]({self.name}: {self._value} -> {self.value})'
+        return f'State[{type(self._value_raw).__name__}]({self.name}: {self._value_raw} -> {self.value})'
 
     @property
     def value(self) -> StateValue:
@@ -36,36 +36,39 @@ class State(Generic[StateValue]):
 
     @property
     def value_raw(self) -> StateValue:
-        return self._value
+        return self._value_raw
 
     @property
     def last_value_raw(self) -> StateValue:
-        return self._last_value
+        return self._last_value_raw
 
     @property
-    def has_changed(self) -> bool:
-        return self._changed_since_last_update
+    def has_changed_since_last_set_value(self) -> bool:
+        if self._disable_change_detection:
+            return False
+        return self._changed_since_last_set_value
 
     @property
     def has_listeners(self) -> bool:
         return self._callback_manager.has_listeners
 
     # LOCKED GETTERS AND SETTERS
-    @property
-    def _changed_since_last_update(self) -> bool:
-        return self.__changed_since_last_update.value
-
-    @_changed_since_last_update.setter
-    def _changed_since_last_update(self, _changed_since_last_update: bool) -> None:
-        self.__changed_since_last_update.value = _changed_since_last_update
 
     @property
-    def _value(self) -> StateValue:
+    def _value_raw(self) -> StateValue:
         return self.__value.value
 
-    @_value.setter
-    def _value(self, _value: StateValue) -> None:
+    @_value_raw.setter
+    def _value_raw(self, _value: StateValue) -> None:
         self.__value.value = _value
+
+    @property
+    def _last_value_raw(self) -> StateValue:
+        return self.__last_value.value
+
+    @_last_value_raw.setter
+    def _last_value_raw(self, _last_value: StateValue) -> None:
+        self.__last_value.value = _last_value
 
     @property
     def _change_timestamp(self) -> int:
@@ -76,12 +79,12 @@ class State(Generic[StateValue]):
         self.__change_timestamp.value = _change_timestamp
 
     @property
-    def _last_value(self) -> StateValue:
-        return self.__last_value.value
+    def _changed_since_last_set_value(self) -> bool:
+        return self.__changed_since_last_update.value
 
-    @_last_value.setter
-    def _last_value(self, _last_value: StateValue) -> None:
-        self.__last_value.value = _last_value
+    @_changed_since_last_set_value.setter
+    def _changed_since_last_set_value(self, _changed_since_last_update: bool) -> None:
+        self.__changed_since_last_update.value = _changed_since_last_update
 
     def __init__(
             self,
@@ -91,7 +94,8 @@ class State(Generic[StateValue]):
             ignore_none: bool = True,
             mapped_to_raw_fn: MapFn = None,
             raw_to_mapped_fn: MapFn = None,
-            compare_fn: CompareFn = None
+            compare_fn: CompareFn = None,
+            disable_change_detection: bool = False,
     ):
         # CONST
         self.name: Final[StateName] = name
@@ -102,6 +106,7 @@ class State(Generic[StateValue]):
         self._raw_to_mapped_fn: Final[MapFn] = raw_to_mapped_fn
         self._ignore_none: Final[bool] = ignore_none
         self._default_value: Final[StateValue | None] = default_value
+        self._disable_change_detection: Final[bool] = disable_change_detection
 
         # VAR
         self.__value: Lockable[StateValue | None] = Lockable(
@@ -139,7 +144,7 @@ class State(Generic[StateValue]):
         self._set_value_raw(value_raw, trigger_change_on_changed=trigger_change_on_changed)
 
     def trigger_change_if_changed(self) -> None:
-        if self.has_changed:
+        if self.has_changed_since_last_set_value:
             self._trigger_change()
 
     def on_change(self, callback: StateChangeCallback) -> None:
@@ -156,14 +161,14 @@ class State(Generic[StateValue]):
 
     # ################# GETTERS AND SETTERS ###############
 
-    def _set_value_raw(self, value: StateValue | None, trigger_change_on_changed: bool = True) -> None:
-        old_value: StateValue = self._value
-        new_value: StateValue = value
+    def _set_value_raw(self, value_raw: StateValue | None, trigger_change_on_changed: bool = True) -> None:
+        old_value: StateValue = self._value_raw
+        new_value: StateValue = value_raw
         if old_value is None and self._default_value is not None:
             old_value = self._default_value
         if new_value is None and self._default_value is not None:
             new_value = self._default_value
-        if (old_value is None or new_value is None) and self._ignore_none:
+        if self._ignore_none and (old_value is None or new_value is None):
             self._change_value(
                 old_value=new_value,
                 new_value=new_value,
@@ -171,7 +176,7 @@ class State(Generic[StateValue]):
                 trigger_change=False,
             )
             return
-        changed, new_value = self._compare_fn(old_value, value)
+        changed, new_value = self._compare_fn(old_value, new_value)
         self._change_value(
             old_value=old_value,
             new_value=new_value,
@@ -186,11 +191,11 @@ class State(Generic[StateValue]):
             changed: bool,
             trigger_change: bool = True,
     ) -> None:
-        self._last_value = old_value
-        self._value = new_value
-        self._changed_since_last_update = changed
+        self._last_value_raw = old_value
+        self._value_raw = new_value
         self._change_timestamp = time.perf_counter_ns()
-        if trigger_change:
+        self._changed_since_last_set_value = changed
+        if not self._disable_change_detection and trigger_change:
             self._trigger_change()
 
     def _trigger_change(self):
