@@ -38,7 +38,7 @@ class Example:
             update_level=UpdateLevel.DEFAULT,
 
             microphone_initially_muted=True,
-            microphone_invert_led=True,
+            microphone_invert_led=False,
         )
 
         # MAIN
