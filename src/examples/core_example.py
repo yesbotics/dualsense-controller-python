@@ -2,7 +2,7 @@ from time import sleep
 from typing import Any
 
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
-from dualsense_controller.core.report.out_report.enum import OutBrightness, PlayerLeds, OutPulseOptions
+from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, PlayerLeds, LightbarPulseOptions
 from dualsense_controller.core.state.mapping.enum import StateValueMapping
 from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Connection, Gyroscope, JoyStick, \
@@ -121,15 +121,15 @@ class CoreExample:
     def _on_btn_l1(self, state: bool) -> None:
         print(f'L1 Button pressed: {state} -> brightness ')
         self._dualsense_controller.set_state(
-            WriteStateName.BRIGHTNESS,
-            OutBrightness.LOW if state else OutBrightness.HIGH
+            WriteStateName.PLAYER_LEDS_BRIGHTNESS,
+            PlayerLedsBrightness.LOW if state else PlayerLedsBrightness.HIGH
         )
 
     def _on_btn_r1(self, state: bool) -> None:
         print(f'R1 Button pressed: {state}')
         self._dualsense_controller.set_state(
-            WriteStateName.BRIGHTNESS,
-            OutBrightness.MEDIUM if state else OutBrightness.HIGH
+            WriteStateName.PLAYER_LEDS_BRIGHTNESS,
+            PlayerLedsBrightness.MEDIUM if state else PlayerLedsBrightness.HIGH
         )
 
     #
@@ -217,12 +217,12 @@ class CoreExample:
     def _on_btn_r3(self, state: bool) -> None:
         if state is False:
             print(f"R3 -> pulse FADE_OUT")
-            self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT)
+            self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_PULSE_OPTIONS, LightbarPulseOptions.FADE_OUT_BLUE)
 
     def _on_btn_l3(self, state: bool) -> None:
         if state is False:
             print(f"L3 -> pulse FADE_BLUE")
-            self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
+            self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_PULSE_OPTIONS, LightbarPulseOptions.FADE_IN_BLUE)
 
     #
     # Touch0 x-value -> rgb-color

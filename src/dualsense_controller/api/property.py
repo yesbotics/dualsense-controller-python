@@ -1,11 +1,12 @@
 import warnings
 from abc import ABC
+from copy import copy
 from dataclasses import dataclass
 from functools import partial
 from typing import Any, Final, Generic
 
 from dualsense_controller.core.Benchmarker import Benchmark
-from dualsense_controller.core.report.out_report.enum import PlayerLeds
+from dualsense_controller.core.report.out_report.enum import LightbarPulseOptions, PlayerLeds
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
     JoyStick, Orientation, TouchFinger
 from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
@@ -257,6 +258,12 @@ class LightbarProperty(_Property[Lightbar]):
     def is_on(self) -> bool:
         return self._get_value().is_on
 
+    def fade_in_blue(self) -> None:
+        self._set(pulse_options=LightbarPulseOptions.FADE_IN_BLUE)
+
+    def fade_out_blue(self) -> None:
+        self._set(pulse_options=LightbarPulseOptions.FADE_OUT_BLUE)
+
     def set_on(self) -> None:
         self.set_is_on(True)
 
@@ -267,12 +274,10 @@ class LightbarProperty(_Property[Lightbar]):
         self.set_is_on(not self.is_on)
 
     def set_is_on(self, is_on: bool) -> None:
-        before: Lightbar = self._get_value()
-        self._set_value(Lightbar(before.red, before.green, before.blue, is_on))
+        self._set(is_on=is_on)
 
-    def set_color(self, r: int, g: int, b: int) -> None:
-        before: Lightbar = self._get_value()
-        self._set_value(Lightbar(r, g, b, before.is_on))
+    def set_color(self, red: int, green: int, blue: int) -> None:
+        self._set(red=red, green=green, blue=blue)
 
     def set_color_black(self) -> None:
         self.set_color(0, 0, 0)
@@ -288,3 +293,27 @@ class LightbarProperty(_Property[Lightbar]):
 
     def set_color_blue(self) -> None:
         self.set_color(0, 0, 255)
+
+    def _set(
+            self,
+            red: int = None,
+            green: int = None,
+            blue: int = None,
+            is_on: int = None,
+            pulse_options: int = None,
+    ):
+        before: Lightbar = self._get_value()
+        if (
+                before.pulse_options == LightbarPulseOptions.FADE_IN_BLUE
+                and pulse_options is None
+        ):
+            warnings.warn('currently lightbar set to fade_in_blue. '
+                          'other actions like changing color are not possible. '
+                          'set fade_out_blue to change other colors')
+        self._set_value(Lightbar(
+            red=red if red is not None else before.red,
+            green=green if green is not None else before.green,
+            blue=blue if blue is not None else before.blue,
+            is_on=is_on if is_on is not None else before.is_on,
+            pulse_options=pulse_options if pulse_options is not None else before.pulse_options,
+        ))

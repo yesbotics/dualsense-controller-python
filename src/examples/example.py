@@ -223,16 +223,16 @@ class Example:
         print(f'on_btn_l1_down -> ')
         # print(f'L1 Button pressed: {state} -> brightness ')
         # self._dualsense_controller.set_state(
-        #     WriteStateName.BRIGHTNESS,
-        #     OutBrightness.LOW if state else OutBrightness.HIGH
+        #     WriteStateName.PLAYER_LEDS_BRIGHTNESS,
+        #     PlayerLedsBrightness.LOW if state else PlayerLedsBrightness.HIGH
         # )
 
     def on_btn_r1_down(self) -> None:
         print(f'on_btn_r1_down -> ')
         # print(f'R1 Button pressed: {state}')
         # self._dualsense_controller.set_state(
-        #     WriteStateName.BRIGHTNESS,
-        #     OutBrightness.MEDIUM if state else OutBrightness.HIGH
+        #     WriteStateName.PLAYER_LEDS_BRIGHTNESS,
+        #     PlayerLedsBrightness.MEDIUM if state else PlayerLedsBrightness.HIGH
         # )
 
     def on_btn_l2_down(self) -> None:
@@ -242,16 +242,12 @@ class Example:
         print(f'on_btn_r3_down -> ')
 
     def on_btn_l3_down(self) -> None:
-        print(f'on_btn_l3_down -> ')
-        # if state is False:
-        #     print(f"L3 -> pulse FADE_BLUE")
-        #     self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_BLUE)
+        print(f'L3 -> pulse FADE_BLUE')
+        self.controller.lightbar.fade_in_blue()
 
     def on_btn_r3_down(self) -> None:
-        print(f'on_btn_r3_down -> ')
-        # if state is False:
-        #     print(f"R3 -> pulse FADE_OUT")
-        #     self._dualsense_controller.set_state(WriteStateName.PULSE_OPTIONS, OutPulseOptions.FADE_OUT)
+        print(f'R3 -> pulse FADE_OUT')
+        self.controller.lightbar.fade_out_blue()
 
     # ########################################### TRIGGERS -> RUMBLE ##############################################
     def on_left_trigger_changed(self, value: Number) -> None:

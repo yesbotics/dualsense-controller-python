@@ -148,5 +148,6 @@ class ValueCompare:
                 or after.red != before.red
                 or after.green != before.green
                 or after.blue != before.blue
+                or after.pulse_options != before.pulse_options
         )
         return changed, after

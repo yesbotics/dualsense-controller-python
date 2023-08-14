@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import Final
 
 from dualsense_controller.api.Properties import Properties
@@ -231,6 +232,8 @@ class DualSenseController:
             microphone_initially_muted: bool = True,
             microphone_invert_led: bool = False,
     ):
+
+        warnings.filterwarnings("always", category=UserWarning)
 
         self._core: DualSenseControllerCore = DualSenseControllerCore(
             device_index_or_device_info=device_index_or_device_info,

@@ -1,8 +1,8 @@
 from typing import Final
 
 from dualsense_controller.core.report.out_report.OutReport import OutReport
-from dualsense_controller.core.report.out_report.enum import OutBrightness, FlagsLights, OutFlagsPhysics, \
-    OutLedOptions, OutPulseOptions, PlayerLeds
+from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, FlagsLights, OutFlagsPhysics, \
+    OutLedOptions, LightbarPulseOptions, PlayerLeds
 from dualsense_controller.core.state.BaseStates import BaseStates
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.ValueCompare import ValueCompare
@@ -44,7 +44,6 @@ class WriteStates(BaseStates):
             compare_fn=ValueCompare.compare_lightbar,
             on_state_change_cb=self._on_lightbar_changed,
         )
-
         self.lightbar_red: Final[State[int]] = self._create_and_register_state(
             WriteStateName.LIGHTBAR_RED,
             value=self.lightbar.value.red
@@ -61,11 +60,19 @@ class WriteStates(BaseStates):
             WriteStateName.LIGHTBAR_ON_OFF,
             value=self.lightbar.value.is_on
         )
+        self.lightbar_pulse_options = self._create_and_register_state(
+            WriteStateName.LIGHTBAR_PULSE_OPTIONS,
+            value=LightbarPulseOptions.OFF
+        )
 
         # ################## PLAYER LEDS
         self.player_leds: Final[State[PlayerLeds]] = self._create_and_register_state(
             name=WriteStateName.PLAYER_LEDS,
             value=PlayerLeds.OFF,
+        )
+        self.player_leds_brightness = self._create_and_register_state(
+            WriteStateName.PLAYER_LEDS_BRIGHTNESS,
+            value=PlayerLedsBrightness.HIGH
         )
 
         # ################## MICROPHONE
@@ -89,15 +96,19 @@ class WriteStates(BaseStates):
         )
 
         # ################## FLAGS
-        self._create_and_register_state(
+        self.flags_physics = self._create_and_register_state(
             WriteStateName.FLAGS_PHYSICS,
             value=OutFlagsPhysics.ALL,
             disable_change_detection=True,
         )
-        self._create_and_register_state(
+        self.flags_lights = self._create_and_register_state(
             WriteStateName.FLAGS_LIGHTS,
             value=FlagsLights.ALL_BUT_MUTE_LED,
             disable_change_detection=True,
+        )
+        self.led_options = self._create_and_register_state(
+            WriteStateName.LED_OPTIONS,
+            value=OutLedOptions.ALL
         )
 
         self._create_and_register_state(WriteStateName.L2_EFFECT_MODE, value=0x26)
@@ -116,9 +127,6 @@ class WriteStates(BaseStates):
         self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM5, value=0x00)
         self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM6, value=0x00)
         self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM7, value=0x00)
-        self._create_and_register_state(WriteStateName.LED_OPTIONS, value=OutLedOptions.ALL)
-        self._create_and_register_state(WriteStateName.PULSE_OPTIONS, value=OutPulseOptions.FADE_OUT)
-        self._create_and_register_state(WriteStateName.BRIGHTNESS, value=OutBrightness.HIGH)
 
     @property
     def has_changed(self) -> bool:
@@ -139,14 +147,26 @@ class WriteStates(BaseStates):
         self._has_changed = False
 
     def update_out_report(self, out_report: OutReport):
-        out_report.flags_physics = self._get_state_by_name(WriteStateName.FLAGS_PHYSICS).value_raw
-        out_report.flags_lights = self._get_state_by_name(WriteStateName.FLAGS_LIGHTS).value_raw
+        out_report.flags_physics = self.flags_physics.value_raw
+        out_report.flags_lights = self.flags_lights.value_raw
 
-        out_report.lightbar_red = self._get_state_by_name(WriteStateName.LIGHTBAR_RED).value_raw
-        out_report.lightbar_green = self._get_state_by_name(WriteStateName.LIGHTBAR_GREEN).value_raw
-        out_report.lightbar_blue = self._get_state_by_name(WriteStateName.LIGHTBAR_BLUE).value_raw
-        out_report.motor_left = self._get_state_by_name(WriteStateName.MOTOR_LEFT).value_raw
-        out_report.motor_right = self._get_state_by_name(WriteStateName.MOTOR_RIGHT).value_raw
+        out_report.lightbar_red = self.lightbar_red.value_raw
+        out_report.lightbar_green = self.lightbar_green.value_raw
+        out_report.lightbar_blue = self.lightbar_blue.value_raw
+        out_report.lightbar_on_off = self.lightbar_on_off.value_raw
+        out_report.lightbar_pulse_options = self.lightbar_pulse_options.value_raw
+
+        out_report.motor_left = self.left_motor.value_raw
+        out_report.motor_right = self.right_motor.value_raw
+
+        out_report.microphone_led = self.microphone_led.value_raw
+        out_report.microphone_mute = self.microphone_mute.value_raw
+
+        out_report.led_options = self.led_options.value_raw
+
+        out_report.player_leds = self.player_leds.value_raw
+        out_report.player_leds_brightness = self.player_leds_brightness.value_raw
+
         out_report.l2_effect_mode = self._get_state_by_name(WriteStateName.L2_EFFECT_MODE).value_raw
         out_report.l2_effect_param1 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM1).value_raw
         out_report.l2_effect_param2 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM2).value_raw
@@ -163,14 +183,6 @@ class WriteStates(BaseStates):
         out_report.r2_effect_param5 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM5).value_raw
         out_report.r2_effect_param6 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM6).value_raw
         out_report.r2_effect_param7 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM7).value_raw
-
-        out_report.lightbar_on_off = self._get_state_by_name(WriteStateName.LIGHTBAR_ON_OFF).value_raw
-        out_report.microphone_led = self._get_state_by_name(WriteStateName.MICROPHONE_LED).value_raw
-        out_report.microphone_mute = self._get_state_by_name(WriteStateName.MICROPHONE_MUTE).value_raw
-        out_report.led_options = self._get_state_by_name(WriteStateName.LED_OPTIONS).value_raw
-        out_report.pulse_options = self._get_state_by_name(WriteStateName.PULSE_OPTIONS).value_raw
-        out_report.brightness = self._get_state_by_name(WriteStateName.BRIGHTNESS).value_raw
-        out_report.player_led = self._get_state_by_name(WriteStateName.PLAYER_LEDS).value_raw
 
     def _create_and_register_state(
             self,
@@ -211,10 +223,10 @@ class WriteStates(BaseStates):
         self.lightbar_green.value = lb.green
         self.lightbar_blue.value = lb.blue
         self.lightbar_on_off.value = lb.is_on
+        self.lightbar_pulse_options.value = lb.pulse_options
         self._has_changed = True
 
     def _on_microphone_led_changed(self):
         # Remove mic control flag to allow setting brightness
-        state: State[StateValue] = self._get_state_by_name(WriteStateName.FLAGS_LIGHTS)
-        state.set_value_without_triggering_change(FlagsLights.ALL)
+        self.flags_lights.set_value_without_triggering_change(FlagsLights.ALL)
         self._has_changed = True

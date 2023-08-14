@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from dualsense_controller.core.report.out_report.enum import LightbarPulseOptions
+
 
 @dataclass(frozen=True, slots=True)
 class Microphone:
@@ -15,3 +17,4 @@ class Lightbar:
     green: int = 0
     blue: int = 0
     is_on: bool = False
+    pulse_options: int = LightbarPulseOptions.FADE_OUT_BLUE

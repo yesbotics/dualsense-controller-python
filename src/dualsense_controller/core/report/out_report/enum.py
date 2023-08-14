@@ -73,26 +73,23 @@ class OutLightbarMode(int, Enum):
     LIGHT_OUT = 1 << 1
 
 
-class OutBrightness(int, Enum):
+class PlayerLedsBrightness(int, Enum):
     HIGH = 0
     MEDIUM = 0x01
     LOW = 0x02
 
 
-class OutPulseOptions(int, Enum):
+class LightbarPulseOptions(int, Enum):
     OFF = 0
-    FADE_BLUE = 1 << 0
-    FADE_OUT = 1 << 1
+    FADE_IN_BLUE = 1 << 0
+    FADE_OUT_BLUE = 1 << 1
 
 
 class OutLedOptions(int, Enum):
     OFF = 0
     PLAYER_LED_BRIGHTNESS = 1 << 0
     UNINTERRUMPABLE_LED = 1 << 1
-    ALL = (
-            PLAYER_LED_BRIGHTNESS |
-            UNINTERRUMPABLE_LED
-    )
+    ALL = PLAYER_LED_BRIGHTNESS | UNINTERRUMPABLE_LED
 
 
 class OutReportId(int, Enum):
