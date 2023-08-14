@@ -1,7 +1,7 @@
 from typing import Final
 
 from dualsense_controller.core.report.out_report.OutReport import OutReport
-from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, FlagsLights, OutFlagsPhysics, \
+from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, ControlFlags, OutFlagsPhysics, \
     OutLedOptions, LightbarPulseOptions, PlayerLeds
 from dualsense_controller.core.state.BaseStates import BaseStates
 from dualsense_controller.core.state.State import State
@@ -101,9 +101,9 @@ class WriteStates(BaseStates):
             value=OutFlagsPhysics.ALL,
             disable_change_detection=True,
         )
-        self.flags_lights = self._create_and_register_state(
-            WriteStateName.FLAGS_LIGHTS,
-            value=FlagsLights.ALL_BUT_MUTE_LED,
+        self.flags_controls = self._create_and_register_state(
+            WriteStateName.FLAGS_CONTROLS,
+            value=ControlFlags.ALL_BUT_MUTE_LED,
             disable_change_detection=True,
         )
         self.led_options = self._create_and_register_state(
@@ -141,14 +141,14 @@ class WriteStates(BaseStates):
         state.set_value_without_triggering_change(value)
 
     def set_unchanged(self):
-        self._get_state_by_name(WriteStateName.FLAGS_LIGHTS).set_value_without_triggering_change(
-            FlagsLights.ALL_BUT_MUTE_LED
+        self._get_state_by_name(WriteStateName.FLAGS_CONTROLS).set_value_without_triggering_change(
+            ControlFlags.ALL_BUT_MUTE_LED
         )
         self._has_changed = False
 
     def update_out_report(self, out_report: OutReport):
         out_report.flags_physics = self.flags_physics.value_raw
-        out_report.flags_lights = self.flags_lights.value_raw
+        out_report.flags_controls = self.flags_controls.value_raw
 
         out_report.lightbar_red = self.lightbar_red.value_raw
         out_report.lightbar_green = self.lightbar_green.value_raw
@@ -228,5 +228,5 @@ class WriteStates(BaseStates):
 
     def _on_microphone_led_changed(self):
         # Remove mic control flag to allow setting brightness
-        self.flags_lights.set_value_without_triggering_change(FlagsLights.ALL)
+        self.flags_controls.set_value_without_triggering_change(ControlFlags.ALL)
         self._has_changed = True

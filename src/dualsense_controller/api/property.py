@@ -193,6 +193,9 @@ class PlayerLedsProperty(_Property[PlayerLeds]):
     def set_off(self) -> None:
         self._set_value(PlayerLeds.OFF)
 
+    def set_brightess(self) -> None:
+        self._set_value(PlayerLeds.OFF)
+
     def set_center(self) -> None:
         self._set_value(PlayerLeds.CENTER)
 

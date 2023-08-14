@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class WriteStateName(str, Enum):
-    FLAGS_LIGHTS = 'FLAGS_LIGHTS'
+    FLAGS_CONTROLS = 'FLAGS_CONTROLS'
     FLAGS_PHYSICS = 'FLAGS_PHYSICS'
     LIGHTBAR_RED = 'LIGHTBAR_RED'
     LIGHTBAR_GREEN = 'LIGHTBAR_GREEN'

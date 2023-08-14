@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, FlagsLights, OutFlagsPhysics, OutLedOptions, \
+from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, ControlFlags, OutFlagsPhysics, \
+    OutLedOptions, \
     PlayerLeds, LightbarPulseOptions
 
 
@@ -13,7 +14,7 @@ class OutReport(ABC):
         pass
 
     flags_physics: int = OutFlagsPhysics.ALL
-    flags_lights: int = FlagsLights.ALL
+    flags_controls: int = ControlFlags.ALL
 
     lightbar_red: int = 0xff
     lightbar_green: int = 0xff

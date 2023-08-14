@@ -25,7 +25,7 @@ class OutReportLength(int, Enum):
     # BT_01 = 77  # ??
 
 
-class FlagsLights(int, Enum):
+class ControlFlags(int, Enum):
     MIC_MUTE_LED_CONTROL_ENABLE = 1 << 0
     POWER_SAVE_CONTROL_ENABLE = 1 << 1
     LIGHTBAR_CONTROL_ENABLE = 1 << 2
@@ -68,15 +68,15 @@ class PlayerLeds(int, Enum):
     ALL = CENTER | INNER | OUTER
 
 
-class OutLightbarMode(int, Enum):
-    LIGHT_ON = 1 << 0
-    LIGHT_OUT = 1 << 1
-
-
 class PlayerLedsBrightness(int, Enum):
     HIGH = 0
     MEDIUM = 0x01
     LOW = 0x02
+
+
+class OutLightbarMode(int, Enum):
+    LIGHT_ON = 1 << 0
+    LIGHT_OUT = 1 << 1
 
 
 class LightbarPulseOptions(int, Enum):

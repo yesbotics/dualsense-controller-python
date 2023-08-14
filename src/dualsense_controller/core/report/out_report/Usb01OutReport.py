@@ -33,7 +33,7 @@ class Usb01OutReport(OutReport):
         # bit 5: ???
         # bit 6: adjustment of overall motor/effect power (index 37 - read note on triggers)
         # bit 7: ???
-        out_report_bytes[2] = self.flags_lights
+        out_report_bytes[2] = self.flags_controls
 
         # DualShock 4 compatibility update_level.
         out_report_bytes[3] = clamp_byte(self.motor_right)
