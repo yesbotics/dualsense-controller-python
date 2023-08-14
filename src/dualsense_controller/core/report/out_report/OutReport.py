@@ -40,7 +40,7 @@ class OutReport(ABC):
     r2_effect_param6: int = 0x00
     r2_effect_param7: int = 0x00
 
-    lightbar: bool = True
+    lightbar_on_off: bool = True
 
     microphone_led: bool = False
     microphone_mute: bool = True

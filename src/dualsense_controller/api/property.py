@@ -1,3 +1,4 @@
+import warnings
 from abc import ABC
 from dataclasses import dataclass
 from functools import partial
@@ -10,7 +11,7 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
 from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.typedef import Number
-from dualsense_controller.core.state.write_state.value_type import Microphone
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone
 
 
 # BASE
@@ -217,21 +218,22 @@ class MicrophoneProperty(_Property[Microphone]):
         super().__init__(state)
         self._invert_led: Final[bool] = invert_led
 
-    def toggle_mute(self) -> None:
+    def toggle_muted(self) -> None:
         if self.is_muted:
-            self.unmute()
+            self.set_unmuted()
         else:
-            self.mute()
+            self.set_muted()
 
-    def mute(self) -> None:
+    def set_muted(self) -> None:
         self._set_mute(True)
 
-    def unmute(self) -> None:
+    def set_unmuted(self) -> None:
         self._set_mute(False)
 
-    def refresh(self) -> None:
-        self.toggle_mute()
-        self.toggle_mute()
+    def refresh_workaround(self) -> None:
+        warnings.warn("Micrphone state initially not set properly. workaround enforces it", UserWarning)
+        self.toggle_muted()
+        self.toggle_muted()
 
     def _set_mute(self, mute: bool):
         self._set_value(Microphone(
@@ -242,3 +244,47 @@ class MicrophoneProperty(_Property[Microphone]):
     @property
     def is_muted(self) -> bool:
         return self._get_value().mute
+
+
+class LightbarProperty(_Property[Lightbar]):
+
+    @property
+    def color(self) -> tuple[int, int, int]:
+        current: Lightbar = self._get_value()
+        return current.red, current.green, current.blue
+
+    @property
+    def is_on(self) -> bool:
+        return self._get_value().is_on
+
+    def set_on(self) -> None:
+        self.set_is_on(True)
+
+    def set_off(self) -> None:
+        self.set_is_on(False)
+
+    def toggle_on_off(self) -> None:
+        self.set_is_on(not self.is_on)
+
+    def set_is_on(self, is_on: bool) -> None:
+        before: Lightbar = self._get_value()
+        self._set_value(Lightbar(before.red, before.green, before.blue, is_on))
+
+    def set_color(self, r: int, g: int, b: int) -> None:
+        before: Lightbar = self._get_value()
+        self._set_value(Lightbar(r, g, b, before.is_on))
+
+    def set_color_black(self) -> None:
+        self.set_color(0, 0, 0)
+
+    def set_color_white(self) -> None:
+        self.set_color(255, 255, 255)
+
+    def set_color_red(self) -> None:
+        self.set_color(255, 0, 0)
+
+    def set_color_green(self) -> None:
+        self.set_color(0, 255, 0)
+
+    def set_color_blue(self) -> None:
+        self.set_color(0, 0, 255)

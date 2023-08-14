@@ -4,7 +4,7 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
     JoyStick, \
     Orientation, TouchFinger
 from dualsense_controller.core.state.typedef import CompareResult, Number
-from dualsense_controller.core.state.write_state.value_type import Microphone
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone
 
 _HALF_255: Final[Number] = 127.5
 
@@ -78,7 +78,12 @@ class ValueCompare:
     ) -> CompareResult:
         if before is None:
             return True, after
-        changed: bool = after.active != before.active or after.x != before.x or after.y != before.y or after.id != before.id
+        changed: bool = (
+                after.active != before.active
+                or after.x != before.x
+                or after.y != before.y
+                or after.id != before.id
+        )
         return changed, after
 
     @staticmethod
@@ -129,4 +134,19 @@ class ValueCompare:
         if before is None:
             return True, after
         changed: bool = after.mute != before.mute or after.led != before.led
+        return changed, after
+
+    @staticmethod
+    def compare_lightbar(
+            before: Lightbar,
+            after: Lightbar,
+    ) -> CompareResult:
+        if before is None:
+            return True, after
+        changed: bool = (
+                after.is_on != before.is_on
+                or after.red != before.red
+                or after.green != before.green
+                or after.blue != before.blue
+        )
         return changed, after

@@ -1,4 +1,5 @@
 import time
+import warnings
 
 from dualsense_controller.api.DualSenseController import DualSenseController, Mapping
 from dualsense_controller.api.enum import UpdateLevel
@@ -151,10 +152,11 @@ class Example:
         print(f"on_btn_options_down -> player led off")
         self.controller.player_leds.set_off()
 
-    # Btn Create -> Lightbar off + Micro Mute
+    # Btn Create -> Lightbar off
     def on_btn_create_down(self) -> None:
-        print(f"on_btn_create_down -> lightbar false")
-        # self.controller.set_state(WriteStateName.LIGHTBAR, state)
+        print(f"on_btn_create_down -> lightbar toggle")
+        warnings.warn("toggle lightbar not working properly -> check it!", UserWarning)
+        self.controller.lightbar.toggle_on_off()
 
     def on_btn_mute_down(self) -> None:
         print(f"mute")
@@ -162,7 +164,7 @@ class Example:
         print("batt lvl:", self.controller.battery.value.level_percentage)
         print("batt is full:", self.controller.battery.value.full)
         print("batt is charging", self.controller.battery.value.charging)
-        self.controller.microphone.toggle_mute()
+        self.controller.microphone.toggle_muted()
         print('self.controller.microphone, muted:', self.controller.microphone.is_muted)
 
     def on_btn_touchpad_down(self) -> None:
@@ -172,27 +174,19 @@ class Example:
 
     def on_btn_left_down(self) -> None:
         print(f"btn_left_down -> lightbar red")
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
+        self.controller.lightbar.set_color_red()
 
     def on_btn_up_down(self) -> None:
         print(f"btn_up_down -> lightbar green")
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 0)
+        self.controller.lightbar.set_color_green()
 
     def on_btn_right_down(self) -> None:
         print(f"btn_right_down -> lightbar blue")
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 0)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 0)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
+        self.controller.lightbar.set_color_blue()
 
     def on_btn_down_down(self) -> None:
         print(f"btn_down_down -> lightbar white")
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, 255)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, 255)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, 255)
+        self.controller.lightbar.set_color_white()
 
     # ########################################### BTN SYMBOL -> PLAYED LED ####################################
 
@@ -303,9 +297,7 @@ class Example:
         green = (color >> 8) & 0xff
         blue = color & 0xff
         # print(f"Touch {x}-{y} -> color {hex(color)} {red}-{green}-{blue}")
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_RED, red)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_GREEN, green)
-        # self._dualsense_controller.set_state(WriteStateName.LIGHTBAR_BLUE, blue)
+        self.controller.lightbar.set_color(red, green, blue)
 
     def on_touch_finger_2_change(self, touch_finger_1: TouchFinger):
         print(f'on_touch_finger_2_change -> {touch_finger_1}')

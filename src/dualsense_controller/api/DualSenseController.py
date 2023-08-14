@@ -8,7 +8,7 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     ConnectionProperty, \
     ExceptionProperty, \
     GyroscopeProperty, JoyStickProperty, \
-    MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
+    LightbarProperty, MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
     TouchFingerProperty, TriggerProperty
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
 from dualsense_controller.core.enum import ConnectionType
@@ -208,6 +208,10 @@ class DualSenseController:
     def microphone(self) -> MicrophoneProperty:
         return self._properties.microphone
 
+    @property
+    def lightbar(self) -> LightbarProperty:
+        return self._properties.lightbar
+
     # ################################################# MAIN #################################################
 
     def __init__(
@@ -261,10 +265,10 @@ class DualSenseController:
     def activate(self) -> None:
         self._core.init()
         if self._microphone_initially_muted:
-            self._properties.microphone.mute()
+            self._properties.microphone.set_muted()
         else:
-            self._properties.microphone.unmute()
-        self._properties.microphone.refresh()
+            self._properties.microphone.set_unmuted()
+        self._properties.microphone.refresh_workaround()
 
     def deactivate(self) -> None:
         self._core.deinit()

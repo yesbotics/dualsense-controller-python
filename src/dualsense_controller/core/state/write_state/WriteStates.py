@@ -10,7 +10,7 @@ from dualsense_controller.core.state.mapping.StateValueMapper import StateValueM
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.typedef import CompareFn, StateChangeCallback, StateValue
 from dualsense_controller.core.state.write_state.enum import WriteStateName
-from dualsense_controller.core.state.write_state.value_type import Microphone
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone
 
 
 class WriteStates(BaseStates):
@@ -23,6 +23,7 @@ class WriteStates(BaseStates):
 
         self._has_changed: bool = False
 
+        # ################## MOTORS/RUMBLE
         self.left_motor: Final[State[int]] = self._create_and_register_state(
             WriteStateName.MOTOR_LEFT,
             value=0x00,
@@ -36,6 +37,58 @@ class WriteStates(BaseStates):
             raw_to_mapped_fn=self._state_value_mapper.set_right_motor_raw_to_mapped,
         )
 
+        # ################## LIGHTBAR
+        self.lightbar: Final[State[Lightbar]] = self._create_and_register_state(
+            WriteStateName.LIGHTBAR,
+            value=Lightbar(0, 255, 0),
+            compare_fn=ValueCompare.compare_lightbar,
+            on_state_change_cb=self._on_lightbar_changed,
+        )
+
+        self.lightbar_red: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LIGHTBAR_RED,
+            value=self.lightbar.value.red
+        )
+        self.lightbar_green: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LIGHTBAR_GREEN,
+            value=self.lightbar.value.green
+        )
+        self.lightbar_blue: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LIGHTBAR_BLUE,
+            value=self.lightbar.value.blue
+        )
+        self.lightbar_on_off = self._create_and_register_state(
+            WriteStateName.LIGHTBAR_ON_OFF,
+            value=self.lightbar.value.is_on
+        )
+
+        # ################## PLAYER LEDS
+        self.player_leds: Final[State[PlayerLeds]] = self._create_and_register_state(
+            name=WriteStateName.PLAYER_LEDS,
+            value=PlayerLeds.OFF,
+        )
+
+        # ################## MICROPHONE
+        self.microphone: Final[State[Microphone]] = self._create_and_register_state(
+            name=WriteStateName.MICROPHONE,
+            value=Microphone(),
+            compare_fn=ValueCompare.compare_microphone,
+            on_state_change_cb=self._on_microphone_changed,
+            ignore_none=False,
+        )
+        self.microphone_mute: Final[State[bool]] = self._create_and_register_state(
+            WriteStateName.MICROPHONE_MUTE,
+            value=self.microphone.value.mute,
+            ignore_none=False,
+        )
+        self.microphone_led: Final[State[bool]] = self._create_and_register_state(
+            name=WriteStateName.MICROPHONE_LED,
+            value=self.microphone.value.led,
+            on_state_change_cb=self._on_microphone_led_changed,
+            ignore_none=False,
+        )
+
+        # ################## FLAGS
         self._create_and_register_state(
             WriteStateName.FLAGS_PHYSICS,
             value=OutFlagsPhysics.ALL,
@@ -47,9 +100,6 @@ class WriteStates(BaseStates):
             disable_change_detection=True,
         )
 
-        self._create_and_register_state(WriteStateName.LIGHTBAR_RED, value=0xff)
-        self._create_and_register_state(WriteStateName.LIGHTBAR_GREEN, value=0xff)
-        self._create_and_register_state(WriteStateName.LIGHTBAR_BLUE, value=0xff)
         self._create_and_register_state(WriteStateName.L2_EFFECT_MODE, value=0x26)
         self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM1, value=0x90)
         self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM2, value=0xA0)
@@ -66,36 +116,9 @@ class WriteStates(BaseStates):
         self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM5, value=0x00)
         self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM6, value=0x00)
         self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM7, value=0x00)
-        self._create_and_register_state(WriteStateName.LIGHTBAR, value=True)
         self._create_and_register_state(WriteStateName.LED_OPTIONS, value=OutLedOptions.ALL)
         self._create_and_register_state(WriteStateName.PULSE_OPTIONS, value=OutPulseOptions.FADE_OUT)
         self._create_and_register_state(WriteStateName.BRIGHTNESS, value=OutBrightness.HIGH)
-
-        self.player_leds: Final[State[PlayerLeds]] = self._create_and_register_state(
-            name=WriteStateName.PLAYER_LEDS,
-            value=PlayerLeds.OFF,
-        )
-
-        self.microphone: Final[State[Microphone]] = self._create_and_register_state(
-            name=WriteStateName.MICROPHONE,
-            value=Microphone(),
-            compare_fn=ValueCompare.compare_microphone,
-            on_state_change_cb=self._on_microphone_changed,
-            ignore_none=False,
-        )
-        self.microphone_mute: Final[State[bool]] = self._create_and_register_state(
-            WriteStateName.MICROPHONE_MUTE,
-            value=self.microphone.value.mute,
-            default_value=self.microphone.value.mute,
-            ignore_none=False,
-        )
-        self.microphone_led: Final[State[bool]] = self._create_and_register_state(
-            name=WriteStateName.MICROPHONE_LED,
-            value=self.microphone.value.led,
-            default_value=self.microphone.value.led,
-            on_state_change_cb=self._on_microphone_led_changed,
-            ignore_none=False,
-        )
 
     @property
     def has_changed(self) -> bool:
@@ -141,7 +164,7 @@ class WriteStates(BaseStates):
         out_report.r2_effect_param6 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM6).value_raw
         out_report.r2_effect_param7 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM7).value_raw
 
-        out_report.lightbar = self._get_state_by_name(WriteStateName.LIGHTBAR.LIGHTBAR).value_raw
+        out_report.lightbar_on_off = self._get_state_by_name(WriteStateName.LIGHTBAR_ON_OFF).value_raw
         out_report.microphone_led = self._get_state_by_name(WriteStateName.MICROPHONE_LED).value_raw
         out_report.microphone_mute = self._get_state_by_name(WriteStateName.MICROPHONE_MUTE).value_raw
         out_report.led_options = self._get_state_by_name(WriteStateName.LED_OPTIONS).value_raw
@@ -181,6 +204,13 @@ class WriteStates(BaseStates):
     def _on_microphone_changed(self, mic: Microphone):
         self.microphone_mute.value = mic.mute
         self.microphone_led.value = mic.led
+        self._has_changed = True
+
+    def _on_lightbar_changed(self, lb: Lightbar):
+        self.lightbar_red.value = lb.red
+        self.lightbar_green.value = lb.green
+        self.lightbar_blue.value = lb.blue
+        self.lightbar_on_off.value = lb.is_on
         self._has_changed = True
 
     def _on_microphone_led_changed(self):

@@ -4,7 +4,7 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     ConnectionProperty, \
     ExceptionProperty, \
     GyroscopeProperty, JoyStickProperty, \
-    MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
+    LightbarProperty, MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
     TouchFingerProperty, TriggerProperty
 from dualsense_controller.core.Benchmarker import Benchmark
 from dualsense_controller.core.state.State import State
@@ -85,3 +85,4 @@ class Properties:
             write_states.microphone,
             invert_led=microphone_invert_led,
         )
+        self.lightbar: Final[LightbarProperty] = LightbarProperty(write_states.lightbar)
