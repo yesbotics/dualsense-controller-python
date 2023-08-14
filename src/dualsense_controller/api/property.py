@@ -6,13 +6,14 @@ from functools import partial
 from typing import Any, Final, Generic
 
 from dualsense_controller.core.Benchmarker import Benchmark
-from dualsense_controller.core.report.out_report.enum import LightbarPulseOptions, PlayerLeds
+from dualsense_controller.core.report.out_report.enum import LightbarPulseOptions, PlayerLedsBrightness, \
+    PlayerLedsEnable
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
     JoyStick, Orientation, TouchFinger
 from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.typedef import Number
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
 
 
 # BASE
@@ -191,25 +192,39 @@ class OrientationProperty(_Property[Orientation]):
 class PlayerLedsProperty(_Property[PlayerLeds]):
 
     def set_off(self) -> None:
-        self._set_value(PlayerLeds.OFF)
-
-    def set_brightess(self) -> None:
-        self._set_value(PlayerLeds.OFF)
+        self._set_enable(PlayerLedsEnable.OFF)
 
     def set_center(self) -> None:
-        self._set_value(PlayerLeds.CENTER)
+        self._set_enable(PlayerLedsEnable.CENTER)
 
     def set_inner(self) -> None:
-        self._set_value(PlayerLeds.INNER)
+        self._set_enable(PlayerLedsEnable.INNER)
 
     def set_outer(self) -> None:
-        self._set_value(PlayerLeds.OUTER)
+        self._set_enable(PlayerLedsEnable.OUTER)
 
     def set_all(self) -> None:
-        self._set_value(PlayerLeds.ALL)
+        self._set_enable(PlayerLedsEnable.ALL)
 
     def set_center_and_outer(self) -> None:
-        self._set_value(PlayerLeds.CENTER | PlayerLeds.OUTER)
+        self._set_enable(PlayerLedsEnable.CENTER | PlayerLedsEnable.OUTER)
+
+    def set_brightness_high(self) -> None:
+        self._set_brightness(PlayerLedsBrightness.HIGH)
+
+    def set_brightness_medium(self) -> None:
+        self._set_brightness(PlayerLedsBrightness.MEDIUM)
+
+    def set_brightness_low(self) -> None:
+        self._set_brightness(PlayerLedsBrightness.LOW)
+
+    def _set_enable(self, enable: PlayerLedsEnable):
+        before: PlayerLeds = self._get_value()
+        self._set_value(PlayerLeds(enable=enable, brightness=before.brightness))
+
+    def _set_brightness(self, brightness: PlayerLedsBrightness):
+        before: PlayerLeds = self._get_value()
+        self._set_value(PlayerLeds(enable=before.enable, brightness=brightness))
 
 
 class MicrophoneProperty(_Property[Microphone]):

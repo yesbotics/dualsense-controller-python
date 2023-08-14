@@ -53,7 +53,7 @@ class ControlFlags(int, Enum):
     ALL_FORCE = 0xff
 
 
-class PlayerLeds(int, Enum):
+class PlayerLedsEnable(int, Enum):
     OFF = 0
 
     # Enables the single, center LED
@@ -85,7 +85,7 @@ class LightbarPulseOptions(int, Enum):
     FADE_OUT_BLUE = 1 << 1
 
 
-class OutLedOptions(int, Enum):
+class LedOptions(int, Enum):
     OFF = 0
     PLAYER_LED_BRIGHTNESS = 1 << 0
     UNINTERRUMPABLE_LED = 1 << 1

@@ -85,7 +85,7 @@ class Usb01OutReport(OutReport):
         # Disable/Endable LEDs or Pulse/Fade-Options?
         out_report_bytes[42] = self.lightbar_pulse_options
         out_report_bytes[43] = self.player_leds_brightness
-        out_report_bytes[44] = self.player_leds
+        out_report_bytes[44] = self.player_leds_enable
 
         out_report_bytes[45] = self.lightbar_red
         out_report_bytes[46] = self.lightbar_green

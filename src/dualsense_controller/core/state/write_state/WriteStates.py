@@ -2,7 +2,7 @@ from typing import Final
 
 from dualsense_controller.core.report.out_report.OutReport import OutReport
 from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, ControlFlags, OutFlagsPhysics, \
-    OutLedOptions, LightbarPulseOptions, PlayerLeds
+    LedOptions, LightbarPulseOptions, PlayerLedsEnable
 from dualsense_controller.core.state.BaseStates import BaseStates
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.ValueCompare import ValueCompare
@@ -10,7 +10,7 @@ from dualsense_controller.core.state.mapping.StateValueMapper import StateValueM
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.typedef import CompareFn, StateChangeCallback, StateValue
 from dualsense_controller.core.state.write_state.enum import WriteStateName
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
 
 
 class WriteStates(BaseStates):
@@ -68,11 +68,17 @@ class WriteStates(BaseStates):
         # ################## PLAYER LEDS
         self.player_leds: Final[State[PlayerLeds]] = self._create_and_register_state(
             name=WriteStateName.PLAYER_LEDS,
-            value=PlayerLeds.OFF,
+            compare_fn=ValueCompare.compare_player_leds,
+            on_state_change_cb=self._on_player_leds_changed,
+            value=PlayerLeds(),
+        )
+        self.player_leds_enable: Final[State[PlayerLedsEnable]] = self._create_and_register_state(
+            name=WriteStateName.PLAYER_LEDS_ENABLE,
+            value=self.player_leds.value.enable,
         )
         self.player_leds_brightness = self._create_and_register_state(
             WriteStateName.PLAYER_LEDS_BRIGHTNESS,
-            value=PlayerLedsBrightness.HIGH
+            value=self.player_leds.value.brightness,
         )
 
         # ################## MICROPHONE
@@ -108,7 +114,7 @@ class WriteStates(BaseStates):
         )
         self.led_options = self._create_and_register_state(
             WriteStateName.LED_OPTIONS,
-            value=OutLedOptions.ALL
+            value=LedOptions.ALL
         )
 
         self._create_and_register_state(WriteStateName.L2_EFFECT_MODE, value=0x26)
@@ -164,7 +170,7 @@ class WriteStates(BaseStates):
 
         out_report.led_options = self.led_options.value_raw
 
-        out_report.player_leds = self.player_leds.value_raw
+        out_report.player_leds_enable = self.player_leds_enable.value_raw
         out_report.player_leds_brightness = self.player_leds_brightness.value_raw
 
         out_report.l2_effect_mode = self._get_state_by_name(WriteStateName.L2_EFFECT_MODE).value_raw
@@ -216,6 +222,11 @@ class WriteStates(BaseStates):
     def _on_microphone_changed(self, mic: Microphone):
         self.microphone_mute.value = mic.mute
         self.microphone_led.value = mic.led
+        self._has_changed = True
+
+    def _on_player_leds_changed(self, leds: PlayerLeds):
+        self.player_leds_enable.value = leds.enable
+        self.player_leds_brightness.value = leds.brightness
         self._has_changed = True
 
     def _on_lightbar_changed(self, lb: Lightbar):

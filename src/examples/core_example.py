@@ -2,7 +2,7 @@ from time import sleep
 from typing import Any
 
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
-from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, PlayerLeds, LightbarPulseOptions
+from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, PlayerLedsEnable, LightbarPulseOptions
 from dualsense_controller.core.state.mapping.enum import StateValueMapping
 from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Connection, Gyroscope, JoyStick, \
@@ -182,25 +182,25 @@ class CoreExample:
     #
     def _on_btn_square(self) -> None:
         print(f"player led center + outer")
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS, PlayerLeds.CENTER | PlayerLeds.OUTER)
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS_ENABLE, PlayerLedsEnable.CENTER | PlayerLedsEnable.OUTER)
 
     def _on_btn_triangle(self) -> None:
         print(f"player led inner")
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS, PlayerLeds.INNER)
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS_ENABLE, PlayerLedsEnable.INNER)
 
     def _on_btn_circle(self) -> None:
         print(f"player led outer")
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS, PlayerLeds.OUTER)
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS_ENABLE, PlayerLedsEnable.OUTER)
 
     def _on_btn_cross(self, state: bool) -> None:
         if state:
             print(f"_on_btn_cross", self._dualsense_controller.read_states.btn_l1.value)
         print(f"player led all", state)
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS, PlayerLeds.ALL)
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS_ENABLE, PlayerLedsEnable.ALL)
 
     def _on_btn_options(self, state: bool) -> None:
         print(f"player led off")
-        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS, PlayerLeds.OFF)
+        self._dualsense_controller.set_state(WriteStateName.PLAYER_LEDS_ENABLE, PlayerLedsEnable.OFF)
         self._dualsense_controller.set_state(WriteStateName.MICROPHONE_LED, state)
 
     #

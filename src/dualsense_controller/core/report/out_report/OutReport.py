@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, ControlFlags, OutFlagsPhysics, \
-    OutLedOptions, \
-    PlayerLeds, LightbarPulseOptions
+    LedOptions, \
+    PlayerLedsEnable, LightbarPulseOptions
 
 
 @dataclass(slots=True)
@@ -46,7 +46,7 @@ class OutReport(ABC):
     microphone_led: bool = False
     microphone_mute: bool = True
 
-    led_options: OutLedOptions = OutLedOptions.ALL
+    led_options: LedOptions = LedOptions.ALL
     lightbar_pulse_options: LightbarPulseOptions = LightbarPulseOptions.OFF
     player_leds_brightness: PlayerLedsBrightness = PlayerLedsBrightness.HIGH
-    player_leds: int = PlayerLeds.OFF
+    player_leds_enable: int = PlayerLedsEnable.OFF

@@ -79,7 +79,7 @@ class Example:
         self.controller.btn_down.on_down(self.on_btn_down_down)
 
         # BTN L and R
-        self.controller.btn_l1.on_down(self.on_btn_l1_down)
+        self.controller.btn_l1.on_change(self.on_btn_l1_changed)
         self.controller.btn_r1.on_down(self.on_btn_r1_down)
         self.controller.btn_l2.on_down(self.on_btn_l2_down)
         self.controller.btn_r2.on_down(self.on_btn_r3_down)
@@ -219,21 +219,16 @@ class Example:
         self.controller.player_leds.set_center_and_outer()
 
     # ################################ BTN L and R -> brightness, nothing and led pulse modes ####################
-    def on_btn_l1_down(self) -> None:
-        print(f'on_btn_l1_down -> ')
-        # print(f'L1 Button pressed: {state} -> brightness ')
-        # self._dualsense_controller.set_state(
-        #     WriteStateName.PLAYER_LEDS_BRIGHTNESS,
-        #     PlayerLedsBrightness.LOW if state else PlayerLedsBrightness.HIGH
-        # )
+    def on_btn_l1_changed(self, pressed: bool) -> None:
+        print(f'L1 Button pressed: {pressed} -> brightness')
+        if pressed:
+            self.controller.player_leds.set_brightness_high()
+        else:
+            self.controller.player_leds.set_brightness_low()
 
     def on_btn_r1_down(self) -> None:
-        print(f'on_btn_r1_down -> ')
-        # print(f'R1 Button pressed: {state}')
-        # self._dualsense_controller.set_state(
-        #     WriteStateName.PLAYER_LEDS_BRIGHTNESS,
-        #     PlayerLedsBrightness.MEDIUM if state else PlayerLedsBrightness.HIGH
-        # )
+        print(f'R1 Button pressed: -> brightness medium')
+        self.controller.player_leds.set_brightness_medium()
 
     def on_btn_l2_down(self) -> None:
         print(f'on_btn_l2_down -> ')

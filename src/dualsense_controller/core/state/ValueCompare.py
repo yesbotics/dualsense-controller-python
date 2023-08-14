@@ -4,7 +4,7 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
     JoyStick, \
     Orientation, TouchFinger
 from dualsense_controller.core.state.typedef import CompareResult, Number
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
 
 _HALF_255: Final[Number] = 127.5
 
@@ -150,4 +150,14 @@ class ValueCompare:
                 or after.blue != before.blue
                 or after.pulse_options != before.pulse_options
         )
+        return changed, after
+
+    @staticmethod
+    def compare_player_leds(
+            before: PlayerLeds,
+            after: PlayerLeds,
+    ) -> CompareResult:
+        if before is None:
+            return True, after
+        changed: bool = (after.enable != before.enable or after.brightness != before.brightness)
         return changed, after
