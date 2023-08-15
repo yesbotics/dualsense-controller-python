@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, ControlFlags, OutFlagsPhysics, \
-    LedOptions, \
-    PlayerLedsEnable, LightbarPulseOptions
+from dualsense_controller.core.state.write_state.enum import OutFlagsPhysics, ControlFlags, LedOptions, \
+    LightbarPulseOptions, PlayerLedsBrightness, PlayerLedsEnable
 
 
 @dataclass(slots=True)

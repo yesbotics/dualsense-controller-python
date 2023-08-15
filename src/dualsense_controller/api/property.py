@@ -1,24 +1,20 @@
 import warnings
 from abc import ABC
-from copy import copy
-from dataclasses import dataclass
 from functools import partial
-from typing import Any, Final, Generic
+from typing import Final, Generic
 
+from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
 from dualsense_controller.core.Benchmarker import Benchmark
-from dualsense_controller.core.report.out_report.enum import LightbarPulseOptions, PlayerLedsBrightness, \
-    PlayerLedsEnable
+from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
     JoyStick, Orientation, TouchFinger
-from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyType
-from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.typedef import Number
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
+from dualsense_controller.core.state.write_state.enum import PlayerLedsEnable, PlayerLedsBrightness, \
+    LightbarPulseOptions
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds, Trigger
 
 
 # BASE
-
-
 class _Property(Generic[PropertyType], ABC):
 
     def __init__(self, state: State[PropertyType]):
@@ -76,7 +72,6 @@ class _BoolProperty(_Property[bool], ABC):
 
 
 # IMPL
-
 class ButtonProperty(_BoolProperty):
 
     def on_down(self, callback: PropertyChangeCallback):
@@ -90,15 +85,11 @@ class ButtonProperty(_BoolProperty):
         return self._get_value()
 
 
-class TriggerProperty(_GetNumberProperty):
+class TriggerProperty(_Property[Trigger]):
     pass
 
 
 class RumbleProperty(_GetSetNumberProperty):
-    pass
-
-
-class JoyStickAxisProperty(_GetNumberProperty):
     pass
 
 

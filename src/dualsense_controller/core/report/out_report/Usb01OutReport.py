@@ -1,6 +1,7 @@
 from dualsense_controller.core.report.out_report.OutReport import OutReport
-from dualsense_controller.core.report.out_report.enum import LightbarMode, OutReportId, OutReportLength
+from dualsense_controller.core.report.out_report.enum import OutReportId, OutReportLength
 from dualsense_controller.core.report.out_report.util import clamp_byte
+from dualsense_controller.core.state.write_state.enum import LightbarMode
 
 
 class Usb01OutReport(OutReport):

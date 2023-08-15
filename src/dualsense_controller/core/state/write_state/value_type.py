@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from dualsense_controller.core.report.out_report.enum import LightbarPulseOptions, PlayerLedsBrightness, \
-    PlayerLedsEnable
+from dualsense_controller.core.state.typedef import Number
+from dualsense_controller.core.state.write_state.enum import LightbarPulseOptions, PlayerLedsEnable, \
+    PlayerLedsBrightness
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,3 +26,14 @@ class Lightbar:
 class PlayerLeds:
     enable: PlayerLedsEnable = PlayerLedsEnable.OFF
     brightness: PlayerLedsBrightness = PlayerLedsBrightness.MEDIUM
+
+
+@dataclass(frozen=True, slots=True)
+class TriggerEffect:
+    mode: TriggerEffectMode
+
+
+@dataclass(frozen=True, slots=True)
+class Trigger:
+    value: Number
+    effect: TriggerEffect

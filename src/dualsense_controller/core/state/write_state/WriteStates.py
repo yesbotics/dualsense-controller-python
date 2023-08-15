@@ -1,15 +1,14 @@
 from typing import Final
 
 from dualsense_controller.core.report.out_report.OutReport import OutReport
-from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, ControlFlags, OutFlagsPhysics, \
-    LedOptions, LightbarPulseOptions, PlayerLedsEnable
 from dualsense_controller.core.state.BaseStates import BaseStates
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.ValueCompare import ValueCompare
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.typedef import CompareFn, StateChangeCallback, StateValue
-from dualsense_controller.core.state.write_state.enum import WriteStateName
+from dualsense_controller.core.state.write_state.enum import WriteStateName, LightbarPulseOptions, PlayerLedsEnable, \
+    OutFlagsPhysics, ControlFlags, LedOptions
 from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
 
 
@@ -56,11 +55,11 @@ class WriteStates(BaseStates):
             WriteStateName.LIGHTBAR_BLUE,
             value=self.lightbar.value.blue
         )
-        self.lightbar_on_off = self._create_and_register_state(
+        self.lightbar_on_off: Final[State[bool]] = self._create_and_register_state(
             WriteStateName.LIGHTBAR_ON_OFF,
             value=self.lightbar.value.is_on
         )
-        self.lightbar_pulse_options = self._create_and_register_state(
+        self.lightbar_pulse_options: Final[State[int]] = self._create_and_register_state(
             WriteStateName.LIGHTBAR_PULSE_OPTIONS,
             value=LightbarPulseOptions.OFF
         )
@@ -76,7 +75,7 @@ class WriteStates(BaseStates):
             name=WriteStateName.PLAYER_LEDS_ENABLE,
             value=self.player_leds.value.enable,
         )
-        self.player_leds_brightness = self._create_and_register_state(
+        self.player_leds_brightness: Final[State[int]] = self._create_and_register_state(
             WriteStateName.PLAYER_LEDS_BRIGHTNESS,
             value=self.player_leds.value.brightness,
         )
@@ -102,37 +101,85 @@ class WriteStates(BaseStates):
         )
 
         # ################## FLAGS
-        self.flags_physics = self._create_and_register_state(
+        self.flags_physics: Final[State[int]] = self._create_and_register_state(
             WriteStateName.FLAGS_PHYSICS,
             value=OutFlagsPhysics.ALL,
             disable_change_detection=True,
         )
-        self.flags_controls = self._create_and_register_state(
+        self.flags_controls: Final[State[int]] = self._create_and_register_state(
             WriteStateName.FLAGS_CONTROLS,
             value=ControlFlags.ALL_BUT_MUTE_LED,
             disable_change_detection=True,
         )
-        self.led_options = self._create_and_register_state(
+        self.led_options: Final[State[int]] = self._create_and_register_state(
             WriteStateName.LED_OPTIONS,
             value=LedOptions.ALL
         )
 
-        self._create_and_register_state(WriteStateName.L2_EFFECT_MODE, value=0x26)
-        self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM1, value=0x90)
-        self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM2, value=0xA0)
-        self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM3, value=0xFF)
-        self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM4, value=0x00)
-        self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM5, value=0x00)
-        self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM6, value=0x00)
-        self._create_and_register_state(WriteStateName.L2_EFFECT_PARAM7, value=0x00)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_MODE, value=0x26)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM1, value=0x90)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM2, value=0xA0)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM3, value=0xFF)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM4, value=0x00)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM5, value=0x00)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM6, value=0x00)
-        self._create_and_register_state(WriteStateName.R2_EFFECT_PARAM7, value=0x00)
+        self.left_trigger_effect_mode: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_MODE,
+            value=0x26
+        )
+        self.left_trigger_effect_param1: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_PARAM1,
+            value=0x90
+        )
+        self.left_trigger_effect_param2: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_PARAM2,
+            value=0xA0
+        )
+        self.left_trigger_effect_param3: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_PARAM3,
+            value=0xFF
+        )
+        self.left_trigger_effect_param4: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_PARAM4,
+            value=0x00
+        )
+        self.left_trigger_effect_param5: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_PARAM5,
+            value=0x00
+        )
+        self.left_trigger_effect_param6: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_PARAM6,
+            value=0x00
+        )
+        self.left_trigger_effect_param7: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT_PARAM7,
+            value=0x00
+        )
+        self.right_trigger_effect_mode: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_MODE,
+            value=0x26
+        )
+        self.right_trigger_effect_param1: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM1,
+            value=0x90
+        )
+        self.right_trigger_effect_param2: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM2,
+            value=0xA0
+        )
+        self.right_trigger_effect_param3: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM3,
+            value=0xFF
+        )
+        self.right_trigger_effect_param4: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM4,
+            value=0x00
+        )
+        self.right_trigger_effect_param5: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM5,
+            value=0x00
+        )
+        self.right_trigger_effect_param6: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM6,
+            value=0x00
+        )
+        self.right_trigger_effect_param7: Final[State[int]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM7,
+            value=0x00
+        )
 
     @property
     def has_changed(self) -> bool:
@@ -173,22 +220,22 @@ class WriteStates(BaseStates):
         out_report.player_leds_enable = self.player_leds_enable.value_raw
         out_report.player_leds_brightness = self.player_leds_brightness.value_raw
 
-        out_report.l2_effect_mode = self._get_state_by_name(WriteStateName.L2_EFFECT_MODE).value_raw
-        out_report.l2_effect_param1 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM1).value_raw
-        out_report.l2_effect_param2 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM2).value_raw
-        out_report.l2_effect_param3 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM3).value_raw
-        out_report.l2_effect_param4 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM4).value_raw
-        out_report.l2_effect_param5 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM5).value_raw
-        out_report.l2_effect_param6 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM6).value_raw
-        out_report.l2_effect_param7 = self._get_state_by_name(WriteStateName.L2_EFFECT_PARAM7).value_raw
-        out_report.r2_effect_mode = self._get_state_by_name(WriteStateName.R2_EFFECT_MODE).value_raw
-        out_report.r2_effect_param1 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM1).value_raw
-        out_report.r2_effect_param2 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM2).value_raw
-        out_report.r2_effect_param3 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM3).value_raw
-        out_report.r2_effect_param4 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM4).value_raw
-        out_report.r2_effect_param5 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM5).value_raw
-        out_report.r2_effect_param6 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM6).value_raw
-        out_report.r2_effect_param7 = self._get_state_by_name(WriteStateName.R2_EFFECT_PARAM7).value_raw
+        out_report.l2_effect_mode = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_MODE).value_raw
+        out_report.l2_effect_param1 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM1).value_raw
+        out_report.l2_effect_param2 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM2).value_raw
+        out_report.l2_effect_param3 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM3).value_raw
+        out_report.l2_effect_param4 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM4).value_raw
+        out_report.l2_effect_param5 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM5).value_raw
+        out_report.l2_effect_param6 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM6).value_raw
+        out_report.l2_effect_param7 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM7).value_raw
+        out_report.r2_effect_mode = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_MODE).value_raw
+        out_report.r2_effect_param1 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM1).value_raw
+        out_report.r2_effect_param2 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM2).value_raw
+        out_report.r2_effect_param3 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM3).value_raw
+        out_report.r2_effect_param4 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM4).value_raw
+        out_report.r2_effect_param5 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM5).value_raw
+        out_report.r2_effect_param6 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM6).value_raw
+        out_report.r2_effect_param7 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM7).value_raw
 
     def _create_and_register_state(
             self,
