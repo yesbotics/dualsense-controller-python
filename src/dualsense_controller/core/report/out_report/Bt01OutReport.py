@@ -1,4 +1,8 @@
-class Bt31OutReport(OutReport):
+from dualsense_controller.core.report.out_report.OutReport import OutReport
+from dualsense_controller.core.report.out_report.enum import OutReportLength
+
+
+class Bt01OutReport(OutReport):
     def to_bytes(self) -> bytes:
         # print("-----------> BT31")
 

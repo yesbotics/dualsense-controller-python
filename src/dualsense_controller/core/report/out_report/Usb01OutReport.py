@@ -1,5 +1,5 @@
 from dualsense_controller.core.report.out_report.OutReport import OutReport
-from dualsense_controller.core.report.out_report.enum import OutLightbarMode, OutReportId, OutReportLength
+from dualsense_controller.core.report.out_report.enum import LightbarMode, OutReportId, OutReportLength
 from dualsense_controller.core.report.out_report.util import clamp_byte
 
 
@@ -80,7 +80,7 @@ class Usb01OutReport(OutReport):
         out_report_bytes[39] = self.led_options
 
         # Lightbar on/off
-        out_report_bytes[41] = OutLightbarMode.LIGHT_ON if self.lightbar_on_off else OutLightbarMode.LIGHT_OUT
+        out_report_bytes[41] = LightbarMode.LIGHT_ON if self.lightbar_on_off else LightbarMode.LIGHT_OFF
 
         # Disable/Endable LEDs or Pulse/Fade-Options?
         out_report_bytes[42] = self.lightbar_pulse_options

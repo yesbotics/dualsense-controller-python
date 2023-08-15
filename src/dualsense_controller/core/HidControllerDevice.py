@@ -14,7 +14,8 @@ from dualsense_controller.core.report.in_report.InReport import InReport
 from dualsense_controller.core.report.in_report.Usb01InReport import Usb01InReport
 from dualsense_controller.core.report.in_report.enum import InReportLength
 from dualsense_controller.core.report.in_report.typedef import InReportCallback
-from dualsense_controller.core.report.out_report.Bt31OutReport import Bt01OutReport, Bt31OutReport
+from dualsense_controller.core.report.out_report.Bt01OutReport import Bt01OutReport
+from dualsense_controller.core.report.out_report.Bt31OutReport import Bt31OutReport
 from dualsense_controller.core.report.out_report.OutReport import OutReport
 from dualsense_controller.core.report.out_report.Usb01OutReport import Usb01OutReport
 from dualsense_controller.core.typedef import ExceptionCallback

@@ -74,9 +74,9 @@ class PlayerLedsBrightness(int, Enum):
     LOW = 0x02
 
 
-class OutLightbarMode(int, Enum):
+class LightbarMode(int, Enum):
     LIGHT_ON = 1 << 0
-    LIGHT_OUT = 1 << 1
+    LIGHT_OFF = 1 << 1
 
 
 class LightbarPulseOptions(int, Enum):
