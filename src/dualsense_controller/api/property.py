@@ -11,7 +11,7 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
 from dualsense_controller.core.state.typedef import Number
 from dualsense_controller.core.state.write_state.enum import PlayerLedsEnable, PlayerLedsBrightness, \
     LightbarPulseOptions
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds, Trigger
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
 
 
 # BASE
@@ -83,10 +83,6 @@ class ButtonProperty(_BoolProperty):
     @property
     def pressed(self) -> bool:
         return self._get_value()
-
-
-class TriggerProperty(_Property[Trigger]):
-    pass
 
 
 class RumbleProperty(_GetSetNumberProperty):
@@ -326,3 +322,8 @@ class LightbarProperty(_Property[Lightbar]):
             is_on=is_on if is_on is not None else before.is_on,
             pulse_options=pulse_options if pulse_options is not None else before.pulse_options,
         ))
+
+
+class TriggerProperty(_Property[Trigger]):
+    def __init__(self, *values: PropertyType):
+        self.values = values

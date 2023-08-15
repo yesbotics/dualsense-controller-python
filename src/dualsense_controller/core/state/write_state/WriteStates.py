@@ -9,7 +9,8 @@ from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.typedef import CompareFn, StateChangeCallback, StateValue
 from dualsense_controller.core.state.write_state.enum import WriteStateName, LightbarPulseOptions, PlayerLedsEnable, \
     OutFlagsPhysics, ControlFlags, LedOptions
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds, \
+    TriggerEffect
 
 
 class WriteStates(BaseStates):
@@ -116,6 +117,13 @@ class WriteStates(BaseStates):
             value=LedOptions.ALL
         )
 
+        # ################## LEFT TRIGGER
+        self.left_trigger_effect: Final[State[TriggerEffect]] = self._create_and_register_state(
+            WriteStateName.LEFT_TRIGGER_EFFECT,
+            value=TriggerEffect(),
+            compare_fn=ValueCompare.compare_trigger_effect,
+            on_state_change_cb=self._on_left_trigger_effect_changed,
+        )
         self.left_trigger_effect_mode: Final[State[int]] = self._create_and_register_state(
             WriteStateName.LEFT_TRIGGER_EFFECT_MODE,
             value=0x26
@@ -147,6 +155,14 @@ class WriteStates(BaseStates):
         self.left_trigger_effect_param7: Final[State[int]] = self._create_and_register_state(
             WriteStateName.LEFT_TRIGGER_EFFECT_PARAM7,
             value=0x00
+        )
+
+        # ################## RIGHT TRIGGER
+        self.right_trigger_effect: Final[State[TriggerEffect]] = self._create_and_register_state(
+            WriteStateName.RIGHT_TRIGGER_EFFECT,
+            value=TriggerEffect(),
+            compare_fn=ValueCompare.compare_trigger_effect,
+            on_state_change_cb=self._on_left_trigger_effect_changed,
         )
         self.right_trigger_effect_mode: Final[State[int]] = self._create_and_register_state(
             WriteStateName.RIGHT_TRIGGER_EFFECT_MODE,
@@ -220,22 +236,22 @@ class WriteStates(BaseStates):
         out_report.player_leds_enable = self.player_leds_enable.value_raw
         out_report.player_leds_brightness = self.player_leds_brightness.value_raw
 
-        out_report.l2_effect_mode = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_MODE).value_raw
-        out_report.l2_effect_param1 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM1).value_raw
-        out_report.l2_effect_param2 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM2).value_raw
-        out_report.l2_effect_param3 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM3).value_raw
-        out_report.l2_effect_param4 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM4).value_raw
-        out_report.l2_effect_param5 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM5).value_raw
-        out_report.l2_effect_param6 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM6).value_raw
-        out_report.l2_effect_param7 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM7).value_raw
-        out_report.r2_effect_mode = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_MODE).value_raw
-        out_report.r2_effect_param1 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM1).value_raw
-        out_report.r2_effect_param2 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM2).value_raw
-        out_report.r2_effect_param3 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM3).value_raw
-        out_report.r2_effect_param4 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM4).value_raw
-        out_report.r2_effect_param5 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM5).value_raw
-        out_report.r2_effect_param6 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM6).value_raw
-        out_report.r2_effect_param7 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM7).value_raw
+        out_report.left_trigger_effect_mode = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_MODE).value_raw
+        out_report.left_trigger_effect_param1 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM1).value_raw
+        out_report.left_trigger_effect_param2 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM2).value_raw
+        out_report.left_trigger_effect_param3 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM3).value_raw
+        out_report.left_trigger_effect_param4 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM4).value_raw
+        out_report.left_trigger_effect_param5 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM5).value_raw
+        out_report.left_trigger_effect_param6 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM6).value_raw
+        out_report.left_trigger_effect_param7 = self._get_state_by_name(WriteStateName.LEFT_TRIGGER_EFFECT_PARAM7).value_raw
+        out_report.right_trigger_effect_mode = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_MODE).value_raw
+        out_report.right_trigger_effect_param1 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM1).value_raw
+        out_report.right_trigger_effect_param2 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM2).value_raw
+        out_report.right_trigger_effect_param3 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM3).value_raw
+        out_report.right_trigger_effect_param4 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM4).value_raw
+        out_report.right_trigger_effect_param5 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM5).value_raw
+        out_report.right_trigger_effect_param6 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM6).value_raw
+        out_report.right_trigger_effect_param7 = self._get_state_by_name(WriteStateName.RIGHT_TRIGGER_EFFECT_PARAM7).value_raw
 
     def _create_and_register_state(
             self,
@@ -263,20 +279,20 @@ class WriteStates(BaseStates):
         state.on_change(on_state_change_cb if on_state_change_cb is not None else self._on_state_change)
         return state
 
-    def _on_state_change(self):
+    def _on_state_change(self) -> None:
         self._has_changed = True
 
-    def _on_microphone_changed(self, mic: Microphone):
+    def _on_microphone_changed(self, mic: Microphone) -> None:
         self.microphone_mute.value = mic.mute
         self.microphone_led.value = mic.led
         self._has_changed = True
 
-    def _on_player_leds_changed(self, leds: PlayerLeds):
+    def _on_player_leds_changed(self, leds: PlayerLeds) -> None:
         self.player_leds_enable.value = leds.enable
         self.player_leds_brightness.value = leds.brightness
         self._has_changed = True
 
-    def _on_lightbar_changed(self, lb: Lightbar):
+    def _on_lightbar_changed(self, lb: Lightbar) -> None:
         self.lightbar_red.value = lb.red
         self.lightbar_green.value = lb.green
         self.lightbar_blue.value = lb.blue
@@ -284,7 +300,29 @@ class WriteStates(BaseStates):
         self.lightbar_pulse_options.value = lb.pulse_options
         self._has_changed = True
 
-    def _on_microphone_led_changed(self):
+    def _on_microphone_led_changed(self) -> None:
         # Remove mic control flag to allow setting brightness
         self.flags_controls.set_value_without_triggering_change(ControlFlags.ALL)
+        self._has_changed = True
+
+    def _on_left_trigger_effect_changed(self, left_trigger_effect: TriggerEffect) -> None:
+        self.left_trigger_effect_mode.value = left_trigger_effect.mode
+        self.left_trigger_effect_param1.value = left_trigger_effect.param1
+        self.left_trigger_effect_param2.value = left_trigger_effect.param2
+        self.left_trigger_effect_param3.value = left_trigger_effect.param3
+        self.left_trigger_effect_param4.value = left_trigger_effect.param4
+        self.left_trigger_effect_param5.value = left_trigger_effect.param5
+        self.left_trigger_effect_param6.value = left_trigger_effect.param6
+        self.left_trigger_effect_param7.value = left_trigger_effect.param7
+        self._has_changed = True
+
+    def _on_right_trigger_effect_changed(self, right_trigger_effect: TriggerEffect) -> None:
+        self.right_trigger_effect_mode.value = right_trigger_effect.mode
+        self.right_trigger_effect_param1.value = right_trigger_effect.param1
+        self.right_trigger_effect_param2.value = right_trigger_effect.param2
+        self.right_trigger_effect_param3.value = right_trigger_effect.param3
+        self.right_trigger_effect_param4.value = right_trigger_effect.param4
+        self.right_trigger_effect_param5.value = right_trigger_effect.param5
+        self.right_trigger_effect_param6.value = right_trigger_effect.param6
+        self.right_trigger_effect_param7.value = right_trigger_effect.param7
         self._has_changed = True

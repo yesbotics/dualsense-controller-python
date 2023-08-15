@@ -23,23 +23,23 @@ class Bt31OutReport(OutReport):
         out_report_bytes[10] = self.microphone_led
         out_report_bytes[11] = 0x10 if self.microphone_mute else 0x00
 
-        out_report_bytes[12] = self.r2_effect_mode
-        out_report_bytes[13] = self.r2_effect_param1
-        out_report_bytes[14] = self.r2_effect_param2
-        out_report_bytes[15] = self.r2_effect_param3
-        out_report_bytes[16] = self.r2_effect_param4
-        out_report_bytes[17] = self.r2_effect_param5
-        out_report_bytes[18] = self.r2_effect_param6
-        out_report_bytes[21] = self.r2_effect_param7
+        out_report_bytes[12] = self.right_trigger_effect_mode
+        out_report_bytes[13] = self.right_trigger_effect_param1
+        out_report_bytes[14] = self.right_trigger_effect_param2
+        out_report_bytes[15] = self.right_trigger_effect_param3
+        out_report_bytes[16] = self.right_trigger_effect_param4
+        out_report_bytes[17] = self.right_trigger_effect_param5
+        out_report_bytes[18] = self.right_trigger_effect_param6
+        out_report_bytes[21] = self.right_trigger_effect_param7
 
-        out_report_bytes[23] = self.l2_effect_mode
-        out_report_bytes[24] = self.l2_effect_param1
-        out_report_bytes[25] = self.l2_effect_param2
-        out_report_bytes[26] = self.l2_effect_param3
-        out_report_bytes[27] = self.l2_effect_param4
-        out_report_bytes[28] = self.l2_effect_param5
-        out_report_bytes[29] = self.l2_effect_param6
-        out_report_bytes[32] = self.l2_effect_param7
+        out_report_bytes[23] = self.left_trigger_effect_mode
+        out_report_bytes[24] = self.left_trigger_effect_param1
+        out_report_bytes[25] = self.left_trigger_effect_param2
+        out_report_bytes[26] = self.left_trigger_effect_param3
+        out_report_bytes[27] = self.left_trigger_effect_param4
+        out_report_bytes[28] = self.left_trigger_effect_param5
+        out_report_bytes[29] = self.left_trigger_effect_param6
+        out_report_bytes[32] = self.left_trigger_effect_param7
 
         out_report_bytes[40] = self.led_options
         out_report_bytes[41] = LightbarMode.LIGHT_ON if self.lightbar_on_off else LightbarMode.LIGHT_OFF

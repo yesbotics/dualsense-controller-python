@@ -4,7 +4,7 @@ from dualsense_controller.core.state.read_state.value_type import Accelerometer,
     JoyStick, \
     Orientation, TouchFinger
 from dualsense_controller.core.state.typedef import CompareResult, Number
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds, TriggerEffect
 
 _HALF_255: Final[Number] = 127.5
 
@@ -160,4 +160,23 @@ class ValueCompare:
         if before is None:
             return True, after
         changed: bool = (after.enable != before.enable or after.brightness != before.brightness)
+        return changed, after
+
+    @staticmethod
+    def compare_trigger_effect(
+            before: TriggerEffect,
+            after: TriggerEffect,
+    ) -> CompareResult:
+        if before is None:
+            return True, after
+        changed: bool = (
+                after.mode != before.mode
+                or after.param1 != before.param1
+                or after.param2 != before.param2
+                or after.param3 != before.param3
+                or after.param4 != before.param4
+                or after.param5 != before.param5
+                or after.param6 != before.param6
+                or after.param7 != before.param7
+        )
         return changed, after
