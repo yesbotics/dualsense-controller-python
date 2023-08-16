@@ -56,10 +56,10 @@ sudo apt install libhidapi-dev
 For use the controller in Python without root privileges add the udev rule.
 
 ```bash
-sudo cp res/99-dualsense.rules /etc/udev/rules.d
+sudo cp res/70-dualsense.rules /etc/udev/rules.d
 ```
 
-or create a file `/etd/udev/rules.d/99-dualsense.rules` with following content.
+or create a file `/etd/udev/rules.d/70-dualsense.rules` with following content.
 
 ```
 # USB

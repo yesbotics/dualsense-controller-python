@@ -8,7 +8,7 @@ from dualsense_controller.core.state.mapping.StateValueMapper import StateValueM
 from dualsense_controller.core.state.mapping.typedef import MapFn
 from dualsense_controller.core.state.typedef import CompareFn, StateChangeCallback, StateValue
 from dualsense_controller.core.state.write_state.enum import WriteStateName, LightbarPulseOptions, PlayerLedsEnable, \
-    OutFlagsPhysics, ControlFlags, LedOptions
+    OutFlagsPhysics, FlagsControls, LedOptions
 from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds, \
     TriggerEffect
 
@@ -109,7 +109,7 @@ class WriteStates(BaseStates):
         )
         self.flags_controls: Final[State[int]] = self._create_and_register_state(
             WriteStateName.FLAGS_CONTROLS,
-            value=ControlFlags.ALL_BUT_MUTE_LED,
+            value=FlagsControls.ALL_BUT_MUTE_LED,
             disable_change_detection=True,
         )
         self.led_options: Final[State[int]] = self._create_and_register_state(
@@ -211,7 +211,7 @@ class WriteStates(BaseStates):
 
     def set_unchanged(self):
         self._get_state_by_name(WriteStateName.FLAGS_CONTROLS).set_value_without_triggering_change(
-            ControlFlags.ALL_BUT_MUTE_LED
+            FlagsControls.ALL_BUT_MUTE_LED
         )
         self._has_changed = False
 
@@ -302,10 +302,11 @@ class WriteStates(BaseStates):
 
     def _on_microphone_led_changed(self) -> None:
         # Remove mic control flag to allow setting brightness
-        self.flags_controls.set_value_without_triggering_change(ControlFlags.ALL)
+        self.flags_controls.set_value_without_triggering_change(FlagsControls.ALL)
         self._has_changed = True
 
     def _on_left_trigger_effect_changed(self, left_trigger_effect: TriggerEffect) -> None:
+        print('_on_left_trigger_effect_changed',left_trigger_effect)
         self.left_trigger_effect_mode.value = left_trigger_effect.mode
         self.left_trigger_effect_param1.value = left_trigger_effect.param1
         self.left_trigger_effect_param2.value = left_trigger_effect.param2
@@ -314,9 +315,11 @@ class WriteStates(BaseStates):
         self.left_trigger_effect_param5.value = left_trigger_effect.param5
         self.left_trigger_effect_param6.value = left_trigger_effect.param6
         self.left_trigger_effect_param7.value = left_trigger_effect.param7
+        self.flags_physics.value=255
         self._has_changed = True
 
     def _on_right_trigger_effect_changed(self, right_trigger_effect: TriggerEffect) -> None:
+        print('_on_right_trigger_effect_changed', right_trigger_effect)
         self.right_trigger_effect_mode.value = right_trigger_effect.mode
         self.right_trigger_effect_param1.value = right_trigger_effect.param1
         self.right_trigger_effect_param2.value = right_trigger_effect.param2

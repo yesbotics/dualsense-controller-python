@@ -57,6 +57,12 @@ class TriggerFeedback:
 
 
 @dataclass(frozen=True, slots=True)
+class Trigger:
+    value: Number = _DEFAULT_NUMBER
+    feedback: TriggerFeedback = TriggerFeedback()
+
+
+@dataclass(frozen=True, slots=True)
 class Orientation:
     pitch: float = _DEFAULT_NUMBER
     roll: float = _DEFAULT_NUMBER

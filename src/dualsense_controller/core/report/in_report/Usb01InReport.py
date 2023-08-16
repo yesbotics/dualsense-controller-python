@@ -16,6 +16,6 @@ class Usb01InReport(InReport):
             "sensor_timestamp_0": 27, "sensor_timestamp_1": 28, "sensor_timestamp_2": 29, "sensor_timestamp_3": 30,
             "touch_1_0": 32, "touch_1_1": 33, "touch_1_2": 34, "touch_1_3": 35,
             "touch_2_0": 36, "touch_2_1": 37, "touch_2_2": 38, "touch_2_3": 39,
-            "r2_feedback": 41, "l2_feedback": 42,
+            "right_trigger_feedback": 41, "left_trigger_feedback": 42,
             "battery_0": 52, "battery_1": 53
         }, raw_bytes=raw_bytes)

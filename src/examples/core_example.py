@@ -38,8 +38,8 @@ class CoreExample:
         # batt
         self._dualsense_controller.read_states.battery.on_change(lambda batt: print(f'battery: {batt}'))
 
-        self._dualsense_controller.read_states.l2_feedback.on_change(lambda fb: print(f'L2 TriggerFeedback: {fb}'))
-        self._dualsense_controller.read_states.r2_feedback.on_change(lambda fb: print(f'R2 TriggerFeedback: {fb}'))
+        self._dualsense_controller.read_states.left_trigger_feedback.on_change(lambda fb: print(f'L2 TriggerFeedback: {fb}'))
+        self._dualsense_controller.read_states.right_trigger_feedback.on_change(lambda fb: print(f'R2 TriggerFeedback: {fb}'))
 
         self._dualsense_controller.read_states.btn_ps.on_change(self._on_btn_ps)
         self._dualsense_controller.read_states.btn_options.on_change(self._on_btn_options)
@@ -66,8 +66,8 @@ class CoreExample:
         self._dualsense_controller.read_states.btn_l3.on_change(self._on_btn_l3)
         self._dualsense_controller.read_states.btn_r3.on_change(self._on_btn_r3)
 
-        self._dualsense_controller.read_states.left_trigger.on_change(self._on_l2)
-        self._dualsense_controller.read_states.right_trigger.on_change(self._on_r2)
+        self._dualsense_controller.read_states.left_trigger_value.on_change(self._on_l2)
+        self._dualsense_controller.read_states.right_trigger_value.on_change(self._on_r2)
 
         # 4 methods to get all state changes
         self._dualsense_controller.on_any_state_change(self._on_any_state)

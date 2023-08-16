@@ -13,13 +13,17 @@ _NumberType = Float | Integer
 class StateValueMapper:
 
     @staticmethod
-    def _number_map(value: float, in_min: float, in_max: float, out_min: float, out_max: float) -> float:
+    def _number_map(value: float, in_min: float, in_max: float, out_min: float, out_max: float) -> float | None:
+        if value is None:
+            return None
         if in_min == out_min and in_max == out_max:
             return value
         return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     @classmethod
-    def _number_raw_to_mapped(cls, from_to: FromTo | None, value: Number) -> Number:
+    def _number_raw_to_mapped(cls, from_to: FromTo | None, value: Number | None) -> Number:
+        if value is None:
+            return None
         if from_to is None:
             return value
         to_type: _NumberType = from_to.to_type

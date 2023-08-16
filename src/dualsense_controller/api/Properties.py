@@ -5,7 +5,7 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     ExceptionProperty, \
     GyroscopeProperty, JoyStickProperty, \
     LightbarProperty, MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
-    TouchFingerProperty, TriggerProperty
+    TouchFingerProperty, TriggerProperty, TriggerFeedbackProperty, TriggerEffectProperty
 from dualsense_controller.core.Benchmarker import Benchmark
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates
@@ -59,8 +59,16 @@ class Properties:
         self.btn_r3: Final[ButtonProperty] = ButtonProperty(read_states.btn_r3)
 
         # TRIGGERS
-        self.left_trigger: Final[TriggerProperty] = TriggerProperty(read_states.left_trigger)
-        self.right_trigger: Final[TriggerProperty] = TriggerProperty(read_states.right_trigger)
+        self.left_trigger: Final[TriggerProperty] = TriggerProperty(
+            trigger_value_state=read_states.left_trigger_value,
+            trigger_feedback_property=TriggerFeedbackProperty(read_states.left_trigger_feedback),
+            trigger_effect_property=TriggerEffectProperty(write_states.left_trigger_effect),
+        )
+        self.right_trigger: Final[TriggerProperty] = TriggerProperty(
+            trigger_value_state=read_states.right_trigger_value,
+            trigger_feedback_property=TriggerFeedbackProperty(read_states.right_trigger_feedback),
+            trigger_effect_property=TriggerEffectProperty(write_states.right_trigger_effect),
+        )
 
         # STICKS
         self.left_stick_x: Final[JoyStickProperty] = JoyStickProperty(read_states.left_stick_x)

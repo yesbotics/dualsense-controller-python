@@ -183,12 +183,12 @@ class InReport(ABC):
         return self._get_uint8('touch_2_3')
 
     @property
-    def r2_feedback(self) -> int:
-        return self._get_uint8('r2_feedback')
+    def right_trigger_feedback(self) -> int:
+        return self._get_uint8('right_trigger_feedback')
 
     @property
-    def l2_feedback(self) -> int:
-        return self._get_uint8('l2_feedback')
+    def left_trigger_feedback(self) -> int:
+        return self._get_uint8('left_trigger_feedback')
 
     @property
     def battery_0(self) -> int:
@@ -356,13 +356,13 @@ class InReport(ABC):
     def touch_2_3(self, touch_2_3: int) -> None:
         self._set_uint8('touch_2_3', touch_2_3)
 
-    @r2_feedback.setter
-    def r2_feedback(self, r2_feedback: int) -> None:
-        self._set_uint8('r2_feedback', r2_feedback)
+    @right_trigger_feedback.setter
+    def right_trigger_feedback(self, right_trigger_feedback: int) -> None:
+        self._set_uint8('right_trigger_feedback', right_trigger_feedback)
 
-    @l2_feedback.setter
-    def l2_feedback(self, l2_feedback: int) -> None:
-        self._set_uint8('l2_feedback', l2_feedback)
+    @left_trigger_feedback.setter
+    def left_trigger_feedback(self, left_trigger_feedback: int) -> None:
+        self._set_uint8('left_trigger_feedback', left_trigger_feedback)
 
     @battery_0.setter
     def battery_0(self, battery_0: int) -> None:

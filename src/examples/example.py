@@ -173,20 +173,24 @@ class Example:
     # ########################################### BTN DPAD -> LIGHTBAR COLOR ####################################
 
     def on_btn_left_down(self) -> None:
-        print(f"btn_left_down -> lightbar red")
+        print(f"btn_left_down -> lightbar red, section resistance")
         self.controller.lightbar.set_color_red()
+        self.controller.left_trigger.effect.set_section_resistance()
 
     def on_btn_up_down(self) -> None:
-        print(f"btn_up_down -> lightbar green")
+        print(f"btn_up_down -> lightbar green, continuous resistance")
         self.controller.lightbar.set_color_green()
+        self.controller.left_trigger.effect.set_continuous_resistance()
 
     def on_btn_right_down(self) -> None:
-        print(f"btn_right_down -> lightbar blue")
+        print(f"btn_right_down -> lightbar blue, vibrating")
         self.controller.lightbar.set_color_blue()
+        self.controller.left_trigger.effect.set_vibrating()
 
     def on_btn_down_down(self) -> None:
-        print(f"btn_down_down -> lightbar white")
+        print(f"btn_down_down -> lightbar white, no resistance")
         self.controller.lightbar.set_color_white()
+        self.controller.left_trigger.effect.set_no_resistance()
 
     # ########################################### BTN SYMBOL -> PLAYED LED ####################################
 

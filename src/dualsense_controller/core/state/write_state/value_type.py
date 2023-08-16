@@ -31,7 +31,7 @@ class PlayerLeds:
 
 @dataclass(frozen=True, slots=True)
 class TriggerEffect:
-    mode: TriggerEffectMode = TriggerEffectMode.AAAA
+    mode: TriggerEffectMode = TriggerEffectMode.SECTION_RESISTANCE
     param1: int = 0x90
     param2: int = 0xA0
     param3: int = 0xFF

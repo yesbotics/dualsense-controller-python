@@ -7,14 +7,16 @@ from dualsense_controller.api.typedef import PropertyChangeCallback, PropertyTyp
 from dualsense_controller.core.Benchmarker import Benchmark
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
-    JoyStick, Orientation, TouchFinger
+    JoyStick, Orientation, TouchFinger, Trigger, TriggerFeedback
 from dualsense_controller.core.state.typedef import Number
 from dualsense_controller.core.state.write_state.enum import PlayerLedsEnable, PlayerLedsBrightness, \
-    LightbarPulseOptions
-from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds
+    LightbarPulseOptions, TriggerEffectMode
+from dualsense_controller.core.state.write_state.value_type import Lightbar, Microphone, PlayerLeds, TriggerEffect
 
 
 # BASE
+
+
 class _Property(Generic[PropertyType], ABC):
 
     def __init__(self, state: State[PropertyType]):
@@ -324,6 +326,113 @@ class LightbarProperty(_Property[Lightbar]):
         ))
 
 
-class TriggerProperty(_Property[Trigger]):
-    def __init__(self, *values: PropertyType):
-        self.values = values
+class TriggerFeedbackProperty(_Property[TriggerFeedback]):
+    pass
+
+
+class TriggerEffectProperty(_Property[TriggerEffect]):
+
+    def set_no_resistance(self) -> None:
+        self._set(
+            mode=TriggerEffectMode.NO_RESISTANCE,
+        )
+
+    def set_continuous_resistance(
+            self,
+            start_pos: int = 0,
+            force: int = 255
+    ) -> None:
+        self._set(
+            mode=TriggerEffectMode.CONTINUOUS_RESISTANCE,
+            param1=start_pos,
+            param2=force,
+        )
+
+    def set_section_resistance(
+            self,
+            start_pos: int = 0,
+            force: int = 0,
+    ) -> None:
+        self._set(
+            mode=TriggerEffectMode.SECTION_RESISTANCE,
+            param1=start_pos,
+            param2=force,
+        )
+
+    def set_vibrating(
+            self,
+            frequency: int = 0,
+            off_time: int = 0,
+    ) -> None:
+        self._set(
+            mode=TriggerEffectMode.VIBRATING,
+            param1=frequency,
+            param2=off_time,
+        )
+
+    def set_effect_extended(
+            self,
+            start_pos: int = 0,
+            keep_effect: bool = False,
+            begin_force: int = 0,
+            middle_force: int = 0,
+            end_force: int = 0,
+            frequency: int = 0,
+    ) -> None:
+        self._set(
+            mode=TriggerEffectMode.EFFECT_EXTENDED,
+            param1=0xff - start_pos,
+            param2=0x02 if keep_effect else 0x00,
+            param3=begin_force,
+            param4=middle_force,
+            param5=end_force,
+            param6=frequency,
+        )
+
+    def set_calibrate(self) -> None:
+        self._set(
+            mode=TriggerEffectMode.CALIBRATE,
+        )
+
+    def _set(
+            self,
+            mode: TriggerEffectMode = None,
+            param1: int = None,
+            param2: int = None,
+            param3: int = None,
+            param4: int = None,
+            param5: int = None,
+            param6: int = None,
+            param7: int = None,
+    ) -> None:
+        before: TriggerEffect = self._get_value()
+        self._set_value(TriggerEffect(
+            mode=mode if mode is not None else before.mode,
+            param1=param1 if param1 is not None else before.param1,
+            param2=param2 if param2 is not None else before.param2,
+            param3=param3 if param3 is not None else before.param3,
+            param4=param4 if param4 is not None else before.param4,
+            param5=param5 if param5 is not None else before.param5,
+            param6=param6 if param6 is not None else before.param6,
+            param7=param7 if param7 is not None else before.param7,
+        ))
+
+
+class TriggerProperty(_GetNumberProperty):
+    def __init__(
+            self,
+            trigger_value_state: State[Number],
+            trigger_feedback_property: TriggerFeedbackProperty,
+            trigger_effect_property: TriggerEffectProperty
+    ):
+        super().__init__(state=trigger_value_state)
+        self._trigger_feedback_property: Final[TriggerFeedbackProperty] = trigger_feedback_property
+        self._trigger_effect_property: Final[TriggerEffectProperty] = trigger_effect_property
+
+    @property
+    def feedback(self) -> TriggerFeedbackProperty:
+        return self._trigger_feedback_property
+
+    @property
+    def effect(self) -> TriggerEffectProperty:
+        return self._trigger_effect_property

@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import Any, Callable, TypeVar
 
 from dualsense_controller.core.report.in_report import InReport
+from dualsense_controller.core.state.enum import MixedStateName
 from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.write_state.enum import WriteStateName
 
 StateValue = TypeVar('StateValue')
 MappedStateValue = TypeVar('MappedStateValue')
-StateName = ReadStateName | WriteStateName | str
+StateName = ReadStateName | WriteStateName | MixedStateName | str
 
 _StChCb0 = Callable[[], None]
 _StChCb1 = Callable[[Any], None]

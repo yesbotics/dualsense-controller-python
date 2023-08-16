@@ -19,6 +19,6 @@ class Bt31InReport(InReport):
             "accel_x_0": 22, "accel_x_1": 23, "accel_y_0": 24, "accel_y_1": 25, "accel_z_0": 26, "accel_z_1": 27,
             "touch_1_0": 33, "touch_1_1": 34, "touch_1_2": 35, "touch_1_3": 36,
             "touch_2_0": 37, "touch_2_1": 38, "touch_2_2": 39, "touch_2_3": 40,
-            "r2_feedback": 42, "l2_feedback": 43,
+            "right_trigger_feedback": 42, "left_trigger_feedback": 43,
             "battery_0": 53, "battery_1": 54,
         }, raw_bytes=raw_bytes)

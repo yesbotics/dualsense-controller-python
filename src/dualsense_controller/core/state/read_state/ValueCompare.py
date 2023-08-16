@@ -2,7 +2,7 @@ from typing import Final
 
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, TriggerFeedback, Gyroscope, \
     JoyStick, \
-    Orientation, TouchFinger
+    Orientation, TouchFinger, Trigger
 from dualsense_controller.core.state.typedef import CompareResult, Number
 
 _HALF_255: Final[Number] = 127.5
@@ -27,21 +27,6 @@ class ValueCompare:
             after = JoyStick(_HALF_255, _HALF_255)
 
         changed: bool = after.x != before.x or after.y != before.y
-        return changed, after
-
-    @staticmethod
-    def compare_trigger(
-            before: int | None,
-            after: int,
-            deadzone_raw: Number = 0,
-    ) -> CompareResult:
-        if before is None:
-            return True, after
-        if deadzone_raw > 0 and before <= deadzone_raw:
-            before = 0
-        if deadzone_raw > 0 and after <= deadzone_raw:
-            after = 0
-        changed: bool = after != before
         return changed, after
 
     @staticmethod
@@ -102,16 +87,6 @@ class ValueCompare:
         return changed, after
 
     @staticmethod
-    def compare_feedback(
-            before: TriggerFeedback,
-            after: TriggerFeedback
-    ) -> CompareResult:
-        if before is None:
-            return True, after
-        changed: bool = after.active != before.active or after.value != before.value
-        return changed, after
-
-    @staticmethod
     def compare_orientation(
             before: Orientation,
             after: Orientation,
@@ -126,3 +101,41 @@ class ValueCompare:
                 after = Orientation(before.yaw, before.pitch, before.roll)
         changed: bool = after.yaw != before.yaw or after.pitch != before.pitch or after.roll != before.roll
         return changed, after
+
+    @staticmethod
+    def compare_trigger_feedback(
+            before: TriggerFeedback,
+            after: TriggerFeedback
+    ) -> CompareResult:
+        if before is None:
+            return True, after
+        changed: bool = after.active != before.active or after.value != before.value
+        return changed, after
+
+    @staticmethod
+    def compare_trigger_value(
+            before: int | None,
+            after: int,
+            deadzone_raw: Number = 0,
+    ) -> CompareResult:
+        if before is None:
+            return True, after
+        if deadzone_raw > 0 and before <= deadzone_raw:
+            before = 0
+        if deadzone_raw > 0 and after <= deadzone_raw:
+            after = 0
+        changed: bool = after != before
+        return changed, after
+
+    # @staticmethod
+    # def compare_trigger(
+    #         before: Trigger,
+    #         after: Trigger,
+    #         deadzone_raw: Number = 0,
+    # ) -> CompareResult:
+    #     if before is None:
+    #         return True, after
+    #     value_changed, _ = ValueCompare.compare_trigger_value(before.value, after.value, deadzone_raw)
+    #     feedback_changed, _ = ValueCompare.compare_trigger_feedback(before.feedback, after.feedback)
+    #     changed: bool = value_changed or feedback_changed
+    #     return changed, after

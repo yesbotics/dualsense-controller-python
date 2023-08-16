@@ -17,7 +17,7 @@ from dualsense_controller.core.state.read_state.ValueCalc import ValueCalc
 from dualsense_controller.core.state.read_state.ValueCompare import ValueCompare
 from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Gyroscope, JoyStick, \
-    Orientation, TouchFinger, TriggerFeedback
+    Orientation, TouchFinger, TriggerFeedback, Trigger
 from dualsense_controller.core.state.typedef import CompareFn, Number, StateValue, StateValueFn
 from dualsense_controller.core.util import check_value_restrictions
 
@@ -223,48 +223,6 @@ class ReadStates(BaseStates):
                 round(math.degrees(raw.pitch), 2),
                 round(math.degrees(raw.roll), 2)
             ),
-        )
-
-        # INIT TRIGGERS
-        self.left_trigger: Final[ReadState[int]] = self._create_and_register_state(
-            ReadStateName.LEFT_TRIGGER,
-            value_calc_fn=ValueCalc.get_left_trigger,
-            in_report_lockable=self._in_report_lockable,
-            enforce_update=enforce_update,
-            can_update_itself=can_update_itself,
-            compare_fn=ValueCompare.compare_trigger,
-            deadzone_raw=self._state_value_mapper.left_trigger_deadzone_mapped_to_raw,
-            deadzone=self._state_value_mapper.left_trigger_deadzone_mapped,
-            mapped_min_max_values=[
-                (self._state_value_mapper.mapping_data.left_trigger.to_min
-                 if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.left_trigger is not None else 0),
-                (self._state_value_mapper.mapping_data.left_trigger.to_max
-                 if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.left_trigger is not None else 255),
-            ],
-            raw_to_mapped_fn=self._state_value_mapper.left_trigger_raw_to_mapped,
-            mapped_to_raw_fn=self._state_value_mapper.left_trigger_mapped_to_raw,
-        )
-        self.right_trigger: Final[ReadState[int]] = self._create_and_register_state(
-            ReadStateName.RIGHT_TRIGGER,
-            value_calc_fn=ValueCalc.get_right_trigger,
-            in_report_lockable=self._in_report_lockable,
-            enforce_update=enforce_update,
-            can_update_itself=can_update_itself,
-            compare_fn=ValueCompare.compare_trigger,
-            deadzone_raw=self._state_value_mapper.right_trigger_deadzone_mapped_to_raw,
-            deadzone=self._state_value_mapper.right_trigger_deadzone_mapped,
-            mapped_min_max_values=[
-                (self._state_value_mapper.mapping_data.right_trigger.to_min
-                 if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.right_trigger is not None else 0),
-                (self._state_value_mapper.mapping_data.right_trigger.to_max
-                 if self._state_value_mapper.mapping_data is not None
-                    and self._state_value_mapper.mapping_data.right_trigger is not None else 255),
-            ],
-            raw_to_mapped_fn=self._state_value_mapper.right_trigger_raw_to_mapped,
-            mapped_to_raw_fn=self._state_value_mapper.right_trigger_mapped_to_raw,
         )
 
         # INIT DIG BTN
@@ -501,53 +459,93 @@ class ReadStates(BaseStates):
             ]
         )
 
-        # INIT FEEDBACK
-        self.l2_feedback_active: Final[ReadState[bool]] = self._create_and_register_state(
-            ReadStateName.L2_FEEDBACK_ACTIVE,
+        # INIT TRIGGERS
+        self.left_trigger_value: Final[ReadState[int]] = self._create_and_register_state(
+            ReadStateName.LEFT_TRIGGER_VALUE,
+            value_calc_fn=ValueCalc.get_left_trigger_value,
+            in_report_lockable=self._in_report_lockable,
+            enforce_update=enforce_update,
+            can_update_itself=can_update_itself,
+            compare_fn=ValueCompare.compare_trigger_value,
+            deadzone_raw=self._state_value_mapper.left_trigger_deadzone_mapped_to_raw,
+            deadzone=self._state_value_mapper.left_trigger_deadzone_mapped,
+            mapped_min_max_values=[
+                (self._state_value_mapper.mapping_data.left_trigger.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.left_trigger is not None else 0),
+                (self._state_value_mapper.mapping_data.left_trigger.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.left_trigger is not None else 255),
+            ],
+            raw_to_mapped_fn=self._state_value_mapper.left_trigger_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.left_trigger_mapped_to_raw,
+        )
+        self.left_trigger_feedback_active: Final[ReadState[bool]] = self._create_and_register_state(
+            ReadStateName.LEFT_TRIGGER_FEEDBACK_ACTIVE,
             value_calc_fn=ValueCalc.get_left_trigger_feedback_active,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
         )
-        self.l2_feedback_value: Final[ReadState[int]] = self._create_and_register_state(
-            ReadStateName.L2_FEEDBACK_VALUE,
+        self.left_trigger_feedback_value: Final[ReadState[int]] = self._create_and_register_state(
+            ReadStateName.LEFT_TRIGGER_FEEDBACK_VALUE,
             value_calc_fn=ValueCalc.get_left_trigger_feedback_value,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
         )
-        self.l2_feedback: Final[ReadState[TriggerFeedback]] = self._create_and_register_state(
-            ReadStateName.L2_FEEDBACK,
+        self.left_trigger_feedback: Final[ReadState[TriggerFeedback]] = self._create_and_register_state(
+            ReadStateName.LEFT_TRIGGER_FEEDBACK,
             value_calc_fn=ValueCalc.get_left_trigger_feedback,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
-            depends_on=[self.l2_feedback_active, self.l2_feedback_value],
-            compare_fn=ValueCompare.compare_feedback
+            depends_on=[self.left_trigger_feedback_active, self.left_trigger_feedback_value],
+            compare_fn=ValueCompare.compare_trigger_feedback
         )
 
-        self.r2_feedback_active: Final[ReadState[bool]] = self._create_and_register_state(
-            ReadStateName.R2_FEEDBACK_ACTIVE,
+        self.right_trigger_value: Final[ReadState[int]] = self._create_and_register_state(
+            ReadStateName.RIGHT_TRIGGER_VALUE,
+            value_calc_fn=ValueCalc.get_right_trigger_value,
+            in_report_lockable=self._in_report_lockable,
+            enforce_update=enforce_update,
+            can_update_itself=can_update_itself,
+            compare_fn=ValueCompare.compare_trigger_value,
+            deadzone_raw=self._state_value_mapper.right_trigger_deadzone_mapped_to_raw,
+            deadzone=self._state_value_mapper.right_trigger_deadzone_mapped,
+            mapped_min_max_values=[
+                (self._state_value_mapper.mapping_data.right_trigger.to_min
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.right_trigger is not None else 0),
+                (self._state_value_mapper.mapping_data.right_trigger.to_max
+                 if self._state_value_mapper.mapping_data is not None
+                    and self._state_value_mapper.mapping_data.right_trigger is not None else 255),
+            ],
+            raw_to_mapped_fn=self._state_value_mapper.right_trigger_raw_to_mapped,
+            mapped_to_raw_fn=self._state_value_mapper.right_trigger_mapped_to_raw,
+        )
+        self.right_trigger_feedback_active: Final[ReadState[bool]] = self._create_and_register_state(
+            ReadStateName.RIGHT_TRIGGER_FEEDBACK_ACTIVE,
             value_calc_fn=ValueCalc.get_right_trigger_feedback_active,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
         )
-        self.r2_feedback_value: Final[ReadState[int]] = self._create_and_register_state(
-            ReadStateName.R2_FEEDBACK_VALUE,
+        self.right_trigger_feedback_value: Final[ReadState[int]] = self._create_and_register_state(
+            ReadStateName.RIGHT_TRIGGER_FEEDBACK_VALUE,
             value_calc_fn=ValueCalc.get_right_trigger_feedback_value,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
         )
-        self.r2_feedback: Final[ReadState[TriggerFeedback]] = self._create_and_register_state(
-            ReadStateName.R2_FEEDBACK,
+        self.right_trigger_feedback: Final[ReadState[TriggerFeedback]] = self._create_and_register_state(
+            ReadStateName.RIGHT_TRIGGER_FEEDBACK,
             value_calc_fn=ValueCalc.get_right_trigger_feedback,
             in_report_lockable=self._in_report_lockable,
             enforce_update=enforce_update,
             can_update_itself=can_update_itself,
-            depends_on=[self.r2_feedback_active, self.r2_feedback_value],
-            compare_fn=ValueCompare.compare_feedback
+            depends_on=[self.right_trigger_feedback_active, self.right_trigger_feedback_value],
+            compare_fn=ValueCompare.compare_trigger_feedback
         )
 
         # INIT BATT
@@ -687,8 +685,8 @@ class ReadStates(BaseStates):
         self._handle_state(self.right_stick_y)
 
         # # ##### TRIGGERS #####
-        self._handle_state(self.left_trigger)
-        self._handle_state(self.right_trigger)
+        self._handle_state(self.left_trigger_value)
+        self._handle_state(self.right_trigger_value)
         #
         # # ##### BUTTONS #####
         self._handle_state(self.dpad)
@@ -749,12 +747,12 @@ class ReadStates(BaseStates):
         self._handle_state(self.touch_finger_2)
 
         # ##### TRIGGER FEEDBACK INFO #####
-        self._handle_state(self.l2_feedback_active)
-        self._handle_state(self.l2_feedback_value)
-        self._handle_state(self.l2_feedback)
-        self._handle_state(self.r2_feedback_active)
-        self._handle_state(self.r2_feedback_value)
-        self._handle_state(self.r2_feedback)
+        self._handle_state(self.left_trigger_feedback_active)
+        self._handle_state(self.left_trigger_feedback_value)
+        self._handle_state(self.left_trigger_feedback)
+        self._handle_state(self.right_trigger_feedback_active)
+        self._handle_state(self.right_trigger_feedback_value)
+        self._handle_state(self.right_trigger_feedback)
         # ##### BATTERY #####
         self._handle_state(self.battery_level_percentage)
         self._handle_state(self.battery_full)
