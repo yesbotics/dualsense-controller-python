@@ -28,7 +28,7 @@ pytest-mock = "^3.11.1"
 setuptools = "^68.0.0"
 
 [tool.poetry.scripts]
-dualsense-controller-example = 'examples:example:main'
+dualsense-controller-example = 'examples.example:main'
 
 [build-system]
 requires = ["poetry-core"]
