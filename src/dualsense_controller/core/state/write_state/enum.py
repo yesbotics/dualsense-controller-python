@@ -50,23 +50,29 @@ class WriteStateName(str, Enum):
 
 #
 # Not clear
-#
-class OutFlagsPhysics(int, Enum):
-    # Alternativ:
-    # DS4_COMPATIBILITY_MODE = 1 << 0
-    # DS5_MODE = 1 << 1
-    COMPATIBLE_VIBRATION = 1 << 0
-    HAPTICS_SELECT = 1 << 1
-    ALL = (
-            COMPATIBLE_VIBRATION |
-            HAPTICS_SELECT
-    )
+
+# #### pydualsense says:
+# flags determing what changes this packet will perform
+# 0x01 set the main motors (also requires flag 0x02); setting this by itself will allow rumble to gracefully terminate and then re-enable audio haptics, whereas not setting it will kill the rumble instantly and re-enable audio haptics.
+# 0x02 set the main motors (also requires flag 0x01; without bit 0x01 motors are allowed to time out without re-enabling audio haptics)
+# 0x04 set the right trigger motor
+# 0x08 set the left trigger motor
+# 0x10 modification of audio volume
+# 0x20 toggling of internal speaker while headset is connected
+# 0x40 modification of microphone volume
+# #### ds5ctl says:
 
 
-class PhysicalEffectControl(int, Enum):
+class OperatingMode(int, Enum):
+    DS4_COMPATIBILITY_MODE = 1 << 0
+    DS5_MODE = 1 << 1
+
+
+class FlagsPhysics(int, Enum):
     ENABLE_HAPTICS = 1 << 0 | 1 << 1
     TRIGGER_EFFECTS_RIGHT = 1 << 2
     TRIGGER_EFFECTS_LEFT = 1 << 3
+    ALL = 0xff
 
 
 class FlagsControls(int, Enum):
@@ -99,16 +105,12 @@ class FlagsControls(int, Enum):
 
 class PlayerLedsEnable(int, Enum):
     OFF = 0
-
     # Enables the single, center LED
     CENTER = 0b00100
-
     # Enables the two LEDs adjacent to and directly surrounding the CENTER LED
     INNER = 0b01010
-
     # Enables the two outermost LEDs surrounding the INNER LEDs
     OUTER = 0b10001
-
     ALL = CENTER | INNER | OUTER
 
 

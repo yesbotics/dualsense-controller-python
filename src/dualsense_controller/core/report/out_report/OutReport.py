@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from dualsense_controller.core.state.write_state.enum import OutFlagsPhysics, FlagsControls, LedOptions, \
-    LightbarPulseOptions, PlayerLedsBrightness, PlayerLedsEnable
+from dualsense_controller.core.state.write_state.enum import FlagsPhysics, FlagsControls, LedOptions, \
+    LightbarPulseOptions, OperatingMode, PlayerLedsBrightness, PlayerLedsEnable
 
 
 @dataclass(slots=True)
@@ -12,7 +12,8 @@ class OutReport(ABC):
     def to_bytes(self) -> bytes:
         pass
 
-    flags_physics: int = OutFlagsPhysics.ALL
+    operating_mode: int = OperatingMode.DS5_MODE
+    flags_physics: int = FlagsPhysics.ALL
     flags_controls: int = FlagsControls.ALL
 
     lightbar_red: int = 0xff

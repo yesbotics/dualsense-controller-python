@@ -1,6 +1,6 @@
 from dualsense_controller.core.report.out_report.OutReport import OutReport
 from dualsense_controller.core.report.out_report.crc32 import compute_crc32_checksum
-from dualsense_controller.core.report.out_report.enum import OutReportId, OutReportLength
+from dualsense_controller.core.report.out_report.enum import OutReportLength
 from dualsense_controller.core.report.out_report.util import clamp_byte
 from dualsense_controller.core.state.write_state.enum import LightbarMode
 
@@ -11,8 +11,11 @@ class Bt31OutReport(OutReport):
 
         out_report_bytes: bytearray = bytearray(OutReportLength.BT_31)
 
-        out_report_bytes[0] = OutReportId.BT_31
-        out_report_bytes[1] = 0x02
+        # report type
+        out_report_bytes[0] = 0x31
+        out_report_bytes[1] = self.operating_mode
+
+        # report data
         out_report_bytes[2] = self.flags_physics
         out_report_bytes[3] = self.flags_controls
 

@@ -361,7 +361,7 @@ class TriggerEffectProperty(_Property[TriggerEffect]):
 
     def set_vibrating(
             self,
-            frequency: int = 0,
+            frequency: int = 255,
             off_time: int = 0,
     ) -> None:
         self._set(

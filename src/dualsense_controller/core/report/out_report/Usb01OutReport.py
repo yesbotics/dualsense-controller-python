@@ -1,5 +1,5 @@
 from dualsense_controller.core.report.out_report.OutReport import OutReport
-from dualsense_controller.core.report.out_report.enum import OutReportId, OutReportLength
+from dualsense_controller.core.report.out_report.enum import OutReportLength
 from dualsense_controller.core.report.out_report.util import clamp_byte
 from dualsense_controller.core.state.write_state.enum import LightbarMode
 
@@ -12,14 +12,10 @@ class Usb01OutReport(OutReport):
 
         out_report_bytes: bytearray = bytearray(OutReportLength.USB_01)
 
-        out_report_bytes[0] = OutReportId.USB_01
+        # report type
+        out_report_bytes[0] = self.operating_mode
 
-        #
-        # valid_flag0 - flags determing what changes this packet will perform
-        # or: OperatingMode
-        #
-        # bit 0: COMPATIBLE_VIBRATION
-        # bit 1: HAPTICS_SELECT
+        # report data
         out_report_bytes[1] = self.flags_physics
 
         #

@@ -82,7 +82,7 @@ class Example:
         self.controller.btn_l1.on_change(self.on_btn_l1_changed)
         self.controller.btn_r1.on_down(self.on_btn_r1_down)
         self.controller.btn_l2.on_down(self.on_btn_l2_down)
-        self.controller.btn_r2.on_down(self.on_btn_r3_down)
+        self.controller.btn_r2.on_down(self.on_btn_r2_down)
         self.controller.btn_r3.on_down(self.on_btn_r3_down)
         self.controller.btn_l3.on_down(self.on_btn_l3_down)
 
@@ -173,24 +173,24 @@ class Example:
     # ########################################### BTN DPAD -> LIGHTBAR COLOR ####################################
 
     def on_btn_left_down(self) -> None:
-        print(f"btn_left_down -> lightbar red, section resistance")
+        print(f"btn_left_down -> lightbar red, left trigger section resistance")
         self.controller.lightbar.set_color_red()
         self.controller.left_trigger.effect.set_section_resistance()
 
     def on_btn_up_down(self) -> None:
-        print(f"btn_up_down -> lightbar green, continuous resistance")
+        print(f"btn_up_down -> lightbar green, left trigger continuous resistance")
         self.controller.lightbar.set_color_green()
         self.controller.left_trigger.effect.set_continuous_resistance()
 
     def on_btn_right_down(self) -> None:
-        print(f"btn_right_down -> lightbar blue, vibrating")
+        print(f"btn_right_down -> lightbar blue, left trigger effect ext")
         self.controller.lightbar.set_color_blue()
-        self.controller.left_trigger.effect.set_vibrating()
+        self.controller.left_trigger.effect.set_effect_extended()
 
     def on_btn_down_down(self) -> None:
-        print(f"btn_down_down -> lightbar white, no resistance")
+        print(f"btn_down_down -> lightbar white, left trigger vibrating")
         self.controller.lightbar.set_color_white()
-        self.controller.left_trigger.effect.set_no_resistance()
+        self.controller.left_trigger.effect.set_vibrating()
 
     # ########################################### BTN SYMBOL -> PLAYED LED ####################################
 
@@ -207,32 +207,38 @@ class Example:
         print(f'Triangle button: last_pressed: {last_pressed}, pressed: {pressed}, timestamp: {timestamp}')
 
     def on_btn_triangle_down(self) -> None:
-        print(f'Triangle button down -> player led inner')
+        print(f'Triangle button down -> player led inner, right trigger section resistance')
         self.controller.player_leds.set_inner()
+        self.controller.right_trigger.effect.set_continuous_resistance()
 
     def on_btn_cross_down(self) -> None:
-        print(f'Cross button down -> player led all')
+        print(f'Cross button down -> player led all, right trigger vibrating')
         self.controller.player_leds.set_all()
+        self.controller.right_trigger.effect.set_vibrating()
 
     def on_btn_circle_down(self) -> None:
-        print(f'btn circle down -> player led outer')
+        print(f'btn circle down -> player led outer, right trigger effect ext')
         self.controller.player_leds.set_outer()
+        self.controller.right_trigger.effect.set_effect_extended()
 
     def on_btn_square_down(self) -> None:
-        print(f'btn square down -> player led center + outer')
+        print(f'btn square down -> player led center + outer, right trigger section resistance')
         self.controller.player_leds.set_center_and_outer()
+        self.controller.right_trigger.effect.set_section_resistance()
 
     # ################################ BTN L and R -> brightness, nothing and led pulse modes ####################
     def on_btn_l1_changed(self, pressed: bool) -> None:
-        print(f'L1 Button pressed: {pressed} -> brightness')
+        print(f'L1 Button pressed: {pressed} -> brightness, left trigger no resistance')
         if pressed:
             self.controller.player_leds.set_brightness_high()
+            self.controller.left_trigger.effect.set_no_resistance()
         else:
             self.controller.player_leds.set_brightness_low()
 
     def on_btn_r1_down(self) -> None:
-        print(f'R1 Button pressed: -> brightness medium')
+        print(f'R1 Button pressed: -> brightness medium, right trigger no resistance')
         self.controller.player_leds.set_brightness_medium()
+        self.controller.right_trigger.effect.set_no_resistance()
 
     def on_btn_l2_down(self) -> None:
         print(f'on_btn_l2_down -> ')
@@ -250,14 +256,16 @@ class Example:
 
     # ########################################### TRIGGERS -> RUMBLE ##############################################
     def on_left_trigger_changed(self, value: Number) -> None:
-        print(f'L2 trigger: {value}')
-        self.controller.left_rumble.set(value)
-        print(f'Left Rumble: {self.controller.left_rumble.value}')
+        if self.controller.microphone.is_muted:
+            print(f'L2 trigger: {value}')
+            self.controller.left_rumble.set(value)
+            print(f'Left Rumble: {self.controller.left_rumble.value}')
 
     def on_right_trigger_changed(self, value: Number) -> None:
-        print(f'L2 trigger: {value}')
-        self.controller.right_rumble.set(value)
-        print(f'Right Rumble: {self.controller.right_rumble.value}')
+        if self.controller.microphone.is_muted:
+            print(f'L2 trigger: {value}')
+            self.controller.right_rumble.set(value)
+            print(f'Right Rumble: {self.controller.right_rumble.value}')
 
     # ############################################# STICKS ##################################################
 
