@@ -9,8 +9,8 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python (3.1
 - [Installation](#installation)
     - [Prerequisites for Windows](#prerequisites-for-windows)
     - [Prerequisites for Linux](#prerequisites-for-linux)
-      - [HIDAPI](#hidapi)
-      - [udev-rules](#udev-rules)
+        - [HIDAPI](#hidapi)
+        - [udev-rules](#udev-rules)
     - [Install the library](#install-the-library)
 - [Usage](#usage)
 - [Development](#development)
@@ -78,7 +78,8 @@ sudo udevadm trigger
 ### Prerequisites for Windows
 
 Just download the [latest release of HIDAPI](https://github.com/libusb/hidapi/releases).
-Unzip the release zip file und then place the according `hidapi.dll` in your Workspace (i.e. `C:\Windows\System32`) folder.
+Unzip the release zip file und then place the according `hidapi.dll` in your Workspace (i.e. `C:\Windows\System32`)
+folder.
 (from `x64` folder for 64-bit Windows or from `x86` folder for 32-bit Windows)
 
 ### Install the library
@@ -110,6 +111,22 @@ dualsense_controller = DualSenseController()
 ## Development
 
 ...
+
+### USB Sniffing on Windows with Wireshark/TShark and USBPcap
+
+Wireshark with USBPcap install is required.
+
+1. find controller in USB tree to detect Root Device, i.e. `\\.\USBPcap3`
+    ```cmd
+    USBPcapCMD.exe
+    ```
+2. Run Capture in Wireshark for that device, start an app which permanently sends Data to controller
+   like [nondebug Dualsense Explorer](https://nondebug.github.io/dualsense/dualsense-explorer.html)
+3. In Wireshark find Destination Number for appropriate device (out) i.e. `3.8.3`
+4. Run script:
+    ```cmd
+    python tools_dev_shark.py \\.\USBPcap3 3.8.3
+    ```
 
 ### Protocol
 

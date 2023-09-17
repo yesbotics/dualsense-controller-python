@@ -26,9 +26,11 @@ pytest-mock = "^3.11.1"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "^68.0.0"
+windows-curses = "^2.3.1"
 
 [tool.poetry.scripts]
 dualsense-controller-example = 'examples.example:main'
+shark = 'tools_dev.shark:main'
 
 [build-system]
 requires = ["poetry-core"]
