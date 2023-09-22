@@ -1,17 +1,5 @@
 # DualSense™ protocol
 
-## Read data fromcontroller
-
-<table>
-    <tr>
-        <th>Byte USB</th>
-        <th>Byte Bluetooth</th>
-        <th>Name</th>
-        <th>Values</th>
-        <th>Description</th>
-    </tr>
-</table>
-
 ## Sent data to controller
 
 ### Via USB
