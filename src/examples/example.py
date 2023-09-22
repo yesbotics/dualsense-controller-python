@@ -23,16 +23,21 @@ class Example:
 
             device_index_or_device_info=first_device_info,
 
-            left_joystick_deadzone=0.2,
-            right_joystick_deadzone=0.2,
-            left_trigger_deadzone=0.05,
-            right_trigger_deadzone=0.05,
+            # mapping=Mapping.NORMALIZED,
+            # left_joystick_deadzone=0.2,
+            # right_joystick_deadzone=0.2,
+            # left_trigger_deadzone=0.05,
+            # right_trigger_deadzone=0.05,
+
+            mapping=Mapping.RAW,
+            left_joystick_deadzone=5,
+            right_joystick_deadzone=5,
+            left_trigger_deadzone=1,
+            right_trigger_deadzone=1,
+
             gyroscope_threshold=0,
             accelerometer_threshold=0,
             orientation_threshold=0,
-
-            # mapping=Mapping.RAW,
-            mapping=Mapping.NORMALIZED,
 
             # update_level=UpdateLevel.PAINSTAKING,
             # update_level=UpdateLevel.HAENGBLIEM,

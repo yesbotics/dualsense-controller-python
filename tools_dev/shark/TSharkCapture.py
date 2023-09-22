@@ -29,7 +29,7 @@ class TSharkCapture:
                    ' --hexdump frames' \
                    ' --hexdump delimit' \
                    ' --hexdump noascii'
-        process:Popen[str] = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        process: Popen[str] = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         while not self.__stop_event.is_set():
             output: str = process.stdout.readline()
             if output == '' and process.poll() is not None:

@@ -6,7 +6,7 @@ from typing import Final
 
 import _curses
 
-from tools_dev.shark.TSharkCapture import TSharkCapture
+from TSharkCapture import TSharkCapture
 
 
 class Shark:
