@@ -406,6 +406,7 @@ class TriggerEffectProperty(_Property[TriggerEffect]):
             param7: int = None,
     ) -> None:
         before: TriggerEffect = self._get_value()
+        # TODO: Check if previous value is dangerous
         self._set_value(TriggerEffect(
             mode=mode if mode is not None else before.mode,
             param1=param1 if param1 is not None else before.param1,

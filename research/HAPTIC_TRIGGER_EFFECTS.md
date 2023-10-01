@@ -180,6 +180,9 @@ Galloping (Start: 0, End: 9, First Foot: 0, Second Foot: 7, Frequency: 6)   23 0
 - CTV: Rigid B (Force: 0), CTV: Rigid_A
 - Start: 0-9, Force: 0-8
 - Normal Trigger if Force < 1
+- Compared to Continous Resistance Mode (CTV: Rigid):
+  - less strong
+  - fewer steps
 
 ```
                                             M  1  2  3  4  5  6  7
