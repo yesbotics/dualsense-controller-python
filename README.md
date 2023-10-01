@@ -114,19 +114,42 @@ dualsense_controller = DualSenseController()
 
 ### USB Sniffing on Windows with Wireshark/TShark and USBPcap
 
-Wireshark with USBPcap install is required.
+Wireshark with USBPcap install is required. Ensure that your Wireshark and USBPcapCMD binaries are in the 
+Windows Path variable.
 
 1. find controller in USB tree to detect Root Device, i.e. `\\.\USBPcap3`
     ```cmd
     USBPcapCMD.exe
     ```
 2. Run Capture in Wireshark for that device, start an app which permanently sends Data to controller
-   like [nondebug Dualsense Explorer](https://nondebug.github.io/dualsense/dualsense-explorer.html)
+   like [nondebug Dualsense Explorer](https://nondebug.github.io/dualsense/dualsense-explorer.html) (Chrome browser required)
 3. In Wireshark find Destination Number for appropriate device (out) i.e. `3.8.3`
 4. Run script:
     ```cmd
-    python tools_dev_shark.py \\.\USBPcap3 3.8.3
-    ```
+    python tools_dev/shark/shark.py USBPcap3 3.8.3
+    ```  
+
+The output should look like:
+
+```
+02 ff f7 00 00 00 00 00 00 00 10 26 90 a0 ff 00 00 00 00 00 00 00 26 90 a0 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00 02 00 00 ff ff ff
+operating_mode: 02
+flags_physics: ff
+flags_controls: f7
+motor_right: 00
+motor_left: 00
+microphone_led: 00
+microphone_mute: 10
+right_trigger: 26 90 a0 ff 00 00 00 00
+left_trigger: 26 90 a0 ff 00 00 00 00
+led_options: 00
+lightbar_pulse_options: 02
+player_leds_brightness: 00
+player_leds_enable: 00
+color: ff ff ff
+
+```
+
 
 ### Protocol
 
