@@ -17,7 +17,7 @@ class Example:
         self.is_running: bool = True
         device_infos: list[DeviceInfo] = DualSenseController.enumerate_devices()
         if len(device_infos) < 1:
-            raise Exception('No DualSense Controller availabe.')
+            raise Exception('No DualSense Controller available.')
         first_device_info: DeviceInfo = device_infos[0]
         self.controller: DualSenseController = DualSenseController(
 
