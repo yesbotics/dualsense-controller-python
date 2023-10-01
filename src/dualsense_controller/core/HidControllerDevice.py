@@ -59,7 +59,8 @@ class HidControllerDevice:
         else:
             device_info = device_index_or_device_info
 
-        self._serial_number = device_info.serial_number
+        self._serial_number: Final[str] = device_info.serial_number
+        self._path: Final[bytes] = device_info.path
         self._hid_device: Device | None = None
 
         self._in_report_length: InReportLength = InReportLength.DUMMY
@@ -94,7 +95,8 @@ class HidControllerDevice:
         return Device(
             vendor_id=HidControllerDevice.VENDOR_ID,
             product_id=HidControllerDevice.PRODUCT_ID,
-            serial_number=self._serial_number
+            serial_number=self._serial_number,
+            path=self._path,
         )
 
     def _detect(self) -> None:
