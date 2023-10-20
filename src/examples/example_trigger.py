@@ -70,8 +70,8 @@ class ExampleTrigger:
                 print(f"Effect {trigger_index}: Vibration: frequency: 100, off_time: 5")
                 trigger.effect.set_vibrating(100, 5)
             case 5:
-                print(f"Effect {trigger_index}: Vibration: frequency: 127, off_time: 1")
-                trigger.effect.set_vibrating(127, 0)
+                print(f"Effect {trigger_index}: Bow: frequency: 127, off_time: 1")
+                trigger.effect.set_bow(127, 0)
 
             case _:
                 print(f"Effect: Index out of bound: {trigger_index}")

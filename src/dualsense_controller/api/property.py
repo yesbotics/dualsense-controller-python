@@ -394,9 +394,47 @@ class TriggerEffectProperty(_Property[TriggerEffect]):
             mode=TriggerEffectMode.CALIBRATE,
         )
 
+    # @TODO Function is WIP!
+    def set_bow(
+            self,
+            start_pos: int = 0,
+            end_pos: int = 0,
+            force: int = 0,
+            snap_force: int = 0,
+    ) -> None:
+        self._set(
+            mode=TriggerEffectMode.VIBRATING,
+            param1=start_pos,
+            param2=end_pos,
+            param3=force,
+            param4=snap_force,
+        )
+
+    def set_custom_effect(
+            self,
+            mode: int = TriggerEffectMode.NO_RESISTANCE,
+            param1: int = 0,
+            param2: int = 0,
+            param3: int = 0,
+            param4: int = 0,
+            param5: int = 0,
+            param6: int = 0,
+            param7: int = 0,
+    ) -> None:
+        self._set(
+            mode=mode,
+            param1=param1,
+            param2=param2,
+            param3=param3,
+            param4=param4,
+            param5=param5,
+            param6=param6,
+            param7=param7,
+        )
+
     def _set(
             self,
-            mode: TriggerEffectMode = None,
+            mode: int | TriggerEffectMode = None,
             param1: int = None,
             param2: int = None,
             param3: int = None,
