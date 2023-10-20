@@ -239,7 +239,7 @@ class MicrophoneProperty(_Property[Microphone]):
         self._set_mute(False)
 
     def refresh_workaround(self) -> None:
-        warnings.warn("Micrphone state initially not set properly. workaround enforces it", UserWarning)
+        warnings.warn("Microphone state initially not set properly. workaround enforces it", UserWarning)
         self.toggle_muted()
         self.toggle_muted()
 
