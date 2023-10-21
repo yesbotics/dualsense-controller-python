@@ -143,7 +143,7 @@ class TriggerEffectMode(int, Enum):
     CONTINUOUS_RESISTANCE = 0x01
     SECTION_RESISTANCE = 0x02
     VIBRATING = 0x06
-    EFFECT_EXTENDED = 0x26 # Used also for automatic gun
+    EFFECT_EXTENDED = 0x26  # Used also for automatic gun
     CALIBRATE = 0xFC
     # new
     BOW = 0x22

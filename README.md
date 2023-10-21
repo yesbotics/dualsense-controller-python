@@ -127,7 +127,7 @@ Windows Path variable.
 4. Run script:
     ```cmd
     python tools_dev/shark/shark.py USBPcap3 3.8.3
-    ```  
+    ```
 
 The output should look like:
 
