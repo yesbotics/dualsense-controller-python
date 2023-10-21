@@ -22,4 +22,4 @@ SOFTWARE.
 
 
 This Software contains Code from third Party developers.
-You can find the license in the dualsense_controller/core/hidapy directory.
+You can find the license in src/dualsense_controller/core/hidapi/LICENSE.txt.
