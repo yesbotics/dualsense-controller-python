@@ -19,5 +19,8 @@ shell: FORCE
 requirements: FORCE
 	poetry export --output requirements.txt
 
+publish: FORCE build
+	poetry publish
+
 .PHONY: FORCE
 FORCE:

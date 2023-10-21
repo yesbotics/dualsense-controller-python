@@ -2,13 +2,13 @@ from time import sleep
 from typing import Any
 
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
-from dualsense_controller.core.report.out_report.enum import PlayerLedsBrightness, PlayerLedsEnable, LightbarPulseOptions
 from dualsense_controller.core.state.mapping.enum import StateValueMapping
 from dualsense_controller.core.state.read_state.enum import ReadStateName
 from dualsense_controller.core.state.read_state.value_type import Accelerometer, Connection, Gyroscope, JoyStick, \
     Orientation, \
     TouchFinger
-from dualsense_controller.core.state.write_state.enum import WriteStateName
+from dualsense_controller.core.state.write_state.enum import WriteStateName, PlayerLedsBrightness, PlayerLedsEnable, \
+    LightbarPulseOptions
 
 
 class CoreExample:
