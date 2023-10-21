@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "dualsense-controller"
-version = "0.1.0-pre.1"
+version = "0.1.0"
 description = "Use DualSense Controller with Python."
-authors = ["Albrecht Nitsche <albrechtnitsche@gmail.com>"]
+authors = ["Albrecht Nitsche <albrechtnitsche@gmail.com>", "Jens Kabisch <jenskabi@gmail.com>"]
 license = "MIT LICENSE"
 readme = "README.md"
 packages = [
@@ -26,7 +26,7 @@ pytest-mock = "^3.11.1"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "^68.0.0"
-windows-curses = "^2.3.1"
+windows-curses = { version = "^2.3.1", platform = "win32" }
 
 [tool.poetry.scripts]
 dualsense-controller-example = 'examples.example:main'
