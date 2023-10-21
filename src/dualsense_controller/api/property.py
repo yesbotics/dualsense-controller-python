@@ -359,16 +359,17 @@ class TriggerEffectProperty(_Property[TriggerEffect]):
             param2=force,
         )
 
-    def set_vibrating(
-            self,
-            frequency: int = 255,
-            off_time: int = 0,
-    ) -> None:
-        self._set(
-            mode=TriggerEffectMode.VIBRATING,
-            param1=frequency,
-            param2=off_time,
-        )
+    # @TODO: off_time param is unclear
+    # def set_vibrating(
+    #         self,
+    #         frequency: int = 255,
+    #         off_time: int = 0,
+    # ) -> None:
+    #     self._set(
+    #         mode=TriggerEffectMode.VIBRATING,
+    #         param1=frequency,
+    #         param2=off_time,
+    #     )
 
     def set_effect_extended(
             self,
@@ -389,30 +390,31 @@ class TriggerEffectProperty(_Property[TriggerEffect]):
             param6=frequency,
         )
 
-    def set_calibrate(self) -> None:
-        self._set(
-            mode=TriggerEffectMode.CALIBRATE,
-        )
+    # @TODO: Check if needed. Does not work currently
+    # def set_calibrate(self) -> None:
+    #     self._set(
+    #         mode=TriggerEffectMode.CALIBRATE,
+    #     )
 
     # @TODO Function is WIP!
-    def set_bow(
-            self,
-            start_pos: int = 0,
-            end_pos: int = 0,
-            force: int = 0,
-            snap_force: int = 0,
-    ) -> None:
-        self._set(
-            mode=TriggerEffectMode.VIBRATING,
-            param1=start_pos,
-            param2=end_pos,
-            param3=force,
-            param4=snap_force,
-        )
+    # def set_bow(
+    #         self,
+    #         start_pos: int = 0,
+    #         end_pos: int = 0,
+    #         force: int = 0,
+    #         snap_force: int = 0,
+    # ) -> None:
+    #     self._set(
+    #         mode=TriggerEffectMode.BOW,
+    #         param1=start_pos,
+    #         param2=end_pos,
+    #         param3=force,
+    #         param4=snap_force,
+    #     )
 
     def set_custom_effect(
             self,
-            mode: int = TriggerEffectMode.NO_RESISTANCE,
+            mode: int | TriggerEffectMode = TriggerEffectMode.NO_RESISTANCE,
             param1: int = 0,
             param2: int = 0,
             param3: int = 0,
