@@ -100,13 +100,25 @@ poetry add dualsense-controller
 
 ## Usage
 
-Import the library and create an instance
+The detailed usage documentation is work in progress. Please take a look to the example files here: 
 
-```python
-from dualsense_controller import DualSenseController
-
-dualsense_controller = DualSenseController()
 ```
+/src/examples/example.py
+/src/examples/example_trigger.py
+/src/examples/contextmanager_usage_example.py
+```
+
+[//]: # (Import the library and create an instance)
+
+[//]: # ()
+[//]: # (```python)
+
+[//]: # (from dualsense_controller import DualSenseController)
+
+[//]: # ()
+[//]: # (dualsense_controller = DualSenseController&#40;&#41;)
+
+[//]: # (```)
 
 ## Development
 
