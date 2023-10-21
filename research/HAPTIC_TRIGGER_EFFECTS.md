@@ -1,5 +1,8 @@
 # Haptic Trigger Effects
 
+- DSX: Controller mapping program from Steam (<https://store.steampowered.com/app/1812620/DSX/>)
+- CTV: Custom Trigger Value from DSX
+
 ## Trigger Bytes
 
 <table>
