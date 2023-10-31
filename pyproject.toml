@@ -2,29 +2,47 @@
 name = "dualsense-controller"
 version = "0.1.0"
 description = "Use DualSense Controller with Python."
-authors = ["Albrecht Nitsche <albrechtnitsche@gmail.com>"]
-license = "MIT LICENSE"
+authors = ["Albrecht Nitsche <albrechtnitsche@gmail.com>", "Jens Kabisch <jenskabi@gmail.com>"]
+license = "MIT"
 readme = "README.md"
-packages = [{ include = "dualsense_controller" }]
-
+packages = [
+    { include = "examples", from = "src" },
+    { include = "dualsense_controller", from = "src" },
+]
 repository = 'https://github.com/yesbotics/dualsense-controller-python'
 homepage = 'https://github.com/yesbotics/dualsense-controller-python'
+keywords = ["DualSense Controller", "PS5", "PlayStation 5", "Game Controller", "Gaming", "Robotics"]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: System :: Hardware :: Universal Serial Bus (USB) :: Human Interface Device (HID)",
+    "Topic :: System :: Hardware :: Universal Serial Bus (USB) :: Wireless Controller",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 pyee = "^11.0.0"
 pyquaternion = "^0.9.9"
 numpy = "^1.25.1"
+cffi = "^1.15.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
+pytest-mock = "^3.11.1"
 
 [tool.poetry.group.dev.dependencies]
-cffi = "^1.15.1"
 setuptools = "^68.0.0"
+windows-curses = { version = "^2.3.1", platform = "win32" }
 
 [tool.poetry.scripts]
-dualsense-controller-example = 'example:main'
+dualsense-controller-example = 'examples.example:main'
+dualsense-controller-example-trigger = 'examples.example_trigger:main'
+dualsense-controller-core-example = 'examples.core_example:main'
+dualsense-controller-contextmanager-usage-example = 'examples.contextmanager_usage_example:main'
 
 [build-system]
 requires = ["poetry-core"]

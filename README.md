@@ -9,8 +9,8 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python (3.1
 - [Installation](#installation)
     - [Prerequisites for Windows](#prerequisites-for-windows)
     - [Prerequisites for Linux](#prerequisites-for-linux)
-      - [HIDAPI](#hidapi)
-      - [udev-rulesx](#udev-rules)
+        - [HIDAPI](#hidapi)
+        - [udev-rules](#udev-rules)
     - [Install the library](#install-the-library)
 - [Usage](#usage)
 - [Development](#development)
@@ -56,10 +56,10 @@ sudo apt install libhidapi-dev
 For use the controller in Python without root privileges add the udev rule.
 
 ```bash
-sudo cp res/99-dualsense.rules /etc/udev/rules.d
+sudo cp res/70-dualsense.rules /etc/udev/rules.d
 ```
 
-or create a file `/etd/udev/rules.d/99-dualsense.rules` with following content.
+or create a file `/etd/udev/rules.d/70-dualsense.rules` with following content.
 
 ```
 # USB
@@ -78,7 +78,8 @@ sudo udevadm trigger
 ### Prerequisites for Windows
 
 Just download the [latest release of HIDAPI](https://github.com/libusb/hidapi/releases).
-Unzip the release zip file und then place the according `hidapi.dll` in your Workspace folder.
+Unzip the release zip file und then place the according `hidapi.dll` in your Workspace (i.e. `C:\Windows\System32`)
+folder.
 (from `x64` folder for 64-bit Windows or from `x86` folder for 32-bit Windows)
 
 ### Install the library
@@ -99,17 +100,68 @@ poetry add dualsense-controller
 
 ## Usage
 
-Import the library and create an instance
+The detailed usage documentation is work in progress. Please take a look to the example files here: 
 
-```python
-from dualsense_controller import DualSenseController
-
-dualsense_controller = DualSenseController()
 ```
+/src/examples/example.py
+/src/examples/example_trigger.py
+/src/examples/contextmanager_usage_example.py
+```
+
+[//]: # (Import the library and create an instance)
+
+[//]: # ()
+[//]: # (```python)
+
+[//]: # (from dualsense_controller import DualSenseController)
+
+[//]: # ()
+[//]: # (dualsense_controller = DualSenseController&#40;&#41;)
+
+[//]: # (```)
 
 ## Development
 
 ...
+
+### USB Sniffing on Windows with Wireshark/TShark and USBPcap
+
+Wireshark with USBPcap install is required. Ensure that your Wireshark and USBPcapCMD binaries are in the 
+Windows Path variable.
+
+1. find controller in USB tree to detect Root Device, i.e. `\\.\USBPcap3`
+    ```cmd
+    USBPcapCMD.exe
+    ```
+2. Run Capture in Wireshark for that device, start an app which permanently sends Data to controller
+   like [nondebug Dualsense Explorer](https://nondebug.github.io/dualsense/dualsense-explorer.html) (Chrome browser required)
+3. In Wireshark find Destination Number for appropriate device (out) i.e. `3.8.3`
+4. Run script:
+    ```cmd
+    python tools_dev/shark/shark.py USBPcap3 3.8.3
+    ```
+
+The output should look like:
+
+```
+02 ff f7 00 00 00 00 00 00 00 10 26 90 a0 ff 00 00 00 00 00 00 00 26 90 a0 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00 02 00 00 ff ff ff
+operating_mode: 02
+flags_physics: ff
+flags_controls: f7
+motor_right: 00
+motor_left: 00
+microphone_led: 00
+microphone_mute: 10
+right_trigger: 26 90 a0 ff 00 00 00 00
+left_trigger: 26 90 a0 ff 00 00 00 00
+led_options: 00
+lightbar_pulse_options: 02
+player_leds_brightness: 00
+player_leds_enable: 00
+color: ff ff ff
+
+```
+
 
 ### Protocol
 
