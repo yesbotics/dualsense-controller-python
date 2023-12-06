@@ -193,9 +193,9 @@ class Example:
         self.controller.left_trigger.effect.set_effect_extended()
 
     def on_btn_down_down(self) -> None:
-        print(f"btn_down_down -> lightbar white, left trigger vibrating")
+        print(f"btn_down_down -> lightbar white, left trigger no resistance")
         self.controller.lightbar.set_color_white()
-        self.controller.left_trigger.effect.set_vibrating()
+        self.controller.left_trigger.effect.set_no_resistance()
 
     # ########################################### BTN SYMBOL -> PLAYED LED ####################################
 
@@ -217,9 +217,9 @@ class Example:
         self.controller.right_trigger.effect.set_continuous_resistance()
 
     def on_btn_cross_down(self) -> None:
-        print(f'Cross button down -> player led all, right trigger vibrating')
+        print(f'Cross button down -> player led all, right trigger no resistance')
         self.controller.player_leds.set_all()
-        self.controller.right_trigger.effect.set_vibrating()
+        self.controller.left_trigger.effect.set_no_resistance()
 
     def on_btn_circle_down(self) -> None:
         print(f'btn circle down -> player led outer, right trigger effect ext')

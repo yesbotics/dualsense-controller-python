@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dualsense-controller"
-version = "0.1.0"
+version = "0.1.1"
 description = "Use DualSense Controller with Python."
 authors = ["Albrecht Nitsche <albrechtnitsche@gmail.com>", "Jens Kabisch <jenskabi@gmail.com>"]
 license = "MIT"
@@ -26,8 +26,6 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 pyee = "^11.0.0"
-pyquaternion = "^0.9.9"
-numpy = "^1.25.1"
 cffi = "^1.15.1"
 
 [tool.poetry.group.test.dependencies]
