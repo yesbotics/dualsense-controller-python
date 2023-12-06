@@ -22,7 +22,7 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python (3.1
 
 Windows:
 
-- Windows 10 Pro (TODO)
+- Windows 10 Pro
 
 Linux:
 
