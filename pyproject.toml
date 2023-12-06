@@ -26,7 +26,6 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 pyee = "^11.0.0"
-numpy = "^1.25.1"
 cffi = "^1.15.1"
 
 [tool.poetry.group.test.dependencies]

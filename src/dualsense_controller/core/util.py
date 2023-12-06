@@ -1,11 +1,9 @@
 import inspect
+import statistics
 import traceback
 import warnings
 from types import FrameType
 from typing import Any
-
-import numpy as np
-from numpy import ndarray
 
 
 def flag(bit: int) -> int:
@@ -27,12 +25,16 @@ def get_referencing_class() -> Any:
 _Num = int | float
 
 
+def _abs_list(values: list[_Num]) -> list[_Num]:
+    return [abs(v) for v in values]
+
+
 def _min_val(mapped_min_max_values: list[_Num]) -> _Num:
-    return np.mean(np.abs(mapped_min_max_values))
+    return statistics.mean(_abs_list(mapped_min_max_values))
 
 
 def _max_val(mapped_min_max_values: list[_Num]) -> _Num:
-    return np.max(np.abs(mapped_min_max_values))
+    return max(_abs_list(mapped_min_max_values))
 
 
 def check_value_restrictions(
