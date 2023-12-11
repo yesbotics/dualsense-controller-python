@@ -90,6 +90,7 @@ def fixture_activated_instance(
 ) -> Generator[ControllerInstanceData, None, None]:
     # activate
     fixture_controller_instance.controller.activate()
+    fixture_controller_instance.controller.wait_until_updated()
     # pass and do test stuff
     yield fixture_controller_instance
     # deactivate

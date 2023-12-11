@@ -100,7 +100,108 @@ poetry add dualsense-controller
 
 ## Usage
 
-The detailed usage documentation is work in progress. Please take a look to the example files here: 
+### Basic Usage
+
+#### Import
+
+```python
+from dualsense_controller import DualSenseController, Mapping
+```
+
+#### List available devices
+
+Check whether devices are connected and detected
+
+```python
+device_infos = DualSenseController.enumerate_devices()
+if len(device_infos) < 1:
+    raise Exception('No DualSense Controller available.')
+```
+
+#### Initialization
+
+You can initialize Controller by passing an index, (`amount of devices - 1`)
+
+```python
+controller = DualSenseController(device_index_or_device_info=0)
+```
+
+an DeviceInfo object, obtained from devices list
+
+```python
+controller = DualSenseController(device_index_or_device_info=device_infos[0])
+```
+
+or just pass nothing, which tries to use first device
+
+```python
+controller = DualSenseController()
+```
+
+### Listen for digital buttons
+
+You can listen to digital button changes in severals ways: 
+Detect if button is pressed, released or its has value changed
+
+```python
+def on_cross_btn_pressed():
+    print('cross button pressed')
+
+
+def on_cross_btn_released():
+    print('cross button_released')
+
+
+def on_cross_btn_changed(pressed):
+    print(f'cross button is pressed: {pressed}')
+
+
+controller.btn_cross.on_down(on_cross_btn_pressed)
+controller.btn_cross.on_up(on_cross_btn_released)
+controller.btn_cross.on_change(on_cross_btn_changed)
+```
+
+
+
+### Options
+
+#### Value Mapping
+
+You can change the value mapping for analog values, like stick axis, trigger values and rumble intensity
+Per default the stick axis values are mapped from -128 to 127 (default mapping)
+and the trigger values from 0 to 255, which means the stick axis default position values are 0
+and trigers default position values are 0.
+Optional stick deadzones should be adjusted properly depeneding on the mapping, i.e. value 3 is fine
+when the stick axis values range from -128 to 127. But it is too high,
+when stick range is interpreted as -1.0 to 1.0 (normalized mapping),
+then u should use a deadzone which is smaller than 1.
+
+To apply a custom mapping, i.e. normalized mapping (-1.0 to 1.0) pass it while initialization:
+
+```python
+controller = DualSenseController(
+    # ...
+    mapping=Mapping.NORMALIZED,
+    # ...
+)
+```
+
+Available mappings are:
+
+- `Mapping.RAW`: stick x axis values from 0 to 255, stick y axis values from 0 to 255, trigger values from 0 to 255,
+  rumble from 0 to 255
+- `Mapping.RAW_INVERTED`: same as `Mapping.RAW` but stick y axis values inverted.
+- `Mapping.DEFAULT`: stick x axis values from -128 to 127, stick y axis values from 127 to -128, trigger values from 0
+  to 255, rumble from 0 to 255
+- `Mapping.DEFAULT_INVERTED`: same as `Mapping.DEFAULT` but stick y axis values inverted.
+- `Mapping.NORMALIZED`: stick x axis values from -1.0 to 1.0, stick y axis values from 1.0 to -1.0, trigger values from
+  0.0 to 1.0, rumble from 0 to 1.0
+- `Mapping.NORMALIZED_INVERTED`: same as `Mapping.NORMALIZED` but stick y axis values inverted.
+- `Mapping.HUNDRED`:
+
+### Examples
+
+Please take a look at the example files here, to dive see more complex use cases:
 
 ```
 /src/examples/example.py
@@ -108,25 +209,13 @@ The detailed usage documentation is work in progress. Please take a look to the 
 /src/examples/contextmanager_usage_example.py
 ```
 
-[//]: # (Import the library and create an instance)
-
-[//]: # ()
-[//]: # (```python)
-
-[//]: # (from dualsense_controller import DualSenseController)
-
-[//]: # ()
-[//]: # (dualsense_controller = DualSenseController&#40;&#41;)
-
-[//]: # (```)
-
 ## Development
 
 ...
 
 ### USB Sniffing on Windows with Wireshark/TShark and USBPcap
 
-Wireshark with USBPcap install is required. Ensure that your Wireshark and USBPcapCMD binaries are in the 
+Wireshark with USBPcap install is required. Ensure that your Wireshark and USBPcapCMD binaries are in the
 Windows Path variable.
 
 1. find controller in USB tree to detect Root Device, i.e. `\\.\USBPcap3`
@@ -134,7 +223,8 @@ Windows Path variable.
     USBPcapCMD.exe
     ```
 2. Run Capture in Wireshark for that device, start an app which permanently sends Data to controller
-   like [nondebug Dualsense Explorer](https://nondebug.github.io/dualsense/dualsense-explorer.html) (Chrome browser required)
+   like [nondebug Dualsense Explorer](https://nondebug.github.io/dualsense/dualsense-explorer.html) (Chrome browser
+   required)
 3. In Wireshark find Destination Number for appropriate device (out) i.e. `3.8.3`
 4. Run script:
     ```cmd
@@ -161,7 +251,6 @@ player_leds_enable: 00
 color: ff ff ff
 
 ```
-
 
 ### Protocol
 

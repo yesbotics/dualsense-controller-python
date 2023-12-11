@@ -21,6 +21,7 @@ def test_update_level_haengbliem(
         fixture_activated_instance: ControllerInstanceData,
 ) -> None:
     fixture_activated_instance.controller.btn_cross.on_change(lambda _: _)
+    fixture_activated_instance.controller.wait_until_updated()
     fixture_activated_instance.mocked_hidapi_device.set_btn_square(True)
     fixture_activated_instance.mocked_hidapi_device.set_btn_cross(True)
     fixture_activated_instance.controller.wait_until_updated()
