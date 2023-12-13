@@ -62,7 +62,7 @@ controller.activate()
 
 # start keep alive loop, controller inputs and callbacks are handled in a second thread
 while is_running:
-    sleep(0.001)
+    sleep(1)
 
 # disable/disconnect controller device
 controller.deactivate()

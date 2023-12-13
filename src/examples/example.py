@@ -1,14 +1,12 @@
 import time
 import warnings
 
-from dualsense_controller.api.DualSenseController import DualSenseController, Mapping
-from dualsense_controller.api.enum import UpdateLevel
-from dualsense_controller.core.Benchmarker import Benchmark
-from dualsense_controller.core.enum import ConnectionType
-from dualsense_controller.core.hidapi import DeviceInfo
-from dualsense_controller.core.state.read_state.value_type import Accelerometer, Battery, Connection, Gyroscope, \
-    JoyStick, Orientation, TouchFinger
-from dualsense_controller.core.state.typedef import Number
+from dualsense_controller import Accelerometer, Battery, Benchmark, Connection, ConnectionType, DeviceInfo, \
+    DualSenseController, \
+    Gyroscope, \
+    JoyStick, \
+    Mapping, Number, \
+    Orientation, TouchFinger, UpdateLevel
 
 
 class Example:

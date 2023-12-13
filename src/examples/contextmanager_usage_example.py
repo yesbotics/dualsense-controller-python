@@ -1,8 +1,6 @@
 import time
 
-from dualsense_controller.api.DualSenseController import DualSenseController, Mapping
-from dualsense_controller.api.contextmanager import active_dualsense_controller
-from dualsense_controller.api.enum import UpdateLevel
+from dualsense_controller import DualSenseController, UpdateLevel, active_dualsense_controller, Mapping
 
 
 class ContextManagerUsageExample:
@@ -25,6 +23,7 @@ class ContextManagerUsageExample:
             for i in range(0, 10):
                 controller.wait_until_updated()
                 print(controller.left_stick.value)
+                time.sleep(1)
 
 
 # ############################################# RUN EXAMPLE ##################################################

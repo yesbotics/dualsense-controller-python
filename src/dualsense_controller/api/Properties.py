@@ -1,11 +1,22 @@
 from typing import Final
 
-from dualsense_controller.api.property import AccelerometerProperty, BatteryProperty, BenchmarkProperty, ButtonProperty, \
-    ConnectionProperty, \
-    ExceptionProperty, \
-    GyroscopeProperty, JoyStickProperty, \
-    LightbarProperty, MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
-    TouchFingerProperty, TriggerProperty, TriggerFeedbackProperty, TriggerEffectProperty
+from dualsense_controller.api.property.AccelerometerProperty import AccelerometerProperty
+from dualsense_controller.api.property.BatteryProperty import BatteryProperty
+from dualsense_controller.api.property.BenchmarkProperty import BenchmarkProperty
+from dualsense_controller.api.property.ButtonProperty import ButtonProperty
+from dualsense_controller.api.property.ConnectionProperty import ConnectionProperty
+from dualsense_controller.api.property.ExceptionProperty import ExceptionProperty
+from dualsense_controller.api.property.GyroscopeProperty import GyroscopeProperty
+from dualsense_controller.api.property.JoyStickProperty import JoyStickProperty
+from dualsense_controller.api.property.LightbarProperty import LightbarProperty
+from dualsense_controller.api.property.MicrophoneProperty import MicrophoneProperty
+from dualsense_controller.api.property.OrientationProperty import OrientationProperty
+from dualsense_controller.api.property.PlayerLedsProperty import PlayerLedsProperty
+from dualsense_controller.api.property.RumbleProperty import RumbleProperty
+from dualsense_controller.api.property.TouchFingerProperty import TouchFingerProperty
+from dualsense_controller.api.property.TriggerEffectProperty import TriggerEffectProperty
+from dualsense_controller.api.property.TriggerFeedbackProperty import TriggerFeedbackProperty
+from dualsense_controller.api.property.TriggerProperty import TriggerProperty
 from dualsense_controller.core.Benchmarker import Benchmark
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.read_state.ReadStates import ReadStates

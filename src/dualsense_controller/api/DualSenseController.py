@@ -5,12 +5,21 @@ from typing import Final
 
 from dualsense_controller.api.Properties import Properties
 from dualsense_controller.api.enum import UpdateLevel
-from dualsense_controller.api.property import AccelerometerProperty, BatteryProperty, BenchmarkProperty, ButtonProperty, \
-    ConnectionProperty, \
-    ExceptionProperty, \
-    GyroscopeProperty, JoyStickProperty, \
-    LightbarProperty, MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
-    TouchFingerProperty, TriggerProperty
+from dualsense_controller.api.property.AccelerometerProperty import AccelerometerProperty
+from dualsense_controller.api.property.BatteryProperty import BatteryProperty
+from dualsense_controller.api.property.BenchmarkProperty import BenchmarkProperty
+from dualsense_controller.api.property.ButtonProperty import ButtonProperty
+from dualsense_controller.api.property.ConnectionProperty import ConnectionProperty
+from dualsense_controller.api.property.ExceptionProperty import ExceptionProperty
+from dualsense_controller.api.property.GyroscopeProperty import GyroscopeProperty
+from dualsense_controller.api.property.JoyStickProperty import JoyStickProperty
+from dualsense_controller.api.property.LightbarProperty import LightbarProperty
+from dualsense_controller.api.property.MicrophoneProperty import MicrophoneProperty
+from dualsense_controller.api.property.OrientationProperty import OrientationProperty
+from dualsense_controller.api.property.PlayerLedsProperty import PlayerLedsProperty
+from dualsense_controller.api.property.RumbleProperty import RumbleProperty
+from dualsense_controller.api.property.TouchFingerProperty import TouchFingerProperty
+from dualsense_controller.api.property.TriggerProperty import TriggerProperty
 from dualsense_controller.api.typedef import PropertyChangeCallback
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
 from dualsense_controller.core.enum import ConnectionType
@@ -276,6 +285,7 @@ class DualSenseController:
         else:
             self._properties.microphone.set_unmuted()
         self._properties.microphone.refresh_workaround()
+        self.wait_until_updated()
 
     def deactivate(self) -> None:
         self._core.deinit()

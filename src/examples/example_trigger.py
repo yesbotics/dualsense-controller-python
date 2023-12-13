@@ -1,7 +1,6 @@
 import time
 
-from dualsense_controller.api.DualSenseController import DualSenseController
-from dualsense_controller.api.property import TriggerProperty
+from dualsense_controller import DualSenseController, TriggerProperty
 
 
 class ExampleTrigger:
