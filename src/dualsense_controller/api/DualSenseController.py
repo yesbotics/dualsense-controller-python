@@ -11,6 +11,7 @@ from dualsense_controller.api.property import AccelerometerProperty, BatteryProp
     GyroscopeProperty, JoyStickProperty, \
     LightbarProperty, MicrophoneProperty, OrientationProperty, PlayerLedsProperty, RumbleProperty, \
     TouchFingerProperty, TriggerProperty
+from dualsense_controller.api.typedef import PropertyChangeCallback
 from dualsense_controller.core.DualSenseControllerCore import DualSenseControllerCore
 from dualsense_controller.core.enum import ConnectionType
 from dualsense_controller.core.hidapi import DeviceInfo
@@ -261,6 +262,9 @@ class DualSenseController:
         )
 
         self._microphone_initially_muted: Final[bool] = microphone_initially_muted
+
+    def on_error(self, callback: PropertyChangeCallback):
+        self._properties.exceptions.on_change(callback)
 
     def wait_until_updated(self) -> None:
         return self._core.wait_until_updated()
