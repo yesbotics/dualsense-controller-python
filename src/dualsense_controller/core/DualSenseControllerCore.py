@@ -4,6 +4,7 @@ from dualsense_controller.core.Benchmarker import Benchmark, Benchmarker
 from dualsense_controller.core.HidControllerDevice import HidControllerDevice
 from dualsense_controller.core.enum import ConnectionType, EventType
 from dualsense_controller.core.hidapi.hidapi import DeviceInfo
+from dualsense_controller.core.log import Log
 from dualsense_controller.core.report.in_report.InReport import InReport
 from dualsense_controller.core.state.State import State
 from dualsense_controller.core.state.mapping.StateValueMapper import StateValueMapper
@@ -182,4 +183,4 @@ class DualSenseControllerCore:
 
     def _on_thread_exception(self, exception: Exception) -> None:
         self._exception_state.value = exception
-        print('An Exception in the loop thread occured:', format_exception(exception))
+        Log.error('An Exception in the loop thread occured:', format_exception(exception))

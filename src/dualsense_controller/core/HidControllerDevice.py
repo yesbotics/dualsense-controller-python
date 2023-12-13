@@ -8,6 +8,7 @@ from dualsense_controller.core.core.Lockable import Lockable
 from dualsense_controller.core.enum import ConnectionType, EventType
 from dualsense_controller.core.exception import InvalidDeviceIndexException, InvalidInReportLengthException
 from dualsense_controller.core.hidapi import Device, DeviceInfo, enumerate
+from dualsense_controller.core.log import Log
 from dualsense_controller.core.report.in_report.Bt01InReport import Bt01InReport
 from dualsense_controller.core.report.in_report.Bt31InReport import Bt31InReport
 from dualsense_controller.core.report.in_report.InReport import InReport
@@ -81,8 +82,7 @@ class HidControllerDevice:
 
     def write(self) -> None:
         data = self._out_report_lockable.value.to_bytes()
-        # print(data)
-        print(data.hex(' '), end='\n')
+        Log.verbose(data.hex(' '))
         self._hid_device.write(data)
 
     def on_exception(self, callback: ExceptionCallback) -> None:
