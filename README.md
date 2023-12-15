@@ -4,7 +4,7 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python.
 
 ![Teaser Image](teaser.jpg)
 
-**Features:**
+## Features
 
 - Python support for Windows and Linux. See [Tested with](#tested-with) section.
 - Connection via USB or Bluetooth
@@ -17,68 +17,60 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python.
 - Set haptic feedback
 - Set adaptive triggers (experimental - work in progress)
 
-**Limitations:**
-
-- No support for older Python versions. Only Python 3.10+ supported
-- Linux Kernel must be minimum 5.12+
-- No macOS support (We are checking whether we can provide support at a later date)
-- Requires third party Software (hidapi). See [Installation](#installation) section to get it working
-
 ## Contents
 
-- [Tested with](#tested-with)
 - [Requirements](#requirements)
 - [Installation](#installation)
     - [Prerequisites for Windows](#prerequisites-for-windows)
     - [Prerequisites for Linux](#prerequisites-for-linux)
-        - [HIDAPI](#hidapi)
+        - [HIDAPI on Linux](#hidapi-on-linux)
         - [udev-rules](#udev-rules)
     - [Install the library](#install-the-library)
 - [Usage](#usage)
     - [Getting started - Simple example](#getting-started---simple-example)
     - [List available devices](#list-available-devices)
     - [Initialization](#initialization)
-    - [Lifecycle: Activation - Operation - Deactivation](#lifecycle-activation---operation---deactivation)
+    - [Lifecycle](#lifecycle)
     - [Errors during operation](#errors-during-operation)
     - [Read and listen to Battery](#read-and-listen-to-battery)
-    - [Listen to digital buttons](#listen-to-digital-buttons)
-    - [Listen to analog buttons](#listen-to-analog-buttons)
-    - [Listen to touch fingers](#listen-to-touch-fingers)
-    - [Listen to Gyroscope, Accelerotmeter and Orientation](#listen-to-gyroscope-accelerotmeter-and-orientation)
-    - [Set lightbar color](#set-lightbar-color)
-    - [Set player LEDs](#set-player-leds)
-    - [Set haptic feedback (Rumble)](#set-haptic-feedback-rumble)
-    - [Set adaptive triggers](#set-adaptive-triggers)
+    - [Digital buttons](#digital-buttons)
+    - [Analog buttons](#analog-buttons)
+    - [Touchpad](#touchpad)
+    - [Gyroscope, Accelerotmeter and Orientation](#gyroscope-accelerometer-and-orientation)
+    - [Lightbar color](#lightbar-color)
+    - [Player LEDs](#player-leds)
+    - [Haptic feedback (Rumble)](#haptic-feedback-rumble)
+    - [Adaptive Triggers](#adaptive-triggers)
     - [Behavioral Options](#behavioral-options)
         - [Value Mapping](#value-mapping)
-    - [More Examples](#more-examples)
+- [Examples](#examples)
 - [Development Notes](#development-notes)
+    - [USB Sniffing on Windows with Wireshark/TShark and USBPcap](#usb-sniffing-on-windows-with-wiresharktshark-and-usbpcap)
     - [Protocol](#protocol)
-- [Sources](#sources)
+- [Tested with](#tested-with)
+- [MacOS support](#macos-support)
+- [Special thanks to](#special-thanks-to)
 - [Contribution](#contribution)
 - [Trademarks Notes](#trademarks-notes)
 - [Photo Credits](#photo-credits)
-
-## Tested with
-
-Windows:
-
-- Windows 10 Professional
-
-Linux:
-
-- Manjaro Linux (6.1.38-1-MANJARO (64-bit)), Python 3.11.x
-- Ubuntu 22.04 Linux 64-bit, Python 3.10.x
+- [License](#license)
 
 ## Requirements
 
-- Linux
 - Python 3.10+
-- hidapi
+- Kernel 5.12+ (Linux only)
+- hidapi lib
 
 ## Installation
 
 Some preparations have to be done before depending on your operating system:
+
+### Prerequisites for Windows
+
+Just download the [latest release of HIDAPI](https://github.com/libusb/hidapi/releases).
+Unzip the release zip file und then place the according `hidapi.dll` in your Workspace (i.e. `C:\Windows\System32`)
+folder.
+(from `x64` folder for 64-bit Windows or from `x86` folder for 32-bit Windows)
 
 ### Prerequisites for Linux
 
@@ -116,23 +108,16 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 
-### Prerequisites for Windows
-
-Just download the [latest release of HIDAPI](https://github.com/libusb/hidapi/releases).
-Unzip the release zip file und then place the according `hidapi.dll` in your Workspace (i.e. `C:\Windows\System32`)
-folder.
-(from `x64` folder for 64-bit Windows or from `x86` folder for 32-bit Windows)
-
 ### Install the library
 
 You can now go ahead and use the library within your projects.
-Add either via [pip](https://pypi.org/project/pip/)
+Add either via [pip](https://pypi.org/project/pip/):
 
 ```shell
 pip install --upgrade dualsense-controller
 ```
 
-or when you prefer [Python Poetry](https://python-poetry.org/) as Packaging and Dependency Management solution,
+or when you prefer [Python Poetry](https://python-poetry.org/) as packaging and dependency management solution:
 then add via
 
 ```shell
@@ -229,27 +214,37 @@ if len(device_infos) < 1:
 
 ### Initialization
 
-You can initialize Controller by passing an index, (`amount of devices - 1`)
+You can initialize Controllers on multiple ways:
+
+**Variant 1**
+
+Initialize by passing an index, (`amount of devices - 1`).
 
 ```python
 controller = DualSenseController(device_index_or_device_info=0)
 ```
 
-an DeviceInfo object, obtained from devices list
+**Variant 2**
+
+Pass a DeviceInfo object, obtained from the devices list.
 
 ```python
 controller = DualSenseController(device_index_or_device_info=device_infos[0])
 ```
 
-or just pass nothing, which tries to use first device
+**Variant 3**
+
+Just pass nothing. It will try to use the first device.
 
 ```python
 controller = DualSenseController()
 ```
 
-### Lifecycle: Activation - Operation - Deactivation
+### Lifecycle
 
-The controller is intended to be used in such a way that you activate it first.
+**Activation -> Operation -> Deactivation**
+
+The controller has to be activated at first.  
 Since the controller communication now takes place in a separate thread,
 you must ensure that your program remains alive,
 e.g. by using a while loop (possibly with a termination condition).
@@ -266,8 +261,8 @@ while is_running:
 controller.deactivate()
 ```
 
-Alternatively, you can also use the controller with context manager,
-which activates and deactivates controller automatically
+Alternatively, you can also use the controller with a context manager,
+which activates and deactivates controllers automatically.
 
 ```python
 is_running = True
@@ -289,13 +284,13 @@ def on_error(error):
     # ...
 ```
 
-register the callback via
+Register the callback via
 
 ```python
 controller.on_error(on_error)
 ```
 
-### Read and listen to Battery
+### Read and listen to battery
 
 You can read out the charge level and charge status of the battery as follows
 
@@ -329,12 +324,14 @@ controller.battery.on_charging(on_battery_charging)
 controller.battery.on_discharging(on_battery_discharging)
 ```
 
-### Listen to digital buttons
+### Digital buttons
 
-Digital Buttons are `Up`, `Down`, `Left`, `Right`, `Cross`, `Square`, `Circle`, `Triangle`,
+This lib reads and reacts on the following digital buttons of the DualSense Controller:
+
+`Up`, `Down`, `Left`, `Right`, `Cross`, `Square`, `Circle`, `Triangle`,
 `L1`, `L2`, `L3`,`R1`, `R2`, `R3`, `Touchpad click`, `PlayStation`, `Mute`, `Create` and `Options`
-You can listen to them in several ways:
-Detect if button is pressed, released or its has value changed
+
+You can listen to each button seperately if it is **pressed**, **released** or its value **changed**.
 
 ```python
 def on_cross_btn_pressed():
@@ -354,10 +351,11 @@ controller.btn_cross.on_up(on_cross_btn_released)
 controller.btn_cross.on_change(on_cross_btn_changed)
 ```
 
-### Listen to analog buttons
+### Analog buttons
 
-Analog Buttons are the sticks and the trigger keys
-Attention: trigger keys can be used analog and digital. `L2` and `L3` are digital buttons too
+The DualSense controller has serveral analog buttons: two analog **sticks** and two analog **triggers** (`L2` and `R2`).
+
+**Note: trigger keys can be used analog and digital. `L2` and `R2` are digital buttons too**
 
 ```python
 def on_left_trigger(value):
@@ -383,7 +381,12 @@ controller.left_stick.on_change(on_left_stick_changed)
 
 ```
 
-### Listen to touch fingers
+### Touchpad
+
+The DualSense Controller has a 2-point capacitive touchpad with click mechanism.
+The Click of the Touchpad is handled like a digital button. See [Digtal buttons](#digital-buttons)
+You can listen and react on both touch
+events:
 
 ```python
 def on_touch_finger_1(value):
@@ -398,7 +401,9 @@ controller.touch_finger_1.on_change(on_touch_finger_1)
 controller.touch_finger_2.on_change(on_touch_finger_2)
 ```
 
-### Listen to Gyroscope, Accelerotmeter and Orientation
+### Gyroscope, Accelerometer and Orientation
+
+You can listen on all events of the 3 axis gyroscope, the 3 axis accelerometer and the calculated orientation.
 
 ```python
 def on_gyroscope_change(gyroscope):
@@ -418,9 +423,9 @@ controller.accelerometer.on_change(on_accelerometer_change)
 controller.orientation.on_change(on_orientation_change)
 ```
 
-### Set lightbar color
+### Lightbar color
 
-Set the color via predefined values
+The color of the lightbar can be setted with predefined values
 
 ```python
 controller.lightbar.set_color_red()
@@ -430,19 +435,28 @@ controller.lightbar.set_color_red()
 # controller.lightbar.set_color_black()
 ```
 
-or with custom RGB values
+or with custom RGB values.
 
 ```python
 controller.lightbar.set_color(88, 10, 200)
 ```
 
-### Set player LEDs
+### Player LEDs
 
-Turn on all LEDs or specific ones
+Turn on all LEDs
 
 ```python
 controller.player_leds.set_all()
 # controller.player_leds.set_inner()
+# controller.player_leds.set_outer()
+# controller.player_leds.set_center_and_outer()
+# controller.player_leds.set_center()
+```
+
+or specific ones
+
+```python
+controller.player_leds.set_inner()
 # controller.player_leds.set_outer()
 # controller.player_leds.set_center_and_outer()
 # controller.player_leds.set_center()
@@ -454,7 +468,7 @@ or turn off all
 controller.player_leds.set_off()
 ```
 
-and modify their brightness
+and modify their brightness.
 
 ```python
 controller.player_leds.set_brightness_high()
@@ -462,12 +476,12 @@ controller.player_leds.set_brightness_high()
 # controller.player_leds.set_brightness_low()
 ```
 
-### Set haptic Feedback (Rumble)
+### Haptic feedback (Rumble)
 
-The haptic feedback is controlled by the left and right builtin rumble motors.
+The haptic feedback is controlled by the left and right builtin rumble motors. You can set both of them independently.
 
 **Attention:** the according rumble values depend on the chosen [Value Mapping](#value-mapping).
-By default, it is a value between 0 and 255.
+By default it is a value between 0 and 255.
 
 ```python
 controller.left_rumble.set(0)  # no rumble
@@ -475,16 +489,16 @@ controller.left_rumble.set(0)  # no rumble
 # controller.left_rumble.set(255) # strong rumble
 ```
 
-### Set adaptive Triggers
+### Adaptive Triggers
 
 You can use different trigger effects. By default, the triggers have **no resistance**,
-which corresponds to the following
+which corresponds to the following setter
 
 ```python
 controller.left_trigger.effect.set_no_resistance()
 ```
 
-**Continuous resistance** effect is defined a start position and a strength
+**Continuous resistance** effect is defined by a start position and a strength
 
 ```python
 controller.left_trigger.effect.set_continuous_resistance(start_pos=0, force=255)  # full resistance
@@ -499,24 +513,26 @@ controller.left_trigger.effect.set_section_resistance(start_pos=70, end_pos=100,
 # controller.left_trigger.effect.set_section_resistance(start_pos=70,end_pos=100,force=10) # low resistance
 ```
 
-**Work in Progress**: The **Extended Effect** is the most complicated effect.
-To be honest, we don't really know how it works and which parameters are necessary to achieve according result.
-Unfortunately there is no official documentation from Sony
-and the other libraries that served as a source of inspiration don't really help to enlighten us either.
-For this reason, feel free to experiment with it.
-We are working on a solution to be able to offer at least a few presets,
-which should then be included in future releases of this library.
-We would be pleased to receive your cooperation and suggestions on how we should handle it.
+> **Work in Progress**: The **Extended Effect** is the most complicated effect.
+>
+> To be honest, we don't really know how it works and which parameters are necessary to achieve according result.
+> Unfortunately there is no official documentation from Sony
+> and the other libraries that served as a source of inspiration don't really help to enlighten us either.
+> For this reason, feel free to experiment with it.
+> We are working on a solution to be able to offer at least a few presets,
+> which should then be included in future releases of this library.
+> We would be pleased to receive your cooperation and suggestions on how we should handle it.
+>
+>```python
+> controller.left_trigger.effect.set_effect_extended()
+>```
 
-```python
-controller.left_trigger.effect.set_effect_extended()
-```
+The most powerful trigger effect is the **Custom effect**.
 
-The most powerful trigger effect is **Custom effect**.
 We offer this interface to provide the greatest possible freedom by making it possible to send
 raw values (8-bit unsigned integer: 0 - 255) to the controller.
 Here, too, you are welcome to play with different values.
-And we welcome any insights that help us to offer useful presets.
+And we welcome any insights that help us to provide useful presets.
 
 ```python
 controller.left_trigger.effect.set_custom_effect(param1, param2, param3, param4, param5, param6, param7)
@@ -532,12 +548,13 @@ You can change the value mapping for analog values, like stick axis, trigger val
 By default the stick axis values are mapped from -128 to 127 (default mapping)
 and the trigger values from 0 to 255, which means the stick axis default position values are 0
 and trigers default position values are 0.
-Optional stick deadzones should be adjusted properly depeneding on the mapping, i.e. value 3 is fine
+
+Optional stick deadzones should be adjusted properly depending on the mapping, i.e. value 3 is fine
 when the stick axis values range from -128 to 127. But it is too high,
 when stick range is interpreted as -1.0 to 1.0 (normalized mapping),
-then u should use a deadzone which is smaller than 1.
+then you should use a deadzone which is smaller than 1.
 
-To apply a custom mapping, i.e. normalized mapping (-1.0 to 1.0) pass it while initialization:
+To apply a custom mapping, i.e. normalized mapping (-1.0 to 1.0) pass it on initialization:
 
 ```python
 controller = DualSenseController(
@@ -560,14 +577,14 @@ Available mappings are:
 - `Mapping.NORMALIZED_INVERTED`: same as `Mapping.NORMALIZED` but stick y axis values inverted.
 - `Mapping.HUNDRED`:
 
-### More Examples
+## Examples
 
 Not all funcionality is explicitly explained here, so take a look at the example files here,
 to see more use cases take a look into the `./src/examples`:
 
 ## Development Notes
 
-...
+We tried different ways to get all the secrets out of the controller. We have documented some of the procedures here.
 
 ### USB Sniffing on Windows with Wireshark/TShark and USBPcap
 
@@ -615,31 +632,50 @@ The meaning of individual bytes and byte sequences in both direction - from and 
 files [docs/dualsense-controller.ods](https://github.com/yesbotics/dualsense-controller-python/blob/main/docs/dualsense-controller.ods)
 and [README_PROTOCOL.md](https://github.com/yesbotics/dualsense-controller-python/blob/main/README_PROTOCOL.md)
 
-## Sources
+## Tested with
+
+Windows:
+
+- Windows 10 Professional
+
+Linux:
+
+- Manjaro Linux (6.1.38-1-MANJARO (64-bit)), Python 3.11.x
+- Ubuntu 22.04 Linux 64-bit, Python 3.10.x
+
+## MacOS support
+
+MacOS is not supported currently. Feel free to help us!
+
+## Special thanks to
 
 This project's was heavily inspired by the following projects.
 A lot of implementation details were borrowed and know-how were extracted from them.
 
-- [pydualsense](https://github.com/flok/pydualsense)
-- [DualSense explorer tool](https://github.com/nondebug/dualsense)
-- [ds5ctl](https://github.com/theY4Kman/ds5ctl)
-- [PS5 Library of USB_Host_Shield_2.0](https://github.com/felis/USB_Host_Shield_2.0#ps5-library)
-- [DualSense on Windows \[API\]](https://github.com/Ohjurot/DualSense-Windows)
-- [Factories for all DualSense trigger effects](https://gist.github.com/Nielk1/6d54cc2c00d2201ccb8c2720ad7538db?permalink_comment_id=4250586)
-- [Game Controller Collective Wiki: Sony DualSense](https://controllers.fandom.com/wiki/Sony_DualSense#Input_Reports)
+- [pydualsense](https://github.com/flok/pydualsense): Another good python lib for DualSense controller
+- [DualSense explorer tool](https://github.com/nondebug/dualsense): Another good python lib for DualSense controller
+- [ds5ctl](https://github.com/theY4Kman/ds5ctl): A GUI tool for configuring a DualSense 5 controller
+- [PS5 Library of USB_Host_Shield_2.0](https://github.com/felis/USB_Host_Shield_2.0#ps5-library): A DualSense Controller
+  library for arduino
+- [DualSense on Windows \[API\]](https://github.com/Ohjurot/DualSense-Windows): Windows API for the DualSense DualSense
+  controller written in C++ for C++.
+- [TriggerEffectGenerator.cs ](https://gist.github.com/Nielk1/6d54cc2c00d2201ccb8c2720ad7538db?permalink_comment_id=4250586):
+  Factories for all DualSense trigger effects
+- [Game Controller Collective Wiki: Sony DualSense](https://controllers.fandom.com/wiki/Sony_DualSense#Input_Reports):
+  Helpful informations about DualSense controller internals
 
 Libs
 
-- [hidapi-usb](https://github.com/flok/hidapi-cffi)
-- [pyhidapi](https://github.com/apmorton/pyhidapi)
-- [cython-hidapi](https://github.com/trezor/cython-hidapi)
-- [hidapi](https://github.com/libusb/hidapi)
-- [hidapitester](https://github.com/todbot/hidapitester)
+- [hidapi](https://github.com/libusb/hidapi): HIDAPI library for Windows, Linux, FreeBSD and macOS
+- [hidapi-usb](https://github.com/flok/hidapi-cffi): Python bindings for hidapi via CFFI
+- [pyhidapi](https://github.com/apmorton/pyhidapi): Python bindings for hidapi via CFFI
+- [cython-hidapi](https://github.com/trezor/cython-hidapi): A Cython interface to HIDAPI library
+- [hidapitester](https://github.com/todbot/hidapitester): Simple command-line program to exercise HIDAPI
 
 ## Contribution
 
 We welcome any input from others to help us improve this software.
-Feel free to send us suggestions.
+Feel free to send us suggestions for improvements.
 In particular, collaboration on the documentation,
 the haptic feedback (Rumble) and the adaptive triggers APIs are especially welcome.
 
@@ -657,3 +693,7 @@ by <a href="https://unsplash.com/@martzzl?utm_content=creditCopyText&utm_medium=
 Strauß</a>
 on <a href="https://unsplash.com/photos/gray-and-black-xbox-one-game-controller-WO4DxFdA3dY?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">
 Unsplash</a>
+
+## License
+
+[MIT](https://github.com/yesbotics/dualsense-controller-python/raw/main/LICENSE)

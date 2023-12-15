@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="example_trigger" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="example_trigger_deprecated" type="PythonConfigurationType" factoryName="Python">
     <module name="dualsense-controller-python" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -22,7 +22,7 @@
         <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
       </ENTRIES>
     </EXTENSION>
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/examples/example_trigger.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/examples/example_trigger_deprecated.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />

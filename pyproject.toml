@@ -27,6 +27,7 @@ classifiers = [
 python = "^3.10"
 pyee = "^11.0.0"
 cffi = "^1.15.1"
+deprecated = "^1.2.14"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"

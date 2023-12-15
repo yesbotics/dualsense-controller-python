@@ -63,7 +63,10 @@ class Usb01OutReport(OutReport):
         out_report_bytes[15] = self.right_trigger_effect_param4
         out_report_bytes[16] = self.right_trigger_effect_param5
         out_report_bytes[17] = self.right_trigger_effect_param6
-        out_report_bytes[20] = self.right_trigger_effect_param7
+        out_report_bytes[18] = self.right_trigger_effect_param7
+        out_report_bytes[19] = self.right_trigger_effect_param8
+        out_report_bytes[20] = self.right_trigger_effect_param9
+        out_report_bytes[21] = self.right_trigger_effect_param10
 
         out_report_bytes[22] = self.left_trigger_effect_mode
         out_report_bytes[23] = self.left_trigger_effect_param1
@@ -72,7 +75,10 @@ class Usb01OutReport(OutReport):
         out_report_bytes[26] = self.left_trigger_effect_param4
         out_report_bytes[27] = self.left_trigger_effect_param5
         out_report_bytes[28] = self.left_trigger_effect_param6
-        out_report_bytes[31] = self.left_trigger_effect_param7
+        out_report_bytes[29] = self.left_trigger_effect_param7
+        out_report_bytes[30] = self.left_trigger_effect_param8
+        out_report_bytes[31] = self.left_trigger_effect_param9
+        out_report_bytes[32] = self.left_trigger_effect_param10
 
         out_report_bytes[39] = self.led_options
 

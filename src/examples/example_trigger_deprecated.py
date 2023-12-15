@@ -12,32 +12,20 @@ class ExampleTrigger:
 
         self.trigger_effects = [
             lambda trigger: (
-                print(f"Effect: no_resistance"),
-                trigger.effect.no_resistance()
+                print(f"Effect: set_no_resistance"),
+                trigger.effect.set_no_resistance()
             ),
             lambda trigger: (
-                print(f"Effect: off"),
-                trigger.effect.off()
+                print(f"Effect: set_continuous_resistance, start_pos: 0, force: 255"),
+                trigger.effect.set_continuous_resistance(0, 255)
             ),
             lambda trigger: (
-                print(f"Effect: continuous_resistance"),
-                trigger.effect.continuous_resistance()
+                print(f"Effect: set_continuous_resistance, start_pos: 127, force: 255"),
+                trigger.effect.set_continuous_resistance(127, 255)
             ),
             lambda trigger: (
-                print(f"Effect: feedback"),
-                trigger.effect.feedback()
-            ),
-            lambda trigger: (
-                print(f"Effect: section_resistance"),
-                trigger.effect.section_resistance()
-            ),
-            lambda trigger: (
-                print(f"Effect: weapon"),
-                trigger.effect.weapon()
-            ),
-            lambda trigger: (
-                print(f"Effect: multiple_position_feedback"),
-                trigger.effect.multiple_position_feedback()
+                print(f"Effect: set_section_resistance, start_pos: 0, endpos: 100, force: 255"),
+                trigger.effect.set_section_resistance(0, 100, 255)
             ),
         ]
         self.trigger_effects_num: int = len(self.trigger_effects)

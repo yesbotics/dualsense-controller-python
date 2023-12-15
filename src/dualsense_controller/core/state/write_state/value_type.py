@@ -31,7 +31,7 @@ class PlayerLeds:
 
 @dataclass(frozen=True, slots=True)
 class TriggerEffect:
-    mode: int | TriggerEffectMode = TriggerEffectMode.NO_RESISTANCE
+    mode: int | TriggerEffectMode = TriggerEffectMode.OFF
     param1: int = 0x00
     param2: int = 0x00
     param3: int = 0x00
@@ -39,3 +39,6 @@ class TriggerEffect:
     param5: int = 0x00
     param6: int = 0x00
     param7: int = 0x00
+    param8: int = 0x00
+    param9: int = 0x00
+    param10: int = 0x00

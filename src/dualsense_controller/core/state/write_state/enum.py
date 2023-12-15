@@ -139,13 +139,44 @@ class LedOptions(int, Enum):
 
 
 class TriggerEffectMode(int, Enum):
+    # Offically recognized modes
+    # These are 100% safe and are the only effects that modify the trigger status nybble
+    OFF = 0x05,  # 00 00 0 101
+    FEEDBACK = 0x21,  # 00 10 0 001
+    WEAPON = 0x25,  # 00 10 0 101
+    VIBRATION = 0x26,  # 00 10 0 110
+
+    # Unofficial but unique effects left in the firmware
+    # These might be removed in the future
+    BOW = 0x22,  # 00 10 0 010
+    GALLOPING = 0x23,  # 00 10 0 011
+    MACHINE = 0x27,  # 00 10 0 111
+
+    # Leftover versions of offical modes with simpler logic and no paramater protections
+    # These should not be used
+    SIMPLE_FEEDBACK = 0x01,  # 00 00 0 001
+    SIMPLE_WEAPON = 0x02,  # 00 00 0 010
+    SIMPLE_VIBRATION = 0x06,  # 00 00 0 110
+
+    # Leftover versions of offical modes with limited paramater ranges
+    # These should not be used
+    LIMITED_FEEDBACK = 0x11,  # 00 01 0 001
+    LIMITED_WEAPON = 0x12,  # 00 01 0 010
+
+    # Debug or Calibration functions
+    # Don't use these as they will courrupt the trigger state until the reset button is pressed
+    DEBUG_FC = 0xFC,  # 11 11 1 100
+    DEBUG_FD = 0xFD,  # 11 11 1 101
+    DEBUG_FE = 0xFE,  # 11 11 1 110
+
+    # MY OLD - DONT USE
+    # TODO: REPLACE
     NO_RESISTANCE = 0x00
-    CONTINUOUS_RESISTANCE = 0x01
-    SECTION_RESISTANCE = 0x02
-    VIBRATING = 0x06
-    EFFECT_EXTENDED = 0x26  # Used also for automatic gun
-    CALIBRATE = 0xFC
-    # new
-    BOW = 0x22
-    SEMI_AUTOMATIC_GUN = 0x25
-    GALLOPING = 0x23
+    CONTINUOUS_RESISTANCE = SIMPLE_FEEDBACK
+    SECTION_RESISTANCE = SIMPLE_WEAPON
+    VIBRATING = SIMPLE_VIBRATION
+    EFFECT_EXTENDED = VIBRATION
+    CALIBRATE = DEBUG_FC
+    SEMI_AUTOMATIC_GUN = WEAPON
+
+

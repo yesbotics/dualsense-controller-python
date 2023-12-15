@@ -1,5 +1,6 @@
 from typing import Final
 
+from dualsense_controller.core.log import Log
 from dualsense_controller.core.report.out_report.OutReport import OutReport
 from dualsense_controller.core.state.BaseStates import BaseStates
 from dualsense_controller.core.state.State import State
@@ -322,7 +323,7 @@ class WriteStates(BaseStates):
         self._has_changed = True
 
     def _on_left_trigger_effect_changed(self, left_trigger_effect: TriggerEffect) -> None:
-        print('_on_left_trigger_effect_changed', left_trigger_effect)
+        Log.verbose('_on_left_trigger_effect_changed', left_trigger_effect)
         self.left_trigger_effect_mode.value = left_trigger_effect.mode
         self.left_trigger_effect_param1.value = left_trigger_effect.param1
         self.left_trigger_effect_param2.value = left_trigger_effect.param2
@@ -334,7 +335,7 @@ class WriteStates(BaseStates):
         self._has_changed = True
 
     def _on_right_trigger_effect_changed(self, right_trigger_effect: TriggerEffect) -> None:
-        print('_on_right_trigger_effect_changed', right_trigger_effect)
+        Log.verbose('_on_right_trigger_effect_changed', right_trigger_effect)
         self.right_trigger_effect_mode.value = right_trigger_effect.mode
         self.right_trigger_effect_param1.value = right_trigger_effect.param1
         self.right_trigger_effect_param2.value = right_trigger_effect.param2

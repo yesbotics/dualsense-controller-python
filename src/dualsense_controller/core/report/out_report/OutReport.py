@@ -23,23 +23,29 @@ class OutReport(ABC):
     motor_left: int = 0x00
     motor_right: int = 0x00
 
-    left_trigger_effect_mode: int = 0x26
-    left_trigger_effect_param1: int = 0x90
-    left_trigger_effect_param2: int = 0xA0
-    left_trigger_effect_param3: int = 0xFF
+    left_trigger_effect_mode: int = 0x00
+    left_trigger_effect_param1: int = 0x00
+    left_trigger_effect_param2: int = 0x00
+    left_trigger_effect_param3: int = 0x00
     left_trigger_effect_param4: int = 0x00
     left_trigger_effect_param5: int = 0x00
     left_trigger_effect_param6: int = 0x00
     left_trigger_effect_param7: int = 0x00
+    left_trigger_effect_param8: int = 0x00
+    left_trigger_effect_param9: int = 0x00
+    left_trigger_effect_param10: int = 0x00
 
-    right_trigger_effect_mode: int = 0x26
-    right_trigger_effect_param1: int = 0x90
-    right_trigger_effect_param2: int = 0xA0
-    right_trigger_effect_param3: int = 0xFF
+    right_trigger_effect_mode: int = 0x00
+    right_trigger_effect_param1: int = 0x00
+    right_trigger_effect_param2: int = 0x00
+    right_trigger_effect_param3: int = 0x00
     right_trigger_effect_param4: int = 0x00
     right_trigger_effect_param5: int = 0x00
     right_trigger_effect_param6: int = 0x00
     right_trigger_effect_param7: int = 0x00
+    right_trigger_effect_param8: int = 0x00
+    right_trigger_effect_param9: int = 0x00
+    right_trigger_effect_param10: int = 0x00
 
     lightbar_on_off: bool = True
 
