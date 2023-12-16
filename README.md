@@ -385,8 +385,8 @@ controller.left_stick.on_change(on_left_stick_changed)
 
 The DualSense Controller has a 2-point capacitive touchpad with click mechanism.
 The Click of the Touchpad is handled like a digital button. See [Digtal buttons](#digital-buttons)
-You can listen and react on both touch
-events:
+
+You can listen and react on both touch events:
 
 ```python
 def on_touch_finger_1(value):
@@ -645,7 +645,8 @@ Linux:
 
 ## MacOS support
 
-MacOS is not supported currently. Feel free to help us!
+MacOS is not supported currently.
+We are discussing the viability of implementation and there may also be macos support in the future.
 
 ## Special thanks to
 
@@ -661,6 +662,7 @@ A lot of implementation details were borrowed and know-how were extracted from t
   controller written in C++ for C++.
 - [TriggerEffectGenerator.cs ](https://gist.github.com/Nielk1/6d54cc2c00d2201ccb8c2720ad7538db?permalink_comment_id=4250586):
   Factories for all DualSense trigger effects
+- [ExtendInput ](https://github.com/Nielk1/ExtendInput): C# implementation of DualSense
 - [Game Controller Collective Wiki: Sony DualSense](https://controllers.fandom.com/wiki/Sony_DualSense#Input_Reports):
   Helpful informations about DualSense controller internals
 
