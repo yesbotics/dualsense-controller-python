@@ -39,6 +39,82 @@ class ExampleTrigger:
                 print(f"Effect: multiple_position_feedback"),
                 trigger.effect.multiple_position_feedback()
             ),
+            lambda trigger: (
+                print(f"Effect: vibration"),
+                trigger.effect.vibration()
+            ),
+            lambda trigger: (
+                print(f"Effect: multiple_position_vibration"),
+                trigger.effect.multiple_position_vibration()
+            ),
+            lambda trigger: (
+                print(f"Effect: slope_feedback"),
+                trigger.effect.slope_feedback()
+            ),
+            lambda trigger: (
+                print(f"Effect: bow"),
+                trigger.effect.bow()
+            ),
+            lambda trigger: (
+                print(f"Effect: galloping"),
+                trigger.effect.galloping()
+            ),
+            lambda trigger: (
+                print(f"Effect: machine"),
+                trigger.effect.machine()
+            ),
+            lambda trigger: (
+                print(f"Effect: simple_vibration"),
+                trigger.effect.simple_vibration()
+            ),
+            lambda trigger: (
+                print(f"Effect: full_press"),
+                trigger.effect.full_press()
+            ),
+            lambda trigger: (
+                print(f"Effect: soft_press"),
+                trigger.effect.soft_press()
+            ),
+            lambda trigger: (
+                print(f"Effect: medium_press"),
+                trigger.effect.medium_press()
+            ),
+            lambda trigger: (
+                print(f"Effect: hard_press"),
+                trigger.effect.hard_press()
+            ),
+            lambda trigger: (
+                print(f"Effect: pulse"),
+                trigger.effect.pulse()
+            ),
+            lambda trigger: (
+                print(f"Effect: choppy"),
+                trigger.effect.choppy()
+            ),
+            lambda trigger: (
+                print(f"Effect: soft_rigidity"),
+                trigger.effect.soft_rigidity()
+            ),
+            lambda trigger: (
+                print(f"Effect: medium_rigidity"),
+                trigger.effect.medium_rigidity()
+            ),
+            lambda trigger: (
+                print(f"Effect: max_rigidity"),
+                trigger.effect.max_rigidity()
+            ),
+            lambda trigger: (
+                print(f"Effect: half_press"),
+                trigger.effect.half_press()
+            ),
+            lambda trigger: (
+                print(f"Effect: rifle"),
+                trigger.effect.rifle()
+            ),
+            lambda trigger: (
+                print(f"Effect: vibration_2"),
+                trigger.effect.vibration_2()
+            ),
         ]
         self.trigger_effects_num: int = len(self.trigger_effects)
         self.left_trigger_effect_index: int = 0
