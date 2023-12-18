@@ -495,21 +495,24 @@ You can use different trigger effects. By default, the triggers have **no resist
 which corresponds to the following setter
 
 ```python
-controller.left_trigger.effect.set_no_resistance()
+# recommended
+controller.left_trigger.effect.off()
+# or
+# controller.left_trigger.effect.no_resistance()
 ```
 
 **Continuous resistance** effect is defined by a start position and a strength
 
 ```python
-controller.left_trigger.effect.set_continuous_resistance(start_pos=0, force=255)  # full resistance
-# controller.left_trigger.effect.set_continuous_resistance(start_pos=127, force=255) # full resist. starts at middle pos
-# controller.left_trigger.effect.set_continuous_resistance(start_pos=0, force=128)  # medium resistance
+controller.left_trigger.effect.continuous_resistance(start_position=0, force=255)  # full resistance
+# controller.left_trigger.effect.continuous_resistance(start_position=127, force=255) # full resist. starts at middle pos
+# controller.left_trigger.effect.continuous_resistance(start_position=0, force=128)  # medium resistance
 ```
 
 **Section resistance** effect means only a section has resitance
 
 ```python
-controller.left_trigger.effect.set_section_resistance(start_pos=70, end_pos=100, force=255)  # full
+controller.left_trigger.effect.section_resistance(start_position=70, end_position=100, force=255)  # full
 # controller.left_trigger.effect.set_section_resistance(start_pos=70,end_pos=100,force=10) # low resistance
 ```
 
@@ -524,7 +527,7 @@ controller.left_trigger.effect.set_section_resistance(start_pos=70, end_pos=100,
 > We would be pleased to receive your cooperation and suggestions on how we should handle it.
 >
 >```python
-> controller.left_trigger.effect.set_effect_extended()
+> controller.left_trigger.effect.effect_extended()
 >```
 
 The most powerful trigger effect is the **Custom effect**.
