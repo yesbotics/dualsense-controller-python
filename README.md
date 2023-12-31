@@ -491,17 +491,35 @@ controller.left_rumble.set(0)  # no rumble
 
 ### Adaptive Triggers
 
-You can use different trigger effects. By default, the triggers have **no resistance**,
-which corresponds to the following setter
+This feature is a work in progress and not all possibilities have been exhausted yet.
+However, this library provides a few essential effects.
+Contribution is explicitly desired at this point.
+
+The following effects are implemented and can be used:
+
+#### Off (No effect)
+
+This is the default trigger effect and means that there is no trigger effect :P
+Recommended to unset all trigger effects or apply no effect.
 
 ```python
-# recommended
 controller.left_trigger.effect.off()
-# or
-# controller.left_trigger.effect.no_resistance()
 ```
 
-**Continuous resistance** effect is defined by a start position and a strength
+#### No resistance
+
+This effect is similar to the [Off](#off-no-effect) effect. (Not recommended, Use [Off](#off-no-effect) instead)
+
+```python
+controller.left_trigger.effect.no_resistance()
+```
+
+#### Continuous resistance
+
+This effect means there is a continuous resistance, starting at a defined position and is applied with following values:
+
+- `start_position` between 0 and 255 inclusive
+- `force` strength of the effect, between 0 and 255 inclusive
 
 ```python
 controller.left_trigger.effect.continuous_resistance(start_position=0, force=255)  # full resistance
@@ -509,37 +527,149 @@ controller.left_trigger.effect.continuous_resistance(start_position=0, force=255
 # controller.left_trigger.effect.continuous_resistance(start_position=0, force=128)  # medium resistance
 ```
 
-**Section resistance** effect means only a section has resitance
+#### Feedback
+
+This effect is similar to [Continuous resistance](#continuous-resistance)
+Trigger will resist movement beyond the start position and applied with following values:
+
+- `start_position`: The starting zone of the trigger effect. Must be between 0 and 9 inclusive.
+- `strength`: The force of the resistance. Must be between 0 and 8 inclusive.
+
+```python
+controller.left_trigger.effect.feedback(start_position=0, strength=8)  # full resistance
+# controller.left_trigger.effect.feedback(start_position=0, strength=3)  # less resistance
+# controller.left_trigger.effect.feedback(start_position=4, strength=3)  # less resistance, starting at middle position
+```
+
+#### Multiple position feedback
+
+This effect is like the [Feedback](#feedback) effect it will resist movement at varrying strengths in 10 regions
+and is applied with following values:
+
+- `strengths`: List of 10 resistance values for zones 0 through 9. Each value must be between 0 and 8 inclusive.
+
+```python
+controller.left_trigger.effect.feedback((0, 0, 0, 0, 8, 8, 0, 0, 0, 0))
+# controller.left_trigger.effect.feedback((8, 8, 0, 0, 0, 0, 0, 0, 8, 8)) 
+```
+
+#### Slope feedback
+
+This effect will resist movement at a linear range of strengths
+
+`start_position`: The starting zone of the trigger effect. Must be between 0 and 8 inclusive.
+`end_position`: The ending zone of the trigger effect. Must be between `start_position` + 1 and 9 inclusive.
+`start_strength`: The force of the resistance at the start. Must be between 1 and 8 inclusive.
+`end_strength`: The force of the resistance at the end. Must be between 1 and 8 inclusive.
+
+```python
+controller.left_trigger.effect.slope_feedback(start_position=0, end_position=9, start_strength=1, end_strength=4) 
+```
+
+#### Section resistance
+
+This effect means only a custom section has resistance and is applied with following values:
+
+- `start_position` between 0 and 255 inclusive
+- `end_position` between greather than `start_position` and 255 inclusive
+- `force` strength of the effect, between 0 and 255 inclusive
 
 ```python
 controller.left_trigger.effect.section_resistance(start_position=70, end_position=100, force=255)  # full
 # controller.left_trigger.effect.set_section_resistance(start_pos=70,end_pos=100,force=10) # low resistance
 ```
 
-> **Work in Progress**: The **Extended Effect** is the most complicated effect.
->
-> To be honest, we don't really know how it works and which parameters are necessary to achieve according result.
-> Unfortunately there is no official documentation from Sony
-> and the other libraries that served as a source of inspiration don't really help to enlighten us either.
-> For this reason, feel free to experiment with it.
-> We are working on a solution to be able to offer at least a few presets,
-> which should then be included in future releases of this library.
-> We would be pleased to receive your cooperation and suggestions on how we should handle it.
->
->```python
-> controller.left_trigger.effect.effect_extended()
->```
+#### Weapon
 
-The most powerful trigger effect is the **Custom effect**.
+This effect is similar to [Section resistance](#section-resistance) means resist movement beyond
+the start position until the end position.
 
-We offer this interface to provide the greatest possible freedom by making it possible to send
-raw values (8-bit unsigned integer: 0 - 255) to the controller.
-Here, too, you are welcome to play with different values.
-And we welcome any insights that help us to provide useful presets.
+- `start_position`: The starting zone of the trigger effect. Must be between 2 and 7 inclusive.
+- `end_position`: The ending zone of the trigger effect. Must be between `start_position` + 1 and 8 inclusive.
+- `strength`: The force of the resistance. Must be between 0 and 8 inclusive.
 
 ```python
-controller.left_trigger.effect.set_custom_effect(param1, param2, param3, param4, param5, param6, param7)
+controller.left_trigger.effect.weapon(start_position=2, end_position=5, strength=8) 
 ```
+
+#### Bow
+
+This effect is similar to [Weapon](#weapon) effect. There is a snap-back force that attempts to reset the trigger.
+
+`start_position`: The starting zone of the trigger effect. Must be between 0 and 8 inclusive.
+`end_position`: The ending zone of the trigger effect. Must be between `start_position` + 1 and 8 inclusive.
+`strength`: The force of the resistance. Must be between 0 and 8 inclusive.
+`snap_force`: The force of the snap-back. Must be between 0 and 8 inclusive.
+
+```python
+controller.left_trigger.effect.bow(start_position=1, end_position=4, strength=1, snap_force=8) 
+```    
+
+#### Galloping
+
+Trigger will oscillate in a rythmic pattern resembling galloping.
+Note that the effect is only discernable at low frequency values.
+
+- `start_position`: The starting zone of the trigger effect. Must be between 0 and 8 inclusive.
+- `end_position`: The ending zone of the trigger effect. Must be between `start_position` + 1 and 9 inclusive.
+- `first_foot`: Position of second foot in cycle. Must be between 0 and 6 inclusive.
+- `second_foot`: Position of second foot in cycle. Must be between `first_foot` + 1 and 7 inclusive.
+- `frequency`: Frequency of the automatic cycling action in hertz.
+
+```python
+controller.left_trigger.effect.bow(start_position=0, end_position=9, first_foot=4, second_foot=7, frequency=2) 
+```    
+
+#### Machine
+
+This effect resembles Vibration but will oscilate between two amplitudes.
+
+`start_position`: The starting zone of the trigger effect. Must be between 0 and 8 inclusive
+`end_position`: The ending zone of the trigger effect. Must be between `start_position` + 1 and 9 inclusive
+`amplitude_a`: Primary strength of cycling action. Must be between 0 and 7 inclusive
+`amplitude_b`: Secondary strength of cycling action. Must be between 0 and 7 inclusive
+`frequency`: Frequency of the automatic cycling action in hertz
+`period`: Period of the oscillation between `amplitude_a` and `amplitude_b` in tenths of a second
+
+```python
+controller.left_trigger.effect.machine(
+    start_position=1,
+    end_position=9,
+    amplitude_a=2,
+    amplitude_b=7,
+    frequency=5,
+    period=3
+) 
+```    
+
+#### Simple vibration
+
+This effect starts to vibrate at a given position.
+
+- `start_position`: The starting zone of the trigger effect.
+- `amplitude`: Strength of the automatic cycling action.
+- `frequency`: Frequency of the automatic cycling action in hertz.
+
+```python
+controller.left_trigger.simple_vibration(start_position=0, amplitude=255, frequency=8)
+```   
+
+#### More effect presets
+
+There are more non-parametrized effects. Try them out:
+
+```python
+controller.left_trigger.full_press()
+controller.left_trigger.soft_press()
+controller.left_trigger.medium_press()
+controller.left_trigger.hard_press()
+controller.left_trigger.pulse()
+controller.left_trigger.choppy()
+controller.left_trigger.soft_rigidity()
+controller.left_trigger.medium_rigidity()
+controller.left_trigger.max_rigidity()
+controller.left_trigger.half_press()
+``` 
 
 ### Behavioral Options
 

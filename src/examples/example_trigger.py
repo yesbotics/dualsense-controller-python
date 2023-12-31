@@ -24,8 +24,16 @@ class ExampleTrigger:
                 trigger.effect.continuous_resistance()
             ),
             lambda trigger: (
-                print(f"Effect: feedback"),
+                print(f"Effect: feedback (full)"),
                 trigger.effect.feedback()
+            ),
+            lambda trigger: (
+                print(f"Effect: feedback (half)"),
+                trigger.effect.feedback(strength=3)
+            ),
+            lambda trigger: (
+                print(f"Effect: feedback (half,middle)"),
+                trigger.effect.feedback(start_position=4, strength=3)
             ),
             lambda trigger: (
                 print(f"Effect: section_resistance"),
@@ -38,14 +46,6 @@ class ExampleTrigger:
             lambda trigger: (
                 print(f"Effect: multiple_position_feedback"),
                 trigger.effect.multiple_position_feedback()
-            ),
-            lambda trigger: (
-                print(f"Effect: vibration"),
-                trigger.effect.vibration()
-            ),
-            lambda trigger: (
-                print(f"Effect: multiple_position_vibration"),
-                trigger.effect.multiple_position_vibration()
             ),
             lambda trigger: (
                 print(f"Effect: slope_feedback"),
@@ -106,14 +106,6 @@ class ExampleTrigger:
             lambda trigger: (
                 print(f"Effect: half_press"),
                 trigger.effect.half_press()
-            ),
-            lambda trigger: (
-                print(f"Effect: rifle"),
-                trigger.effect.rifle()
-            ),
-            lambda trigger: (
-                print(f"Effect: vibration_2"),
-                trigger.effect.vibration_2()
             ),
         ]
         self.trigger_effects_num: int = len(self.trigger_effects)
