@@ -127,10 +127,11 @@ class TriggerEffectProperty(Property[TriggerEffect]):
         """
         self.set(TriggerEffectMode.SECTION_RESISTANCE, start_position, end_position, force)
 
+    # TODO: not working properly
     def effect_extended(
             self,
             start_position: int = 0,
-            keep_effect: bool = False,
+            keep_effect: bool = True,
             begin_force: int = 0,
             middle_force: int = 0,
             end_force: int = 0,
@@ -140,28 +141,27 @@ class TriggerEffectProperty(Property[TriggerEffect]):
             mode=TriggerEffectMode.EFFECT_EXTENDED,
             param1=0xff - start_position,
             param2=0x02 if keep_effect else 0x00,
-            param3=begin_force,
-            param4=middle_force,
-            param5=end_force,
-            param6=frequency,
+            param4=begin_force,
+            param5=middle_force,
+            param6=end_force,
+            param9=frequency if frequency >= 1 else 1,
         )
 
-    """
-    Simplistic Vibration effect data generator.
-    This is not an offical effect and has an offical alternative. It may be removed in a future DualSense firmware.
-    :parampositionThe starting zone of the trigger effect.
-    :paramamplitudeStrength of the automatic cycling action.
-    :paramfrequencyFrequency of the automatic cycling action in hertz.
-    """
-
-    def simple_vibration(self, position: int = 0, amplitude: int = 255, frequency: int = 8) -> None:
+    def simple_vibration(self, start_position: int = 0, amplitude: int = 255, frequency: int = 8) -> None:
+        """
+        Simplistic Vibration effect data generator.
+        This is not an offical effect and has an offical alternative. It may be removed in a future DualSense firmware.
+        :param start_position: The starting zone of the trigger effect.
+        :param amplitude: Strength of the automatic cycling action.
+        :param frequency: Frequency of the automatic cycling action in hertz.
+        """
         if frequency <= 0 or amplitude <= 0:
             return
         self.set(
             mode=TriggerEffectMode.SIMPLE_VIBRATION,
             param1=frequency,
             param2=amplitude,
-            param3=position,
+            param3=start_position,
             param4=0x00,
             param5=0x00,
             param6=0x00,
@@ -253,7 +253,6 @@ class TriggerEffectProperty(Property[TriggerEffect]):
     ) -> None:
         """
         Trigger will resist movement at varrying strengths in 10 regions.
-        This is an offical effect and is expected to be present in future DualSense firmware.
         This is an offical effect and is expected to be present in future DualSense firmware.
         :param strengths: Array of 10 resistance values for zones 0 through 9. Must be between 0 and 8 inclusive.
         """
@@ -478,11 +477,11 @@ class TriggerEffectProperty(Property[TriggerEffect]):
             period: int = 3
     ) -> None:
         """
-        This effect resembles <see cref="Vibration(byte[], int, byte, byte, byte)">Vibration</see>
+        This effect resembles Vibration
         but will oscilate between two amplitudes.
         This is not an offical effect and may be removed in a future DualSense firmware.
         :param start_position: The starting zone of the trigger effect. Must be between 0 and 8 inclusive
-        :param end_position: The ending zone of the trigger effect. Must be between startPosition + 1 and 9 inclusive
+        :param end_position: The ending zone of the trigger effect. Must be between start_position + 1 and 9 inclusive
         :param amplitude_a: Primary strength of cycling action. Must be between 0 and 7 inclusive
         :param amplitude_b: Secondary strength of cycling action. Must be between 0 and 7 inclusive
         :param frequency: Frequency of the automatic cycling action in hertz
