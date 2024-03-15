@@ -68,7 +68,7 @@ Some preparations have to be done before depending on your operating system:
 ### Prerequisites for Windows
 
 Just download the [latest release of HIDAPI](https://github.com/libusb/hidapi/releases).
-Unzip the release zip file und then place the according `hidapi.dll` in your Workspace (i.e. `C:\Windows\System32`)
+Unzip the release zip file und then place the according `hidapi.dll` in your workspace (i.e. `C:\Windows\System32`)
 folder.
 (from `x64` folder for 64-bit Windows or from `x86` folder for 32-bit Windows)
 
@@ -226,7 +226,7 @@ controller = DualSenseController(device_index_or_device_info=0)
 
 **Variant 2**
 
-Pass a DeviceInfo object, obtained from the devices list.
+Pass a `DeviceInfo` object, obtained from the devices list.
 
 ```python
 controller = DualSenseController(device_index_or_device_info=device_infos[0])
@@ -261,7 +261,7 @@ while is_running:
 controller.deactivate()
 ```
 
-Alternatively, you can also use the controller with a context manager,
+Alternatively, you can also use the controller with a [context manager](https://docs.python.org/3.11/library/contextlib.html),
 which activates and deactivates controllers automatically.
 
 ```python
@@ -384,7 +384,7 @@ controller.left_stick.on_change(on_left_stick_changed)
 ### Touchpad
 
 The DualSense Controller has a 2-point capacitive touchpad with click mechanism.
-The Click of the Touchpad is handled like a digital button. See [Digtal buttons](#digital-buttons)
+The click of the Touchpad is handled like a digital button. See [Digtal buttons](#digital-buttons)
 
 You can listen and react on both touch events:
 
