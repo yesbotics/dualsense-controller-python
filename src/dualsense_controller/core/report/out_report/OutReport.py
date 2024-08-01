@@ -16,9 +16,9 @@ class OutReport(ABC):
     flags_physics: int = FlagsPhysics.ALL
     flags_controls: int = FlagsControls.ALL
 
-    lightbar_red: int = 0xff
-    lightbar_green: int = 0xff
-    lightbar_blue: int = 0xff
+    lightbar_red: int = 0x00
+    lightbar_green: int = 0x00
+    lightbar_blue: int = 0x00
 
     motor_left: int = 0x00
     motor_right: int = 0x00

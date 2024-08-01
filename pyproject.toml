@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dualsense-controller"
-version = "0.2.0"
+version = "0.3.0"
 description = "Use DualSense Controller with Python."
 authors = ["Albrecht Nitsche <albrechtnitsche@gmail.com>", "Jens Kabisch <jenskabi@gmail.com>"]
 license = "MIT"
