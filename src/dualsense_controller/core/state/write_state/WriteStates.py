@@ -42,7 +42,7 @@ class WriteStates(BaseStates):
         # ################## LIGHTBAR
         self.lightbar: Final[State[Lightbar]] = self._create_and_register_state(
             WriteStateName.LIGHTBAR,
-            value=Lightbar(0, 255, 0),
+            value=Lightbar(0, 0, 0),
             compare_fn=ValueCompare.compare_lightbar,
             on_state_change_cb=self._on_lightbar_changed,
         )
