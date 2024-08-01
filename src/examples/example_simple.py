@@ -34,6 +34,12 @@ def on_cross_btn_released():
     controller.right_rumble.set(0)
 
 
+# callback, when left button is pressed, set led bar color to red
+def on_left_btn_pressed():
+    print('left button pressed')
+    controller.lightbar.set_color_red()
+
+
 # callback, when PlayStation button is pressed
 # stop program
 def on_ps_btn_pressed():
@@ -52,6 +58,7 @@ def on_error(error):
 # register the button callbacks
 controller.btn_cross.on_down(on_cross_btn_pressed)
 controller.btn_cross.on_up(on_cross_btn_released)
+controller.btn_left.on_down(on_left_btn_pressed)
 controller.btn_ps.on_down(on_ps_btn_pressed)
 
 # register the error callback
