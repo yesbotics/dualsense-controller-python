@@ -404,6 +404,8 @@ controller.touch_finger_2.on_change(on_touch_finger_2)
 ### Gyroscope, Accelerometer and Orientation
 
 You can listen on all events of the 3 axis gyroscope, the 3 axis accelerometer and the calculated orientation.
+Orientation value currently consist of `roll` and `pitch` values only. Yaw value is always `None` for now. 
+Maybe (no promise) in future releases we implement a calculation of the yaw value.
 
 ```python
 def on_gyroscope_change(gyroscope):
