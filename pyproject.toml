@@ -34,7 +34,7 @@ pytest = "^7.4.0"
 pytest-mock = "^3.11.1"
 
 [tool.poetry.group.dev.dependencies]
-setuptools = "^68.0.0"
+setuptools = "^70.0.0"
 windows-curses = { version = "^2.3.1", platform = "win32" }
 
 [tool.poetry.scripts]
