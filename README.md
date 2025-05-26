@@ -17,6 +17,10 @@ Use the Sony DualSense™ controller (PlayStation 5 controller) with Python.
 - Set haptic feedback
 - Set adaptive triggers (experimental - work in progress)
 
+## A Use Case
+
+Watch also [aneeskhan47](https://github.com/aneeskhan47)'s [DualSense Controller Tester](https://github.com/aneeskhan47/DualSense-Controller-Tester), which is using this library.
+
 ## Contents
 
 - [Requirements](#requirements)
